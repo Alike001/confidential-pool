@@ -118,6 +118,16 @@ The hardened Sepolia gate is complete. Pool `0xF99747C771c09909f6Ad56F43D742c775
 
 The immediate gate is now frontend prototype discovery and reintegration: inspect every Replit screen/state, approve the visual specification, map mocked interactions to the live SDK/contracts, and implement the real Sepolia dApp. In parallel, decide whether the submission will integrate a genuine yield strategy or explicitly present controlled encrypted yield as a bounded demo limitation. Then complete broader multi-user/adversarial tests, metadata analysis, contract/API cleanup, source verification, deployment configuration, and submission evidence. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
 
+## Remaining delivery sequence
+
+1. **Inspect and approve the prototype.** Obtain a public Replit preview or export, inventory every desktop/mobile screen and interaction state, and write the prototype-discovery deltas. Do not integrate mocked wallet or chain behavior directly.
+2. **Freeze the submission contract scope.** The proven contract has one immutable epoch. The bounty describes periodic draws, so the recommended next contract increment is rolling epochs with a clear deposit cutoff, one coordinator-bound RNG request per draw, draw-scoped TWAB snapshots, and continued withdrawal availability. Decide the exact tier count and participant bound at the same time.
+3. **Resolve yield honestly.** Integrate a real supported Sepolia yield strategy if feasible; otherwise formalize a controlled-yield adapter and disclose that limitation prominently in the UI, README, and submission.
+4. **Harden the final ABI.** Add multi-wallet live vectors, repeated epochs/draws, partial deposits and withdrawals, zero/non-winner and insufficient-reserve cases, operator/keeper failure recovery, metadata analysis, and HCU/gas measurements. Resolve the coordinator refund-recovery gap.
+5. **Reintegrate and build the real frontend.** Map the approved visual states to wallet/network onboarding, Zama input encryption, ERC-7984 transfers, public draw evidence, user-authorized decryption, claims, withdrawals, and uncertain-transaction recovery. No prototype mock may survive in the live path without an explicit demo label.
+6. **Create the final Sepolia release.** Deploy the final contracts with a usable future/rolling epoch configuration, verify source code, publish a stable address/config manifest, connect the frontend, and run at least one fresh multi-wallet end-to-end audit.
+7. **Package the submission.** Clean public repository, architecture/privacy documentation, known limitations, deployed website, reproducible test/run instructions, three-minute walkthrough, screenshots, evidence links, and submission/X copy.
+
 Do not call the submission production-ready until the frontend exercises the proven live path, the yield source is integrated or bounded explicitly, deployed source/configuration is verifiable, metadata leakage is reviewed, and every deliberate departure from full V5 is disclosed.
 
 ## Decision gates

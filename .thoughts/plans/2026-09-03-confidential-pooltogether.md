@@ -105,7 +105,7 @@ Confidential deposits, balances, and principal accounting.
 
 ### Result
 
-`ConfidentialPoolTogetherSlice.sol` now passes seven focused FHEVM integration tests. The slice proves encrypted balance updates, fixed draw-epoch TWAB accounting, encrypted fixed-point eligibility, winner-only payout decryption, non-reverting non-winner claims, private over-withdrawal acceptance, local ERC-7984-shaped settlement, and operator commit/reveal authentication. It remains a research/product slice because it does not implement V5's full historical ring buffer, an unbiased RNG provider, or a production yield adapter.
+`ConfidentialPoolTogetherSlice.sol` now passes eight focused FHEVM integration tests. The slice proves encrypted balance updates, fixed draw-epoch TWAB accounting, encrypted fixed-point eligibility, winner-only payout decryption, non-reverting non-winner claims, private over-withdrawal acceptance, local ERC-7984-shaped settlement, operator commit/reveal authentication, and permissionless finalization through a V5-compatible provider boundary. It remains a research/product slice because the provider is still a local mock, it does not implement V5's full historical ring buffer, and it has no production yield adapter.
 
 ### Stop Condition
 

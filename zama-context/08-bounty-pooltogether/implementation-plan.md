@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven locally; the V5-compatible RNG lifecycle seam is now tested; Phases 5–8 have not started. Production architecture remains gated by a selected unbiased randomness provider, a real yield adapter, and live Sepolia settlement.
+Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven locally; the V5-compatible RNG lifecycle seam is now tested; Phases 5–8 have not started. A Sepolia provider candidate is documented, but not selected. Production architecture remains gated by a selected unbiased randomness provider, a real yield adapter, and live Sepolia settlement.
 
 ## Guiding rule
 
@@ -100,11 +100,17 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 - X thread or article;
 - final evidence pack with deployments and known limitations.
 
+## Immediate next gate
+
+Build and test a provider-specific adapter behind the existing `IRng` seam. The adapter must preserve PoolTogether's request lifecycle, including same-block request binding, while keeping the returned random word public and the user-specific winner calculation encrypted. See [`rng-provider-sepolia.md`](./rng-provider-sepolia.md).
+
+Do not integrate provider-specific addresses into the product contracts until the mocked callback, request mapping, retry/failure behavior, transcript reduction, and Sepolia dry run pass.
+
 ## Decision gates
 
 The original Phase 2 → Phase 3 gate is satisfied for the bounded local slice. The remaining production gate is:
 
-- select a verifiable unbiased RNG provider;
+- select a verifiable unbiased RNG provider and prove its adapter boundary;
 - define the real yield source and reserve accounting;
 - test the confidential-token transfer on Sepolia;
 - validate full-path HCU/depth and metadata leakage.

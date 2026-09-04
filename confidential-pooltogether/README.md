@@ -9,13 +9,14 @@ This is the implementation workspace for the bounded bounty design. It is intent
 - `src/reference/DrawTranscript.sol` — public V5-style user-specific entropy and unbiased reduction helpers.
 - `src/interfaces/IConfidentialPrizePool.sol` — FHEVM-version-neutral contract boundary.
 - `src/interfaces/IRng.sol` — PoolTogether V5-compatible randomness-provider boundary.
+- `src/reference/RngLifecycleAdapter.sol` — tested request-binding/finalization seam for an `IRng` provider.
 - `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
 - `src/config/sepolia.mjs` — single source of truth for the currently verified Sepolia cUSDTMock target.
 - `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
 - `test/reference/pool-model.test.mjs` — invariant and boundary tests.
 - `test/reference/twab-epoch.test.mjs` — mid-period deposit/withdrawal vectors for the epoch model.
 
-The reference model uses the exact fixed-point winning-zone formula and V5 rejection/modulo semantics. Its random input is supplied as an already-derived user-specific value; hashing the draw transcript into that value belongs in the Solidity implementation layer. The FHEVM research checkout now also has a separate encrypted fixed-epoch accumulator that matches the plaintext TWAB vectors.
+The reference model uses the exact fixed-point winning-zone formula and V5 rejection/modulo semantics. Its random input is supplied as an already-derived user-specific value; hashing the draw transcript into that value belongs in the Solidity implementation layer. The reference workspace now also has a tested V5-compatible RNG request lifecycle adapter, while the FHEVM research checkout has a separate encrypted fixed-epoch accumulator that matches the plaintext TWAB vectors.
 
 The interface deliberately exposes no plaintext amount events. Its `aggregateSupply` field is public by design for the first bounded path and must be described as aggregate metadata, not private accounting.
 

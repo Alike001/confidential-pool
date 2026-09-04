@@ -6,7 +6,16 @@ The first FHEVM slice is now configured for canonical Zama host contracts. `Conf
 
 The local FHEVM test remains green after this change: 8 focused tests pass.
 
-This is a deployment script and handoff, not a live pool deployment. No pool transaction has been broadcast from this step.
+The first FHEVM pool skeleton has now been deployed to Sepolia:
+
+```text
+pool:          0xf692D572BE4e38858e9838A9accDBB2902b602Bf
+deployment tx: 0x28d5f788a5a285a0d905215bec679c5d02fa9ef36658c84b9ab457b972a46f1f
+deployer:      0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
+epoch:         1788516598 → 1788523198
+```
+
+Read-only verification confirmed non-empty pool bytecode, the expected payout-token address, the expected RNG-adapter address, the configured epoch boundaries, and confidential protocol ID `10001`.
 
 ## Existing Sepolia dependencies
 

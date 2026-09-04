@@ -31,7 +31,7 @@ The current asset decision is documented in `zama-context/08-bounty-pooltogether
 
 The local FHEVM slice now includes an ERC-7984-shaped payout-token mock and verifies the pool-to-token ACL handoff. It records an encrypted draw prize, encrypted yield reserve, and fixed draw-epoch TWAB, so claims no longer use a current-balance stand-in or supply an arbitrary prize at claim time. Draw opening supports both operator commit/reveal and a provider-backed `IRng` path; the provider path is exercised with a local mock, not a production Sepolia oracle. The reference workspace now also compiles the pinned Chainlink consumer base and tests native payment plus callback mapping, but it remains a test proof until live provider behavior, entropy provenance, real yield integration, full V5 compatibility, and live transfer behavior are checked.
 
-The Sepolia `cUSDTMock` target is now read-only verified: chain ID `11155111`, 6 decimals, ERC-7984 support, and a valid wrapper-registry association. No live encrypted transfer has been sent yet.
+The Sepolia `cUSDTMock` target is now read-only verified: chain ID `11155111`, 6 decimals, ERC-7984 support, and a valid wrapper-registry association. The first FHEVM pool skeleton is deployed and points to this wrapper plus the live RNG adapter, but no live encrypted token transfer has been sent yet.
 
 ## Checks
 
@@ -42,4 +42,4 @@ forge build
 
 The provider smoke-test commands are documented in [`script/README.md`](./script/README.md). They require an externally supplied Sepolia RPC URL, deployer key, and funded test wallet.
 
-No production FHEVM implementation, frontend, asset adapter, or Sepolia deployment has been added yet. The FHEVM checkout under `zama-context/fhevm` contains the separately tracked Phase 2 experiments and first product-shaped encrypted slice.
+No production frontend, real yield adapter, or full Sepolia lifecycle integration has been added yet. The FHEVM checkout under `zama-context/fhevm` contains the separately tracked Phase 2 experiments and first product-shaped encrypted slice.

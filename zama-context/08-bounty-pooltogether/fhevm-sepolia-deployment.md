@@ -95,7 +95,7 @@ npx hardhat run scripts/deployConfidentialPoolTogetherSepolia.ts --network sepol
 
 The deployment script signs locally and prints the deployment nonce, expected CREATE address, and precomputed transaction hash before broadcasting. If the RPC times out, do not immediately retry: first inspect that hash and address. This prevents an RPC response failure from causing an accidental duplicate deployment.
 
-The first callback-fixed broadcast attempt timed out after gas estimation. Read-only recovery checks showed both latest and pending deployer nonce `31`, no transaction after nonce `30`, and no code at the deterministic nonce-31 address `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. The transaction was therefore not accepted, and nonce `31` remains safe for one deliberate retry.
+The first callback-fixed broadcast attempt timed out after gas estimation. A second attempt through Tenderly's public endpoint reached local signing but hit HTTP `429` while broadcasting transaction `0x5d2e22ada273f99382f86d33b3d5ea79b20fa122ed5f9b1058b5b6319ef89a2c`. Read-only recovery checks against both PublicNode and 1RPC showed latest and pending deployer nonce `31`, no transaction after nonce `30`, no transaction matching that hash, and no code at the deterministic nonce-31 address `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Neither attempt was accepted. A complete no-broadcast run subsequently passed through `https://1rpc.io/sepolia`; use that endpoint for the next deliberate retry.
 
 Record the new pool address and replace `POOL_ADDRESS` locally. Do not use `0xf692D572BE4e38858e9838A9accDBB2902b602Bf`; the live script rejects it explicitly.
 

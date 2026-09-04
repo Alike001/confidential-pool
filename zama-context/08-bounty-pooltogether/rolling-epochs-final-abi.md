@@ -6,9 +6,9 @@ The recurring-pool candidate is implemented locally in:
 
 - `zama-context/fhevm/library-solidity/examples/ConfidentialPoolEpochAccounting.sol`
 - `zama-context/fhevm/library-solidity/examples/ConfidentialPoolTogether.sol`
-- nested FHEVM commit `c02c378`
+- nested FHEVM commits `c02c378`, `6730584`, `21704e1`, and `f81b30d`
 
-It compiles and passes ten focused FHE tests: seven core recurring tests plus three adversarial tests. The original 14-test fixed-epoch suite and the first five rolling tests passed together (`19 passing`); the two later recurring-specific tests and the three adversarial tests also passed in focused runs. This candidate has not yet been deployed to Sepolia and does not replace the hardened fixed-epoch evidence deployment.
+It compiles and passes 11 focused FHE checks together: seven core recurring tests, three adversarial tests, and one complete gas/HCU transcript. The original 14-test fixed-epoch suite passes in the same process, producing a final combined result of `25 passing`. This candidate has not yet been deployed to Sepolia and does not replace the hardened fixed-epoch evidence deployment.
 
 ## Why the ABI changed
 
@@ -95,10 +95,13 @@ commitDrawFromRng(
     inputProof
 )
 finalizeDrawFromRng(epochId)
+prepareClaim(epochId, tier, prizeIndex)
 claimPrize(epochId, tier, prizeIndex)
 ```
 
 The draw identifier is the epoch identifier for the bounded submission. This gives the coordinator one unambiguous `epochId → RNG request` binding and prevents multiple competing draws for one epoch.
+
+Claiming is deliberately split into two same-shaped public transactions. `prepareClaim` performs the deep FHE winning-zone calculation and stores an encrypted candidate payout. `claimPrize` checks that candidate against the encrypted reserve and confidentially settles it. This preserves exact sequential fixed-point rounding while keeping each transaction safely below the HCU-depth cap.
 
 ## Candidate read ABI
 
@@ -113,6 +116,7 @@ encryptedUserTwab(epochId, account)
 encryptedTotalTwab(epochId)
 encryptedYieldReserve()
 encryptedClaimablePrize(account, epochId, tier, prizeIndex)
+claimPrepared(account, epochId, tier, prizeIndex)
 claimed(account, epochId, tier, prizeIndex)
 rngRequestUsed(requestId)
 ```
@@ -129,6 +133,7 @@ EncryptedYieldFunded
 EncryptedWithdrawalRequested
 DrawRngCommitted
 DrawOpened
+EncryptedClaimPrepared
 EncryptedClaimRequested
 ```
 
@@ -149,6 +154,8 @@ Amount-bearing user events remain encrypted or amount-free. The public aggregate
 11. Weighted two-user winner/non-winner claims retain identical public calldata, application log shape, and gas.
 12. Consecutive epoch draws require distinct coordinator-bound RNG requests.
 13. Any keeper can complete a draw after its delayed or previously failed RNG request recovers.
+14. All measured transactions remain below the documented 20,000,000 total-HCU and 5,000,000 depth limits.
+15. Splitting claim preparation from settlement lowers the deepest path from `4,682,000` to `4,043,032` HCU depth.
 
 ## Frontend lifecycle implied by the ABI
 
@@ -163,7 +170,8 @@ open epoch
   → request coordinator-bound Chainlink RNG
   → commit encrypted prize
   → permissionlessly open draw
-  → submit normal-shaped claim
+  → prepare encrypted claim
+  → settle encrypted claim
   → authorize user decryption of payout
   → advance / continue next epoch
 ```
@@ -172,14 +180,12 @@ The landing and application experience remain one route. The first viewport shou
 
 ## Remaining freeze gates
 
-- Run the complete fixed-epoch and recurring suites together as one final local regression.
-- Add operational relayer/KMS timeout and public-decryption retry handling to the keeper/frontend path.
-- Measure gas/HCU for epoch advance, user checkpoint, public-decryption request/finalization, and draw/claim.
-- Decide and document real yield versus controlled encrypted yield.
-- Add deployment, public-decryption keeper, draw, and strict-auditor scripts for this ABI.
+- Re-run the current `25 passing` fixed-plus-recurring regression after any further contract change.
+- Preserve the documented testnet-sponsored reserve disclosure; do not market it as live lending yield.
+- Execute the implemented deployment, retrying public-decryption keeper, draw/claim, and strict-auditor scripts on Sepolia.
 - Run a complete multi-wallet lifecycle on a fresh Sepolia deployment.
 - Verify deployed source and publish the final versioned manifest before wiring production frontend writes.
 
 ## Current decision
 
-Use this recurring/KMS-proven architecture as the candidate final submission ABI. Keep the fixed-epoch contract and deployment as historical evidence until the recurring version passes the remaining freeze gates and a fresh Sepolia lifecycle.
+Use this recurring/KMS-proven, two-step-claim architecture as the candidate final submission ABI. Cost evidence is in [`rolling-epochs-cost-envelope.md`](./rolling-epochs-cost-envelope.md), and operations are in [`recurring-sepolia-runbook.md`](./recurring-sepolia-runbook.md). Keep the fixed-epoch contract and deployment as historical evidence until the recurring version passes the remaining freeze gates and a fresh Sepolia lifecycle.

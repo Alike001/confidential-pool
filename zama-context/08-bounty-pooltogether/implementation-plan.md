@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 is complete; Phases 2–4 produced a locally tested bounded design; and Phase 5's hardened fixed-epoch lifecycle is complete on Sepolia. Phase 6 has 14 focused fixed-epoch tests plus a strict live auditor that returned `HARDENED_LIFECYCLE_COMPLETE: true`. The hybrid product-first frontend direction and screen-to-reality reintegration map are approved. A recurring candidate ABI now implements permissionless rolling epochs, draw-scoped TWABs, sequential checkpoints, and KMS-proven public aggregate denominators; ten focused tests pass locally, including weighted two-user privacy, consecutive draws, and RNG recovery. Remaining production work is rolling-contract gas/HCU, operational and live validation, the yield decision, metadata-leakage review, real frontend implementation, contract verification, and submission packaging.
+Current phase map: Phase 1 is complete; Phases 2–4 produced a locally tested bounded design; and Phase 5's hardened fixed-epoch lifecycle is complete on Sepolia. Phase 6 has 14 focused fixed-epoch tests plus a strict live auditor that returned `HARDENED_LIFECYCLE_COMPLETE: true`. The hybrid product-first frontend direction and screen-to-reality reintegration map are approved. A recurring candidate ABI now implements permissionless rolling epochs, draw-scoped TWABs, sequential checkpoints, KMS-proven public aggregate denominators, and depth-safe two-step claims; 11 focused checks pass together. Deployment, retrying KMS keeper, draw/claim, and strict-auditor scripts are implemented. The yield boundary is an explicitly disclosed testnet-sponsored encrypted prize reserve. Remaining production work is recurring live validation, metadata-leakage review, real frontend implementation, source verification, and submission packaging.
 
 ## Guiding rule
 
@@ -116,13 +116,13 @@ Status: pending the production frontend and final hardening/evidence pass.
 
 The hardened Sepolia gate is complete. Pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` completed encrypted deposit, encrypted yield funding, a coordinator-bound post-epoch Chainlink request, encrypted draw, user TWAB finalization, winner-only claim, and full principal withdrawal. The strict auditor reconstructed the entire transcript and returned `HARDENED_LIFECYCLE_COMPLETE: true`.
 
-Frontend prototype discovery and reintegration are complete. Multi-user/repeated-draw and RNG-recovery vectors now pass for the recurring candidate documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). The immediate gate is gas/HCU measurement, the yield-boundary decision, and updated deployment/public-decryption/operator/auditor scripts. Then deploy and verify a fresh Sepolia release before enabling production frontend writes.
+Frontend prototype discovery and reintegration are complete. Multi-user/repeated-draw, RNG-recovery, and gas/HCU vectors now pass for the recurring candidate documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). Deployment, retrying public-decryption keeper, draw/claim, and strict-auditor scripts are ready. The yield boundary is documented in [`yield-boundary.md`](./yield-boundary.md). The immediate gate is a fresh recurring Sepolia release before enabling production frontend writes.
 
 ## Remaining delivery sequence
 
 1. **Inspect and approve the prototype — complete.** The live Replit prototype was inspected at desktop/intermediate/mobile widths, the hybrid product-first direction was approved, and every mock was classified in `.thoughts/prototype-reintegration/2026-09-04-confidential-pool.md`. The production route will include compact landing content around the live app rather than a separate marketing-site build.
-2. **Freeze the submission contract scope — candidate implemented and adversarially exercised locally.** The recurring candidate has a fixed cadence, one coordinator-bound RNG request per epoch/draw, draw-scoped encrypted TWABs, permissionless epoch advancement, encrypted withdrawals, and a KMS-proven public denominator. Ten focused tests pass. Freeze now depends on gas/HCU validation and final operational scripts.
-3. **Resolve yield honestly.** Integrate a real supported Sepolia yield strategy if feasible; otherwise formalize a controlled-yield adapter and disclose that limitation prominently in the UI, README, and submission.
+2. **Freeze the submission contract scope — candidate implemented, costed, and adversarially exercised locally.** The recurring candidate has a fixed cadence, one coordinator-bound RNG request per epoch/draw, draw-scoped encrypted TWABs, permissionless epoch advancement, encrypted withdrawals, a KMS-proven public denominator, and two-step claims. Eleven focused checks pass together. The strict auditor is implemented; freeze now depends on live validation.
+3. **Resolve yield honestly — complete for the bounded Sepolia MVP.** Use a testnet-sponsored encrypted prize reserve and disclose that deposited principal is not supplied to a live lending market. The production batched-adapter requirements are documented separately.
 4. **Harden the final ABI.** Add multi-wallet live vectors, repeated epochs/draws, partial deposits and withdrawals, zero/non-winner and insufficient-reserve cases, operator/keeper failure recovery, metadata analysis, and HCU/gas measurements. Resolve the coordinator refund-recovery gap.
 5. **Reintegrate and build the real frontend.** Map the approved visual states to wallet/network onboarding, Zama input encryption, ERC-7984 transfers, public draw evidence, user-authorized decryption, claims, withdrawals, and uncertain-transaction recovery. No prototype mock may survive in the live path without an explicit demo label.
 6. **Create the final Sepolia release.** Deploy the final contracts with a usable future/rolling epoch configuration, verify source code, publish a stable address/config manifest, connect the frontend, and run at least one fresh multi-wallet end-to-end audit.
@@ -134,9 +134,9 @@ Do not call the submission production-ready until the frontend exercises the pro
 
 The original Phase 2 → Phase 3 gate and bounded Phase 5 live gate are satisfied. The remaining production gate is:
 
-- define and integrate the real yield source rather than operator-funded mock yield;
-- validate broader multi-user probability, repeated-draw ordering, and adversarial paths;
-- validate full-path HCU/depth, liveness, recovery, and metadata leakage;
+- keep the sponsored-reserve limitation visible and do not imply live lending yield;
+- validate live multi-wallet probability and metadata leakage;
+- validate the new strict auditor and complete recurring Sepolia lifecycle;
 - build and test the production frontend and deployment operations;
 - decide which V5 compatibility features are required for the bounty submission.
 

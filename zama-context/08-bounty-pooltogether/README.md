@@ -27,15 +27,17 @@ This folder is the challenge-specific research database. It studies PoolTogether
 21. [`hardened-live-runbook.md`](./hardened-live-runbook.md)
 22. [`replit-frontend-design-brief.md`](./replit-frontend-design-brief.md)
 23. [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md)
-24. [`implementation-plan.md`](./implementation-plan.md)
-25. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
-26. [`experiments/`](./experiments/)
+24. [`rolling-epochs-cost-envelope.md`](./rolling-epochs-cost-envelope.md)
+25. [`recurring-sepolia-runbook.md`](./recurring-sepolia-runbook.md)
+26. [`yield-boundary.md`](./yield-boundary.md)
+27. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
+28. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 
 The earlier pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed the first bounded Sepolia loop and remains historical evidence. The focused fixed-epoch suite has 14 passing tests, including weighted two-user outcomes, RNG request-replay rejection, and coordinator-enforced post-epoch provenance. Hardened coordinator `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA` and pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` then completed the full encrypted deposit → yield → post-epoch Chainlink request → draw → winner-only claim → principal withdrawal lifecycle. The strict auditor returned `HARDENED_LIFECYCLE_COMPLETE: true`.
 
-A recurring candidate now adds permissionless rolling epochs, draw-scoped encrypted TWABs, sequential user checkpoints, and KMS-proven public aggregate denominators. Its ten focused tests pass locally, including weighted two-user privacy, consecutive draws, and RNG recovery, and it is documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). It has not replaced the hardened Sepolia deployment yet. Remaining work is rolling-contract gas/HCU and operational hardening plus live deployment, a real-yield integration or explicit controlled-yield boundary, metadata testing, real frontend implementation, contract verification/deployment operations, and submission packaging.
+A recurring candidate now adds permissionless rolling epochs, draw-scoped encrypted TWABs, sequential user checkpoints, KMS-proven public aggregate denominators, and a two-step claim that stays below the HCU-depth cap. Its 11 focused checks pass together, including weighted two-user privacy, consecutive draws, RNG recovery, and a complete cost transcript. Deployment, retrying KMS keeper, draw/claim, and strict-auditor scripts are implemented, but the candidate has not replaced the hardened Sepolia deployment yet. The yield boundary is fixed as a clearly disclosed testnet-sponsored encrypted prize reserve. Remaining work is live multi-wallet/two-epoch validation, metadata testing, real frontend implementation, source verification, and submission packaging.
 
 ## Local source checkouts
 

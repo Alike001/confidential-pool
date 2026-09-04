@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven locally; the V5-compatible RNG lifecycle seam is now tested; the Chainlink adapter and one live Sepolia request have passed the provider smoke test; Phases 5–8 have not started. Production architecture remains gated by a real yield adapter, live FHEVM settlement, full V5 compatibility, and metadata-leakage review.
+Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven locally; the V5-compatible RNG lifecycle seam is tested; the Chainlink adapter and one live Sepolia request passed the provider smoke test. The live deposit pass migrated to the current Zama SDK and exposed a missing transient ACL on the ERC-7984 callback result. That defect is fixed and covered locally, but the pool must be redeployed before the end-to-end Sepolia transfer can pass. Phases 5–8 have not started. Production architecture remains gated by a real yield adapter, live FHEVM settlement, full V5 compatibility, and metadata-leakage review.
 
 ## Guiding rule
 
@@ -25,7 +25,7 @@ Primary outputs: `pooltogether-current-architecture.md` and `prize-mechanism.md`
 
 ### Phase 2 — Reverse-engineer Zama primitives needed for the draw
 
-Status: primitive experiments and epoch-integrated product-shaped accounting slice complete locally; operator commit/reveal and provider-backed finalization are implemented; Chainlink VRF adapter deployment and one live Sepolia fulfillment are proven; live confidential-token transfer and production interface gates remain open.
+Status: primitive experiments and epoch-integrated product-shaped accounting slice complete locally; operator commit/reveal and provider-backed finalization are implemented; Chainlink VRF adapter deployment and one live Sepolia fulfillment are proven. Current-SDK encryption and confidential transfer are live-proven, while transfer-and-call awaits redeployment of the locally fixed ERC-7984 receiver ACL.
 
 Next implementation/research pass:
 
@@ -42,7 +42,7 @@ The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`
 
 ### Phase 3 — Design the confidential PoolTogether architecture
 
-Status: candidate design integrated into the product-shaped slice. Fixed-epoch TWAB accounting, public-denominator winner composition, operator commit/reveal, and provider-backed finalization pass locally; the FHEVM slice is now configured for canonical Sepolia host contracts; real yield integration, live transfer, and full V5 compatibility remain open.
+Status: candidate design integrated into the product-shaped slice. Fixed-epoch TWAB accounting, public-denominator winner composition, operator commit/reveal, provider-backed finalization, and realistic ERC-7984 callback/refund behavior pass locally. The FHEVM slice is configured for canonical Sepolia host contracts; corrected live transfer, real yield integration, and full V5 compatibility remain open.
 
 - choose the confidentiality boundary for deposits, weights, winner status, and prize amounts;
 - choose one asset and one vault model for the first slice;
@@ -102,7 +102,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ## Immediate next gate
 
-Connect the now-verified Sepolia RNG adapter to the FHEVM slice. The next test should deploy the pool with the canonical Sepolia FHEVM configuration, use a fresh RNG request, and then exercise encrypted deposit, epoch finalization, provider-backed draw opening, winner-only decryption, and handle-only cUSDTMock settlement. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
+Redeploy the callback-fixed FHEVM slice with the already-verified Sepolia RNG adapter and a fresh epoch. Reuse the deployer's existing cUSDTMock balance rather than repeating mint/wrap setup, then exercise encrypted deposit, epoch finalization, a fresh provider-backed draw, winner-only decryption, and handle-only cUSDTMock settlement. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
 
 Do not call the pool deployment production-ready until the live confidential-token transfer, relayer decryption flow, fresh-request lifecycle, real yield source, full V5 compatibility, and metadata-leakage review pass.
 

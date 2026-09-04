@@ -4,9 +4,9 @@
 
 The first FHEVM slice is now configured for canonical Zama host contracts. `ConfidentialPoolTogetherSlice` inherits `ZamaEthereumConfig`, so construction selects the Sepolia ACL, coprocessor, and KMS verifier from `block.chainid`. It no longer points at the local test host addresses.
 
-The local FHEVM test remains green after this change: 8 focused tests pass.
+The local FHEVM test remains green after this change: 9 focused tests pass.
 
-The first FHEVM pool skeleton has now been deployed to Sepolia:
+The first FHEVM pool skeleton was deployed to Sepolia, but live integration found an ERC-7984 callback incompatibility in that bytecode:
 
 ```text
 pool:          0xf692D572BE4e38858e9838A9accDBB2902b602Bf
@@ -15,7 +15,20 @@ deployer:      0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
 epoch:         1788516598 → 1788523198
 ```
 
-Read-only verification confirmed non-empty pool bytecode, the expected payout-token address, the expected RNG-adapter address, the configured epoch boundaries, and confidential protocol ID `10001`.
+Read-only verification confirmed non-empty pool bytecode, the expected payout-token address, the expected RNG-adapter address, the configured epoch boundaries, and confidential protocol ID `10001`. This address is now **superseded and must not receive another deposit**. It cannot be patched in place.
+
+The setup transactions remain valid: mock USDT was minted, approved, and wrapped successfully. The resulting cUSDTMock balance is still held by the deployer wallet; setup must not be repeated merely because the pool must be redeployed.
+
+## Live callback finding and fix
+
+The legacy `@zama-fhe/relayer-sdk` endpoint returned `404` at `/v1/keyurl`, so the live script now uses `@zama-fhe/sdk` `3.5.1`. Current-SDK encryption and a confidential self-transfer both succeeded on Sepolia. A transfer-and-call to the old pool then failed with:
+
+```text
+ACLNotAllowed(bytes32,address)
+account: 0x4E7B06D78965594eB5EF5414c357ca21E1554491
+```
+
+That isolated the defect to the receiver callback. ERC-7984 uses the callback's encrypted boolean inside the token contract to decide whether to refund the transfer. The pool returned an encrypted `true` without granting the token transient access to it. Both deposit and yield-funding callback paths now call `FHE.allowTransient(accepted, msg.sender)` before returning. The local payout-token mock also implements ERC-7984's callback/refund step, and the new regression test passes.
 
 ## Existing Sepolia dependencies
 
@@ -61,9 +74,30 @@ DEPLOY_BROADCAST=true npx hardhat run scripts/deployConfidentialPoolTogetherSepo
 
 The broadcast command sends a transaction. Use it only after confirming the addresses, epoch, wallet, gas balance, and the fact that the payout token is explicitly the `cUSDTMock` testnet wrapper. It does not create a real yield strategy, fund the reserve, or prove the full PoolTogether V5 lifecycle.
 
+## Redeploy the fixed pool
+
+Set a fresh epoch with enough time for integration, then perform the dry run:
+
+```sh
+export POOL_EPOCH_START="$(( $(date +%s) + 300 ))"
+export POOL_EPOCH_END="$(( POOL_EPOCH_START + 7200 ))"
+
+npx hardhat compile --network sepolia
+npx hardhat run scripts/deployConfidentialPoolTogetherSepolia.ts --network sepolia
+```
+
+After checking the deployer, token, RNG provider, epoch, and gas estimate, broadcast deliberately:
+
+```sh
+DEPLOY_BROADCAST=true \
+npx hardhat run scripts/deployConfidentialPoolTogetherSepolia.ts --network sepolia
+```
+
+Record the new pool address and replace `POOL_ADDRESS` locally. Do not use `0xf692D572BE4e38858e9838A9accDBB2902b602Bf`; the live script rejects it explicitly.
+
 ## Deployment gates still open
 
-- live encrypted deposit against the deployed ERC-7984 wrapper;
+- redeployment of the callback-fixed pool and a live encrypted deposit against the ERC-7984 wrapper;
 - live encrypted yield funding and handle-only payout;
 - relayer SDK user decryption on Sepolia;
 - using a fresh RNG request for the deployed pool rather than the already-consumed smoke-test request;
@@ -72,7 +106,7 @@ The broadcast command sends a transaction. Use it only after confirming the addr
 
 ## Live encrypted deposit script
 
-The pinned FHEVM checkout now includes `scripts/liveSepoliaDeposit.ts`. It uses the current Relayer SDK Sepolia configuration to create an encrypted `euint64` amount bound to the cUSDTMock wrapper and the deployer wallet, then calls the wrapper's ERC-7984 callback transfer into the deployed pool.
+The pinned FHEVM checkout includes `scripts/liveSepoliaDeposit.ts`. It uses the current Zama SDK Sepolia configuration to create an encrypted `euint64` amount bound to the cUSDTMock wrapper and the deployer wallet, then calls the wrapper's ERC-7984 callback transfer into the deployed pool.
 
 The script has two independent write switches:
 
@@ -86,23 +120,23 @@ Both default to `false`. The setup step is available because the official Sepoli
 Add these local values to the FHEVM checkout environment, or export them in the shell:
 
 ```text
-POOL_ADDRESS=0xf692D572BE4e38858e9838A9accDBB2902b602Bf
+POOL_ADDRESS=<new callback-fixed pool address>
 POOL_PAYOUT_TOKEN_ADDRESS=0x4E7B06D78965594eB5EF5414c357ca21E1554491
 POOL_UNDERLYING_TOKEN_ADDRESS=0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0
 DEPOSIT_AMOUNT_UNITS=1000000
 SETUP_AMOUNT_UNITS=1000000
 ```
 
-`1000000` is one token unit at six decimals. First run the setup and deposit dry path with both switches unset. Then run setup once:
+`1000000` is one token unit at six decimals. Setup has already succeeded for the current deployer, so keep `SETUP_BROADCAST` false or unset. First run the deposit dry path:
 
 ```sh
-SETUP_BROADCAST=true \
 npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
 ```
 
-After the mint, approval, and wrap receipts succeed, run the encrypted deposit:
+If gas estimation succeeds against the new pool, run the encrypted deposit:
 
 ```sh
+SETUP_BROADCAST=false \
 DEPOSIT_BROADCAST=true \
 npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
 ```
@@ -116,5 +150,7 @@ If the deposit succeeds, the script reads the pool's encrypted balance handle an
 - [Zama Sepolia configuration in this checkout](../fhevm/library-solidity/config/ZamaConfig.sol)
 - [Live RNG deployment record](./sepolia-rng-deployment.md)
 - [Zama Sepolia address registry](https://github.com/zama-ai/protocol-apps/blob/main/docs/addresses/testnet/sepolia.md)
-- [Relayer SDK encrypted-input guide](https://github.com/zama-ai/relayer-sdk/blob/main/docs/input.md)
+- [Current Zama SDK](https://github.com/zama-ai/sdk)
+- [Official ERC-7984 receiver ACL example](https://github.com/zama-ai/protocol-apps/blob/main/contracts/confidential-wrapper/contracts/mocks/ERC7984ReceiverMock.sol)
+- [Official ERC-7984 transfer-and-call implementation](https://github.com/zama-ai/protocol-apps/blob/main/contracts/confidential-wrapper/contracts/token/ERC7984Upgradeable.sol)
 - [OpenZeppelin ERC-7984 wrapper API](https://docs.openzeppelin.com/confidential-contracts/api/token)

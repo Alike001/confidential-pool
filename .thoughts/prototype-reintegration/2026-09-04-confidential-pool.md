@@ -126,7 +126,7 @@ No exported Replit source is present locally. The final frontend will therefore 
 
 - `Confidential Pool` remains a working name, not a frozen brand.
 - The implementation is split between the research root, reference contract repository, and nested FHEVM checkout; it must be consolidated before public release.
-- The live evidence pool has immutable `epochStart`/`epochEnd`. A recurring candidate now exists locally, but it still needs adversarial validation, scripts, and a fresh Sepolia lifecycle before replacing that deployment.
+- The live evidence pool has immutable `epochStart`/`epochEnd`. A recurring candidate now passes ten focused core and adversarial tests locally, but it still needs gas/HCU measurement, operational scripts, and a fresh Sepolia lifecycle before replacing that deployment.
 - The current prize reserve is controlled operator-funded yield, not strategy-generated yield.
 - A fresh live multi-wallet winner/non-winner run has not yet been captured against the final contract release.
 - Source verification, stable public hosting, video, X/article, and final submission copy remain undone.

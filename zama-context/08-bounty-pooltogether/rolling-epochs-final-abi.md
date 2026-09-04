@@ -8,7 +8,7 @@ The recurring-pool candidate is implemented locally in:
 - `zama-context/fhevm/library-solidity/examples/ConfidentialPoolTogether.sol`
 - nested FHEVM commit `c02c378`
 
-It compiles and passes seven focused FHE tests. The original 14-test fixed-epoch suite and the first five rolling tests passed together (`19 passing`), and the two later recurring-specific regressions passed separately. This candidate has not yet been deployed to Sepolia and does not replace the hardened fixed-epoch evidence deployment.
+It compiles and passes ten focused FHE tests: seven core recurring tests plus three adversarial tests. The original 14-test fixed-epoch suite and the first five rolling tests passed together (`19 passing`); the two later recurring-specific tests and the three adversarial tests also passed in focused runs. This candidate has not yet been deployed to Sepolia and does not replace the hardened fixed-epoch evidence deployment.
 
 ## Why the ABI changed
 
@@ -146,6 +146,9 @@ Amount-bearing user events remain encrypted or amount-free. The public aggregate
 8. Partial encrypted withdrawal works during an open epoch.
 9. A second-epoch withdrawal produces the correct second-epoch TWAB.
 10. The original hardened fixed-epoch tests remain green.
+11. Weighted two-user winner/non-winner claims retain identical public calldata, application log shape, and gas.
+12. Consecutive epoch draws require distinct coordinator-bound RNG requests.
+13. Any keeper can complete a draw after its delayed or previously failed RNG request recovers.
 
 ## Frontend lifecycle implied by the ABI
 
@@ -169,8 +172,8 @@ The landing and application experience remain one route. The first viewport shou
 
 ## Remaining freeze gates
 
-- Add rolling-contract multi-user winner/non-winner and repeated-epoch draw tests.
-- Add delayed/failed public decryption and RNG recovery tests.
+- Run the complete fixed-epoch and recurring suites together as one final local regression.
+- Add operational relayer/KMS timeout and public-decryption retry handling to the keeper/frontend path.
 - Measure gas/HCU for epoch advance, user checkpoint, public-decryption request/finalization, and draw/claim.
 - Decide and document real yield versus controlled encrypted yield.
 - Add deployment, public-decryption keeper, draw, and strict-auditor scripts for this ABI.

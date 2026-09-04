@@ -185,7 +185,7 @@ The successful retry used PublicNode without JSON-RPC batching and mined the cal
 
 ## Deployment gates still open
 
-- using a fresh RNG request for the deployed pool rather than the already-consumed smoke-test request;
+- bind fulfilled post-epoch adapter request `3` to pool draw ID `1` with an encrypted prize;
 - full draw/tier/claim lifecycle and repeated-claim behavior;
 - live encrypted withdrawal and principal conservation;
 - metadata-leakage review and real yield adapter design.
@@ -273,6 +273,12 @@ reserve after:  0xf428c5213c2862dd3913f39bb0936c4e38974d5bf9ff0000000000aa36a705
 ```
 
 Independent receipt inspection confirms status `1` and the pool's amount-free `EncryptedYieldFunded()` event. A fresh read returns the same post-funding handle. The reserve plaintext remains inaccessible through the pool API, so this proves confidential reserve funding without converting the private amount into public state.
+
+## Guarded live draw script
+
+`scripts/liveSepoliaDraw.ts` controls the remaining draw path through four explicit actions: `commit`, `finalize`, `finalize-user`, and `claim`. Every action is dry-run by default and requires `DRAW_BROADCAST=true` to write. It rejects superseded pools, duplicate draw events, invalid integer widths, pre-epoch requests, and an aggregate TWAB that does not match the configured principal and deposit block.
+
+For the corrected one-user epoch, the tracked parameters are pool draw ID `1`, adapter request ID `3`, aggregate TWAB `687777`, full `1e18` tier odds, full `1e18` vault fraction, and encrypted prize `100000`. A complete commit dry run reconstructed the deposit timestamp, confirmed the request occurred after epoch close, generated the encrypted prize proof, and estimated `535903` gas without broadcasting.
 
 ## Sources
 

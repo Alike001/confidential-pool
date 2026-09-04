@@ -37,7 +37,7 @@ The first live request was submitted and fulfilled successfully.
 
 The request transaction and callback were separate transactions, as expected for an asynchronous VRF provider. The random word is public entropy; it is not a balance, fee, or encrypted value.
 
-The next request must be sent to the **coordinator**, not directly to the adapter. Coordinator draw ID `1` and local RNG request ID `1` were consumed by the smoke test. The confidential pool's first draw will therefore use coordinator draw ID `2`, which is expected to create local RNG request ID `2`; that request ID will later be bound to pool draw ID `1`. Chainlink's wider provider ID remains internal to the adapter.
+Subsequent requests must be sent to the **coordinator**, not directly to the adapter. Coordinator draw ID `1` and local RNG request ID `1` were consumed by this smoke test. Chainlink's wider provider ID remains internal to the adapter.
 
 ## Next commands
 
@@ -81,9 +81,24 @@ Coordinator draw ID `2` created adapter request ID `2` successfully:
 
 The pre-draw contract audit then superseded the pool because of realistic-scale fixed-point overflow and post-epoch withdrawal restrictions. Request `2` was never committed to that pool. It must not be reused for a replacement epoch because its public random word would be known before the replacement deposits; a new request is required after the corrected epoch closes.
 
+## Corrected-epoch request result
+
+After the corrected pool's epoch closed, coordinator draw ID `3` created adapter request ID `3`:
+
+| Observation         | Result                                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| Request transaction | `0xda05db5be419425a930e52cd62b821f3ce7e053f7d5326a8b679fd43ce594e0a`         |
+| Request block       | `11634464`                                                                   |
+| Request timestamp   | `1788537540`, after epoch end `1788537136`                                   |
+| Adapter completion  | `true`                                                                       |
+| Adapter failure     | `false`                                                                      |
+| Random word         | `60160812288156326909590926746516868176912866938967395740703180826601721750731` |
+
+The request cost `0.000298867832633286 ETH` in transaction gas. Immediately beforehand, the wrapper quote was `268858746087406` wei, and the configured `400000000000000` wei request funding retained a safety margin. This request is eligible to be bound to corrected pool draw ID `1` because it was created only after the epoch and all deposits closed.
+
 ## Important limitation
 
-This checkpoint proves deployment and the provider boundary only. The deployed coordinator is not yet connected to the confidential FHEVM pool, so a successful random callback will not yet open an encrypted PoolTogether draw.
+This checkpoint proves deployment, three live provider callbacks, and post-epoch entropy timing. Adapter request `3` is configured for the confidential FHEVM pool but is not yet bound in the pool's draw state; that requires the separate encrypted-prize commit transaction.
 
 ## Sources
 

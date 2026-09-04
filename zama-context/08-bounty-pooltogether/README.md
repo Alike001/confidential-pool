@@ -30,7 +30,7 @@ This folder is the challenge-specific research database. It studies PoolTogether
 
 ## Current decision boundary
 
-The local product-shaped slice has passed encrypted fixed-epoch TWAB, realistic-scale V5-style winner math, encrypted reserve, ERC-7984-shaped settlement, post-epoch withdrawal, and provider-backed draw tests. The corrected replacement pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` now holds an encrypted `1,000,000`-unit principal deposit and encrypted `100,000`-unit yield reserve. Its epoch is closed and exact one-user aggregate TWAB is `687,777`. Fresh RNG request `3`, claim, and withdrawal remain to complete its lifecycle. Production readiness also remains gated by a real yield adapter, full V5 compatibility, and metadata-leakage review.
+The local product-shaped slice has passed encrypted fixed-epoch TWAB, realistic-scale V5-style winner math, encrypted reserve, ERC-7984-shaped settlement, post-epoch withdrawal, and provider-backed draw tests. The corrected replacement pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` holds an encrypted `1,000,000`-unit principal deposit and encrypted `100,000`-unit yield reserve. Its epoch is closed, exact one-user aggregate TWAB is `687,777`, and post-epoch adapter request `3` is fulfilled. The encrypted-prize commit, finalization, claim, and withdrawal remain to complete its lifecycle. Production readiness also remains gated by a real yield adapter, full V5 compatibility, and metadata-leakage review.
 
 ## Local source checkouts
 

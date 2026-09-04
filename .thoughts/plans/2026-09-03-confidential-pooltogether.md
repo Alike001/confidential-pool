@@ -21,18 +21,16 @@ The plan is intentionally narrower than a full PoolTogether V5 port. It preserve
 - The local mocked coprocessor is allowed only in tests. The judged Sepolia path must use the real Zama-supported integration.
 - Full V5 tier trees, multiple vaults, delegated TWABs, auctions, and permissionless batch claimers are deferred unless required by the chosen scope.
 
-## Open questions
+## Remaining open questions
 
-- Exact cUSDT contract/interface and supported encrypted transfer flow on Sepolia.
-- ERC-7984 handle-only transfer authorization from the pool to the confidential token.
 - Yield source: real supported adapter versus clearly labeled controlled/demo adapter.
-- Whether the public aggregate is a current total, a draw snapshot, or a committed historical TWAB value.
-- Whether claims are direct user calls or relayed/batched calls with a fixed request envelope.
+- Whether the final submission needs more PoolTogether V5 compatibility than the bounded fixed-epoch, one-tier architecture.
+- Which public metadata disclosures require mitigation versus explicit documentation.
 - Maximum encrypted numeric width and participant count that fit the target HCU/depth budget.
 
 ## Prototype Reintegration Gate
 
-There is no accepted product UI prototype. The existing FHEVM harnesses are research fixtures only and must not be shipped as application behavior. The private-denominator multi-transaction circuit remains a feasibility experiment, not the MVP denominator path.
+A candidate Replit UI prototype now exists, but it is not accepted until its public preview is inspected across desktop, mobile, and all required states. The prototype's wallet, encryption, transactions, balances, draw, claim, and withdrawal behavior is mocked design evidence only. Prototype reintegration must map each mock to the live Sepolia contracts and Zama SDK before implementation. The private-denominator multi-transaction circuit remains a feasibility experiment, not the MVP denominator path.
 
 ## Phase 1: freeze the economic boundary — complete for the reference slice
 
@@ -142,9 +140,9 @@ The public reduction is deterministic and can be reference-tested locally. The e
 
 ### Current Result
 
-The product-shaped FHEVM slice now derives user-specific entropy from the public draw transcript and performs the V5-style rejection-sampling reduction onchain before the encrypted comparison. The encrypted user weight is now a finalized fixed draw-epoch TWAB. The draw is operator-authenticated through commit/reveal, but the production gate remains open for unbiased RNG provenance, full V5 historical compatibility, and live asset settlement.
+The product-shaped FHEVM slice derives user-specific entropy from the public draw transcript and performs the V5-style rejection-sampling reduction onchain before the encrypted comparison. The encrypted user weight is a finalized fixed draw-epoch TWAB. The hardened Sepolia path now binds each draw to a coordinator-recorded, post-epoch Chainlink request and has live-proven confidential asset settlement. Full V5 historical compatibility remains intentionally outside the current bounded architecture.
 
-The local settlement proof now covers the ERC-7984-shaped handle-only transfer and pool-to-token transient ACL handoff. The Sepolia wrapper is read-only verified as ERC-7984-compatible and registry-valid; an end-to-end live transfer remains open.
+The ERC-7984 handle-only transfer, pool-to-token transient ACL handoff, encrypted winner payout, and encrypted principal return are proven end to end on Sepolia using the registry-valid `cUSDTMock` wrapper.
 
 ### Acceptance Criteria Covered
 
@@ -190,6 +188,10 @@ Private winnings, one-time claiming, and user-visible claim flow.
 ### Stop Condition
 
 Stop if cUSDT cannot receive the encrypted result or if the claim endpoint exposes an exploitable winner oracle.
+
+### Current Result
+
+The hardened Sepolia lifecycle paid a `100000` encrypted prize, allowed only the user to decrypt it, preserved an amount-free public claim event, and returned `1000000` encrypted principal. The strict auditor confirmed a final wallet balance of `2100000` and zero principal remaining in the pool.
 
 ## Phase 5: frontend and operational flow
 
@@ -271,4 +273,4 @@ Before submission, independently verify:
 
 ## Handoff Notes
 
-The reference model, interface skeleton, encrypted epoch accumulator, product-shaped accounting/claim slice, and V5-compatible `IRng` boundary are now implemented. The next implementation action is production hardening: select and integrate a real unbiased source, integrate a real or explicitly simulated yield adapter, and run the live confidential-token transfer loop. Do not begin with the full V5 repository port or the private-denominator circuit.
+The reference model, encrypted epoch accumulator, product-shaped accounting/claim slice, coordinator-bound Chainlink boundary, and confidential-token lifecycle are implemented and live-proven. The next implementation action is prototype reintegration followed by the real frontend, while deciding between a genuine yield adapter and an explicitly disclosed controlled-yield boundary. Then complete broader adversarial/privacy testing, contract verification, deployment operations, and submission materials. Do not expand into a full V5 repository port or private-denominator circuit unless the bounty scope proves that expansion necessary.

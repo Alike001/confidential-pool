@@ -371,7 +371,20 @@ deposit timestamp:      1788547104
 decrypted pool balance: 1,000,000
 ```
 
-The deposit participated for `5,986` of the `7,200` epoch seconds. Therefore the exact floor-divided aggregate TWAB for the one-user draw is `1,000,000 × 5,986 / 7,200 = 831388`. A `100,000`-unit encrypted yield-funding dry run generated a valid proof and estimated `994747` gas; it has not yet been broadcast at this checkpoint.
+The deposit participated for `5,986` of the `7,200` epoch seconds. Therefore the exact floor-divided aggregate TWAB for the one-user draw is `1,000,000 × 5,986 / 7,200 = 831388`.
+
+The encrypted yield reserve was then funded successfully:
+
+```text
+yield funding:          100,000 encrypted units
+yield tx:               0xaeb9f5b0df7c13979df663ac66d5425512fb8d3ee7b99a2834f852583e7508d6
+yield block:            11635315
+gas used:               976,913
+reserve before:         encrypted zero handle
+reserve after:          0x7d31a579874e123fc0b52345b1d4470c7b5f3b069eff0000000000aa36a70500
+```
+
+Independent receipt lookup confirmed status `1`. The pool event and script output disclose only that the encrypted reserve handle changed; the plaintext amount above comes from the controlled test input rather than an onchain amount field.
 
 ## Sources
 

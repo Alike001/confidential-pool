@@ -81,6 +81,28 @@ user-decrypted pool balance: 1,000,000
 
 The guarded script first decrypted the wallet's own cUSDTMock balance as `1,000,000`, generated a fresh encrypted input and proof, sent the ERC-7984 callback transfer, and decrypted the resulting pool balance to the same amount. This repeats the confidential principal path on the corrected bytecode. Separate encrypted yield funding remains next.
 
+The corrected pool's encrypted yield reserve is also funded:
+
+```text
+yield funding: 100,000 encrypted units (0.1 cUSDTMock)
+funding tx:     0xde7fec4effd7888f8c60b81b6fce84185ee8cf2d7a6d0f8659165d36890b8216
+funding block:  11634431
+gas estimate:   994,790
+gas used:       976,951
+reserve before: zero handle
+reserve after:  0xb71c310a2da0cb8aa77333e6a73831acdb2c1ea62fff0000000000aa36a70500
+```
+
+Independent RPC inspection confirms receipt status `1`. The amount-free callback changed the reserve handle without publishing its plaintext. The epoch is now closed, so deposit weights are fixed.
+
+The principal deposit block timestamp was `1788534660`. With epoch `[1788533536, 1788537136]`, one `1,000,000`-unit balance participated for `2,476` of `3,600` seconds. The exact floor-divided public aggregate TWAB for this one-user draw is therefore:
+
+```text
+1,000,000 × 2,476 ÷ 3,600 = 687,777
+```
+
+The draw must use `aggregateSupply = 687777`. Using the closing supply of `1,000,000` would distort the V5-style probability model. For the bounded one-user lifecycle proof, `tierOdds = 1e18` and `vaultContributionFraction = 1e18` make the user's winning zone equal to the aggregate TWAB, so every correctly reduced random value is eligible while still exercising the encrypted comparison and payout path.
+
 ## Live callback finding and fix
 
 The legacy `@zama-fhe/relayer-sdk` endpoint returned `404` at `/v1/keyurl`, so the live script now uses `@zama-fhe/sdk` `3.5.1`. Current-SDK encryption and a confidential self-transfer both succeeded on Sepolia. A transfer-and-call to the old pool then failed with:
@@ -163,7 +185,6 @@ The successful retry used PublicNode without JSON-RPC batching and mined the cal
 
 ## Deployment gates still open
 
-- repeat live encrypted yield funding and handle-only payout on the corrected pool;
 - using a fresh RNG request for the deployed pool rather than the already-consumed smoke-test request;
 - full draw/tier/claim lifecycle and repeated-claim behavior;
 - live encrypted withdrawal and principal conservation;

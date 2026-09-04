@@ -415,6 +415,21 @@ The live monitor observed Sepolia block `11635713` at timestamp `1788553128`, 38
 
 At post-epoch gas price `966,727,089` wei, the Chainlink wrapper quoted `241,236,497,752,806` wei. Configured funding `400,000,000,000,000` wei provided a 65.8% margin. A no-broadcast Foundry simulation then passed every pool, coordinator, adapter, operator, provenance, funding, and draw-identity check and predicted adapter-local request ID `4`. The prediction is not authoritative until the transaction is broadcast and the coordinator's mined binding is read back.
 
+The request was then broadcast exactly once and mined successfully:
+
+```text
+request ID:             4
+request tx:             0x3f4acbcf08480b31b321490685cbe80b8a78cb06a3dce05f87ed572318ee56ce
+request block:          11635737
+request timestamp:      1788553416
+transaction gas paid:   0.00033635468284301 ETH
+coordinator binding:    (4, 11635737, 1788553416, true)
+```
+
+The timestamp is 326 seconds after epoch end. Chainlink fulfilled the request at block `11635742` in transaction `0x55a845f97701856a83964d861be9efd7687731f470c08eb3f06d5a05d6a302c5`. The adapter reported `complete == true`, `failed == false`, and random word `55238967462857815757156331227237480268463187369769677237341794636024078658265`. The adapter retained no native currency; its `130,558,422,702,851`-wei overpayment refund moved to the coordinator, confirming the bounded coordinator refund limitation documented above.
+
+A subsequent encrypted draw-commit dry run reconstructed aggregate TWAB `831388`, matched coordinator and provider request block/timestamp, generated a fresh encrypted `100000`-unit prize proof, and estimated `571098` gas. It did not broadcast the draw transaction.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

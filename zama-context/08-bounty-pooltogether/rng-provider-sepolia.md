@@ -96,6 +96,12 @@ Before selecting it, we need a minimal adapter proof with:
 
 The local adapter proof now covers the request mapping, same-block coordinator binding, authenticated callback, and duplicate callback rejection at the interface boundary. It still does not cover the official Chainlink base contract, payment flow, transcript reduction, or a live provider callback.
 
+## Dependency integration result
+
+The current stable npm package is `@chainlink/contracts@1.5.0`. Its package metadata includes a broad set of ecosystem dependencies, including several chain-specific contract packages and a GitHub-sourced `@zksync/contracts` dependency. A trial install was stopped before completion; it created no lockfile or tracked files in this workspace.
+
+For this reason, the product workspace does not yet add the package. The next integration should either pin the official package in a dedicated deployment workspace or add only a deliberately pinned, auditable Solidity dependency through Foundry. The local ABI proof must not be presented as equivalent to the official audited consumer base.
+
 ## Sources
 
 - [PoolTogether V5 `IRng`](https://github.com/GenerationSoftware/pt-v5-draw-manager/blob/main/src/interfaces/IRng.sol)

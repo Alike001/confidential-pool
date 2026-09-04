@@ -446,6 +446,18 @@ rngRequestUsed(4):      true
 
 The pool emitted `DrawRngCommitted(1, 4)`. This proves that the hardened pool consumed the coordinator-bound post-epoch request exactly once. The draw has not yet been opened, the user TWAB has not yet been finalized, and no claim or withdrawal has yet occurred for this deployment.
 
+The draw was subsequently opened using the committed coordinator provenance:
+
+```text
+draw finalization tx:   0xc0ff6d3fd929c1af2835d3ecd5b24a94a8c436470faf299fd86a110c73d2a9a1
+draw finalization block: 11636061
+gas used:               69864
+receipt status:         1
+opened aggregate TWAB:  831388
+```
+
+Independent receipt decoding confirmed `DrawOpened(1, 831388, randomWord)`, with the emitted random word matching fulfilled RNG request `4`. The next `finalize-user` dry run observed `draw committed == true`, `draw opened == true`, a zero pre-finalization user TWAB handle, and a successful `194241`-gas estimate. It did not broadcast.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

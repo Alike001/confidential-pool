@@ -25,7 +25,7 @@ Primary outputs: `pooltogether-current-architecture.md` and `prize-mechanism.md`
 
 ### Phase 2 — Reverse-engineer Zama primitives needed for the draw
 
-Status: primitive experiments and epoch-integrated product-shaped accounting slice complete locally; draw commit/reveal is implemented; unbiased entropy, live transfer, and production interface gates remain open.
+Status: primitive experiments and epoch-integrated product-shaped accounting slice complete locally; operator commit/reveal and provider-backed finalization are implemented; unbiased entropy, live transfer, and production interface gates remain open.
 
 Next implementation/research pass:
 
@@ -38,11 +38,11 @@ Next implementation/research pass:
 
 Primary output: `encrypted-winner-selection.md`, with updates to the existing `01`–`04` Zama notes.
 
-The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`](./phase-2-encrypted-slice.md). The local slice now includes confidential asset settlement, encrypted prize-reserve accounting, a fixed-epoch TWAB adaptation, and operator-authenticated commit/reveal. It is not yet production-ready because the operator can still choose a favorable seed before committing, the full V5 ring buffer is not implemented, the yield source is not integrated, and the token is still a local mock.
+The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`](./phase-2-encrypted-slice.md). The local slice now includes confidential asset settlement, encrypted prize-reserve accounting, a fixed-epoch TWAB adaptation, operator-authenticated commit/reveal, and a provider-backed finalization path. It is not yet production-ready because the local provider is only a mock, the full V5 ring buffer is not implemented, the yield source is not integrated, and the token is still a local mock.
 
 ### Phase 3 — Design the confidential PoolTogether architecture
 
-Status: candidate design integrated into the product-shaped slice. Fixed-epoch TWAB accounting, public-denominator winner composition, and operator commit/reveal pass locally; unbiased entropy, real yield integration, and a live transfer remain open.
+Status: candidate design integrated into the product-shaped slice. Fixed-epoch TWAB accounting, public-denominator winner composition, operator commit/reveal, and provider-backed finalization pass locally; unbiased entropy, real yield integration, and a live transfer remain open.
 
 - choose the confidentiality boundary for deposits, weights, winner status, and prize amounts;
 - choose one asset and one vault model for the first slice;

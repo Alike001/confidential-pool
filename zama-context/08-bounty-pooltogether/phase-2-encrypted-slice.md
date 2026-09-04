@@ -15,7 +15,7 @@ Tests: [`ConfidentialPoolTogetherSlice.ts`](../fhevm/library-solidity/test/phase
 | Deposit | User calls the confidential token's `confidentialTransferAndCall`; the pool callback adds the encrypted transferred amount | Amount is absent from the event; caller can decrypt their balance |
 | Yield funding | Designated provider uses the token callback path with a funding-kind marker; the pool adds the encrypted amount to its reserve | Reserve amount is not emitted or publicly branch-tested |
 | Withdrawal | Uses encrypted `le` and `select`, then sends the accepted amount through the token | An over-request completes without a public success/failure branch |
-| Draw | Operator commits the public parameters and encrypted prize, then reveals the matching random value after the fixed epoch closes | Commitment integrity is public; user-specific eligibility remains encrypted |
+| Draw | The slice supports operator commit/reveal and an `IRng`-style provider request; provider-backed finalization is permissionless after completion | Provider request status and public draw parameters are visible; user-specific eligibility remains encrypted |
 | Eligibility | Finalizes the user's encrypted draw-period TWAB, then computes `floor(floor(TWAB × odds) × fraction)` | Intermediate winning zone is not granted to the caller |
 | Claim | Selects the stored encrypted draw prize or encrypted zero, then caps it against the encrypted reserve | Only the caller can decrypt the payout result; reserve sufficiency is not public |
 | Non-winner | Same claim call completes and returns encrypted zero to the caller | No direct public revert/result oracle |
@@ -58,6 +58,7 @@ The focused suite covers:
 4. over-withdrawal that completes and leaves the encrypted balance unchanged;
 5. duplicate-claim rejection using public claim identity;
 6. late deposit producing a TWAB of `10` rather than a closing balance of `100`;
-7. operator authorization, nonzero randomness, and commitment/reveal mismatch checks.
+7. operator authorization, nonzero randomness, and commitment/reveal mismatch checks;
+8. incomplete, failed, and completed provider-backed RNG lifecycle behavior.
 
-The draw transcript, encrypted epoch accounting, local asset-settlement portions, and operator commit/reveal checks now pass. The next implementation gate is replacing operator-chosen entropy with an external unbiased RNG/VRF or multi-party reveal, connecting the accounting model to a real yield source/Prize Vault adapter, and replacing the mock with the verified Sepolia ERC-7984 wrapper. No real cUSDT transaction has been sent.
+The draw transcript, encrypted epoch accounting, local asset-settlement portions, operator commit/reveal checks, and provider-backed draw finalization now pass. The next implementation gate is replacing the local mock with a selected external unbiased RNG/VRF, connecting the accounting model to a real yield source/Prize Vault adapter, and replacing the mock with the verified Sepolia ERC-7984 wrapper. No real cUSDT transaction has been sent.

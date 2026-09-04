@@ -39,7 +39,7 @@ FHEVM exposes `FHE.randEuintX()` and bounded variants. The bounded form requires
 
 This is useful for private winner computation, but it does not automatically satisfy the bounty's public-verifiability story: observers cannot independently inspect the random plaintext, and the contract still needs a clear policy for when the encrypted random value is generated, who may decrypt any result, and how replay is prevented. The pinned local checkout is version `0.14.0`; its local roadmap labels the random implementation as a mockup, while current FHEVM documentation describes the operation as encrypted onchain randomness. We must validate the exact Sepolia release and security model before treating it as production-ready.
 
-The implementation workspace now contains the version-neutral [`IRng.sol`](../../confidential-pooltogether/src/interfaces/IRng.sol) seam. No Sepolia RNG provider has been selected or configured yet; the verified Sepolia cUSDT address is an asset target, not a randomness source.
+The implementation workspace now contains the version-neutral [`IRng.sol`](../../confidential-pooltogether/src/interfaces/IRng.sol) seam, and the FHEVM slice exercises the same lifecycle with a local provider mock. No Sepolia RNG provider has been selected or configured yet; the verified Sepolia cUSDT address is an asset target, not a randomness source.
 
 Sources: [V5 DrawManager IRng interface](https://github.com/GenerationSoftware/pt-v5-draw-manager/blob/main/src/interfaces/IRng.sol), [V5 DrawManager](https://github.com/GenerationSoftware/pt-v5-draw-manager/blob/main/src/DrawManager.sol), [FHEVM random operations](https://docs.zama.org/protocol/solidity-guides/smart-contract/operations/random), [pinned local roadmap](../fhevm/docs/protocol/roadmap.md).
 

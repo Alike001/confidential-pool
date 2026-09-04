@@ -78,6 +78,18 @@ contract RngLifecycleAdapterTest {
         require(!failed, "failed request finalized");
     }
 
+    function testRequiresSameBlockRequestBinding() public {
+        MockRng rng = new MockRng();
+        RngLifecycleAdapter adapter = new RngLifecycleAdapter(rng);
+        uint256 staleBlock = block.number > 0 ? block.number - 1 : 0;
+        rng.setRequest(1, staleBlock, false, false, 0);
+
+        (bool stale, ) = address(adapter).call(
+            abi.encodeWithSelector(adapter.bindRequest.selector, 1, 1)
+        );
+        require(!stale, "stale request bound");
+    }
+
     function testRejectsZeroRandomness() public {
         MockRng rng = new MockRng();
         RngLifecycleAdapter adapter = new RngLifecycleAdapter(rng);

@@ -62,7 +62,7 @@ The operator calls the adapter to create a VRF request, then calls the pool to b
 
 One coordinator contract calls the provider adapter and immediately records the returned request in the draw state during the same transaction. Later, anyone may finalize the draw after the provider callback. This is closer to the V5 lifecycle and removes a loose request-ID handoff, but it adds a coordinator and provider-specific callback plumbing.
 
-The local `RngLifecycleAdapter` and `ConfidentialPoolTogetherSlice` currently implement Shape A as a bounded experiment. Shape B is the production candidate to test next.
+The generic local `RngLifecycleAdapter` now enforces the V5 same-block binding rule. The FHEVM `ConfidentialPoolTogetherSlice` intentionally remains a looser Shape-A experiment: it accepts a previously created request so the encrypted draw path can be tested independently. Shape B is the production candidate to test next.
 
 ## Fairness and privacy boundary
 

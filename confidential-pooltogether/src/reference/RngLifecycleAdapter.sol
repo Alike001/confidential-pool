@@ -29,9 +29,9 @@ contract RngLifecycleAdapter {
     }
 
     /// @notice Binds one provider request to one draw exactly once.
-    /// @dev The provider request must already exist. A production wrapper may
-    ///      combine provider request creation and this binding in one transaction
-    ///      when the provider requires V5's same-block rule.
+    /// @dev V5 requires the provider request and draw binding to share a block.
+    ///      A production wrapper may combine provider request creation and this
+    ///      binding in one transaction when the provider requires that shape.
     function bindRequest(uint64 drawId, uint32 requestId) external {
         require(msg.sender == coordinator, "not-coordinator");
         require(drawId != 0, "draw-id-zero");
@@ -39,7 +39,7 @@ contract RngLifecycleAdapter {
         require(!drawRequest.bound, "request-bound");
 
         uint256 requestedAtBlock = rng.requestedAtBlock(requestId);
-        require(requestedAtBlock != 0 && requestedAtBlock <= block.number, "unknown-rng-request");
+        require(requestedAtBlock == block.number, "rng-not-same-block");
 
         drawRequest.requestId = requestId;
         drawRequest.requestedAtBlock = requestedAtBlock;

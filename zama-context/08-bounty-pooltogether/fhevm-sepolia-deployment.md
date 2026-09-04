@@ -19,7 +19,7 @@ Read-only verification confirmed non-empty pool bytecode, the expected payout-to
 
 The setup transactions remain valid: mock USDT was minted, approved, and wrapped successfully. The resulting cUSDTMock balance is still held by the deployer wallet; setup must not be repeated merely because the pool must be redeployed.
 
-The callback-fixed pool is now deployed and independently verified:
+The callback-fixed pool was deployed and independently verified:
 
 ```text
 pool:          0x363C1B7bFF57Af01466B4B2342655E5f270a9f62
@@ -44,6 +44,17 @@ user-decrypted pool balance: 1,000,000
 ```
 
 Independent receipt inspection confirms status `1`, the cUSDTMock confidential-transfer event, and the pool's account-only `EncryptedDeposit(address)` event. Reading the pool again returns the same encrypted balance handle. This proves the first live path from SDK encryption through ERC-7984 callback accounting and user-authorized decryption; it does not yet prove yield funding, draw finalization, prize claiming, or withdrawal.
+
+## Pre-draw audit finding
+
+The live deposit and yield-funding evidence remains valid, but the pre-draw parameter pass found two correctness defects in this deployment:
+
+1. The winning-zone calculation multiplied a realistic six-decimal TWAB by both `1e18` factors before scaling down. `317083 * 1e18 * 1e18` exceeds `uint128`, so the encrypted intermediate can overflow even though the final probability is small.
+2. `requestWithdrawal` rejected every call after `epochEnd` and after user finalization, contradicting the requirement that principal remain withdrawable.
+
+The implementation now divides after each fixed-point multiplication, constrains both public fractions to at most `1e18`, and accrues only to `epochEnd` while allowing post-epoch and post-finalization withdrawal. A realistic `1,000,000`-unit full-odds regression and a post-epoch withdrawal regression bring the focused suite to 11 passing tests.
+
+No draw was committed to `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Because it is immutable, this address is now superseded for the final lifecycle. Its deposited assets are testnet-only mock cUSDT; the old withdrawal rule leaves them inaccessible after this epoch, which is recorded as a prototype failure rather than hidden as a successful production path.
 
 ## Live callback finding and fix
 
@@ -123,7 +134,7 @@ The deployment script signs locally and prints the deployment nonce, expected CR
 
 The first callback-fixed broadcast attempt timed out after gas estimation. A second attempt through Tenderly's public endpoint reached local signing but hit HTTP `429` while broadcasting transaction `0x5d2e22ada273f99382f86d33b3d5ea79b20fa122ed5f9b1058b5b6319ef89a2c`. Read-only recovery checks against both PublicNode and 1RPC showed latest and pending deployer nonce `31`, no transaction after nonce `30`, no transaction matching that hash, and no code at the deterministic nonce-31 address `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Neither attempt was accepted. 1RPC later rejected an ethers startup batch because Sepolia was unavailable on its free plan. Both Sepolia scripts now disable JSON-RPC batching, pin the static Sepolia network, and use explicit polling and request timeouts. A complete no-broadcast run passed through `https://ethereum-sepolia-rpc.publicnode.com` with that configuration; use PublicNode for the next deliberate retry.
 
-The successful retry used PublicNode without JSON-RPC batching and mined the callback-fixed pool shown above. Keep `POOL_ADDRESS=0x363C1B7bFF57Af01466B4B2342655E5f270a9f62` locally. Do not use `0xf692D572BE4e38858e9838A9accDBB2902b602Bf`; the live script rejects it explicitly.
+The successful retry used PublicNode without JSON-RPC batching and mined the callback-fixed pool shown above. The pre-draw audit later superseded it. The next deployment must use the realistic-math and post-epoch-withdrawal fix before `POOL_ADDRESS` is updated again. Do not send further assets to either historical pool.
 
 ## Deployment gates still open
 

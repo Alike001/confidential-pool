@@ -66,6 +66,21 @@ The first call should initially return `false`. The second call should revert un
 
 Immediately before the second request, the wrapper estimate was `240310090715567` wei at gas price `963014621` wei. The configured `400000000000000` wei funding retains a safety margin, and the adapter refunds any excess to the coordinator.
 
+## Second live request result
+
+Coordinator draw ID `2` created adapter request ID `2` successfully:
+
+| Observation          | Result                                                                          |
+| -------------------- | ------------------------------------------------------------------------------- |
+| Request transaction  | `0xc2a3f7ed300d4d478eb1c2d0f1d54ffb3ebbc76f3ef22737f467f331dbe3ae7f`            |
+| Request block        | `11634077`                                                                      |
+| Callback transaction | `0xf81c990b61c3dba3dfac169266eb66ceea24c2f1fb68817f03964dc80dec3c57`            |
+| Callback block       | `11634081`                                                                      |
+| Adapter completion   | `true`                                                                          |
+| Random word          | `87468147253494357102084847928792574748831858826098532431828595605665764920070` |
+
+The pre-draw contract audit then superseded the pool because of realistic-scale fixed-point overflow and post-epoch withdrawal restrictions. Request `2` was never committed to that pool. It must not be reused for a replacement epoch because its public random word would be known before the replacement deposits; a new request is required after the corrected epoch closes.
+
 ## Important limitation
 
 This checkpoint proves deployment and the provider boundary only. The deployed coordinator is not yet connected to the confidential FHEVM pool, so a successful random callback will not yet open an encrypted PoolTogether draw.

@@ -47,6 +47,7 @@ cd /home/ali/Desktop/zama/confidential-pooltogether
 set -a
 source .env
 set +a
+export SEPOLIA_POOL_CONTRACT="0x..."
 export SEPOLIA_RNG_ADAPTER_CONTRACT="0x..."
 forge script script/DeployRngCoordinator.s.sol:DeployRngCoordinator \
   --rpc-url "$SEPOLIA_RPC_URL" \
@@ -87,9 +88,10 @@ forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
   --broadcast
 ```
 
-The request script performs read-only checks before broadcasting: provenance
-version `1`, the expected adapter address, nonzero funding, and an unbound draw
-ID. A mismatch aborts before a request transaction is sent.
+The request script performs read-only checks before broadcasting: the pool epoch
+has closed, the pool points to the expected coordinator and adapter, provenance
+version `1`, nonzero funding, and an unbound draw ID. A mismatch aborts before a
+request transaction is sent.
 
 ## 4. Inspect completion
 

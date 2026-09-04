@@ -4,7 +4,7 @@
 
 The first FHEVM slice is now configured for canonical Zama host contracts. `ConfidentialPoolTogetherSlice` inherits `ZamaEthereumConfig`, so construction selects the Sepolia ACL, coprocessor, and KMS verifier from `block.chainid`. It no longer points at the local test host addresses.
 
-The local FHEVM test remains green after this change: 9 focused tests pass.
+The local FHEVM test remains green after the callback, arithmetic, and withdrawal changes: 11 focused tests pass.
 
 The first FHEVM pool skeleton was deployed to Sepolia, but live integration found an ERC-7984 callback incompatibility in that bytecode:
 
@@ -55,6 +55,18 @@ The live deposit and yield-funding evidence remains valid, but the pre-draw para
 The implementation now divides after each fixed-point multiplication, constrains both public fractions to at most `1e18`, and accrues only to `epochEnd` while allowing post-epoch and post-finalization withdrawal. A realistic `1,000,000`-unit full-odds regression and a post-epoch withdrawal regression bring the focused suite to 11 passing tests.
 
 No draw was committed to `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Because it is immutable, this address is now superseded for the final lifecycle. Its deposited assets are testnet-only mock cUSDT; the old withdrawal rule leaves them inaccessible after this epoch, which is recorded as a prototype failure rather than hidden as a successful production path.
+
+The corrected pool is now deployed and is the **current lifecycle candidate**:
+
+```text
+pool:          0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2
+deployment tx: 0xbe8b0f4ecf462501ce31f4b9d58f2afaa419e4acf1f1c9f3f756b31a2bcd7216
+deployment block: 11634147
+deployer:      0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
+epoch:         1788533536 → 1788537136
+```
+
+Independent read-only checks confirm receipt status `1`, non-empty bytecode, the expected cUSDTMock payout token, the expected RNG adapter, and both epoch boundaries. This bytecode includes the realistic-scale fixed-point calculation and post-epoch withdrawal fixes. It has not yet received a principal deposit or yield funding, and no draw has been committed.
 
 ## Live callback finding and fix
 
@@ -134,7 +146,7 @@ The deployment script signs locally and prints the deployment nonce, expected CR
 
 The first callback-fixed broadcast attempt timed out after gas estimation. A second attempt through Tenderly's public endpoint reached local signing but hit HTTP `429` while broadcasting transaction `0x5d2e22ada273f99382f86d33b3d5ea79b20fa122ed5f9b1058b5b6319ef89a2c`. Read-only recovery checks against both PublicNode and 1RPC showed latest and pending deployer nonce `31`, no transaction after nonce `30`, no transaction matching that hash, and no code at the deterministic nonce-31 address `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Neither attempt was accepted. 1RPC later rejected an ethers startup batch because Sepolia was unavailable on its free plan. Both Sepolia scripts now disable JSON-RPC batching, pin the static Sepolia network, and use explicit polling and request timeouts. A complete no-broadcast run passed through `https://ethereum-sepolia-rpc.publicnode.com` with that configuration; use PublicNode for the next deliberate retry.
 
-The successful retry used PublicNode without JSON-RPC batching and mined the callback-fixed pool shown above. The pre-draw audit later superseded it. The next deployment must use the realistic-math and post-epoch-withdrawal fix before `POOL_ADDRESS` is updated again. Do not send further assets to either historical pool.
+The successful retry used PublicNode without JSON-RPC batching and mined the callback-fixed pool shown above. The pre-draw audit later superseded it. The corrected deployment at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` uses the realistic-math and post-epoch-withdrawal fixes and is now the configured target. Do not send further assets to either historical pool.
 
 ## Deployment gates still open
 
@@ -160,20 +172,22 @@ Both default to `false`. The setup step is available because the official Sepoli
 Add these local values to the FHEVM checkout environment, or export them in the shell:
 
 ```text
-POOL_ADDRESS=0x363C1B7bFF57Af01466B4B2342655E5f270a9f62
+POOL_ADDRESS=0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2
 POOL_PAYOUT_TOKEN_ADDRESS=0x4E7B06D78965594eB5EF5414c357ca21E1554491
 POOL_UNDERLYING_TOKEN_ADDRESS=0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0
 DEPOSIT_AMOUNT_UNITS=1000000
 SETUP_AMOUNT_UNITS=1000000
 ```
 
-`1000000` is one token unit at six decimals. Setup has already succeeded for the current deployer, so keep `SETUP_BROADCAST` false or unset. First run the deposit dry path:
+`1000000` is one token unit at six decimals. The deployer's previous cUSDTMock was consumed by the historical integration pool. The guarded dry run against the corrected pool decrypted a zero wallet balance and stopped before constructing a misleading zero transfer. Mint and wrap the new principal once, while leaving deposit broadcast disabled:
 
 ```sh
+SETUP_BROADCAST=true \
+DEPOSIT_BROADCAST=false \
 npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
 ```
 
-If gas estimation succeeds against the new pool, run the encrypted deposit:
+After the setup receipts and dry-run gas estimate succeed, keep setup disabled and run the encrypted deposit:
 
 ```sh
 SETUP_BROADCAST=false \
@@ -181,7 +195,7 @@ DEPOSIT_BROADCAST=true \
 npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
 ```
 
-This path succeeded for the deployment recorded above. The script reads the pool's encrypted balance handle and requests user decryption through the Sepolia protocol. It never prints the private key or plaintext amount in transaction calldata. Do not enable both switches until the addresses and amount have been reviewed.
+This path succeeded for the superseded integration deployment and must now be repeated against the corrected candidate. The script decrypts the wallet's own cUSDTMock balance before constructing the deposit, then reads the pool's encrypted balance handle and requests user decryption after a broadcast. It never prints the private key or plaintext amount in transaction calldata. Do not enable both switches until the addresses and amount have been reviewed.
 
 ## Live encrypted yield-funding script
 

@@ -30,7 +30,7 @@ This folder is the challenge-specific research database. It studies PoolTogether
 
 ## Current decision boundary
 
-The local product-shaped slice has passed encrypted fixed-epoch TWAB, realistic-scale V5-style winner math, encrypted reserve, ERC-7984-shaped settlement, post-epoch withdrawal, and provider-backed draw tests. Live Sepolia evidence proves encrypted deposit/decryption and encrypted yield funding, but the pre-draw audit superseded that immutable deployment after finding fixed-point intermediate overflow and an epoch-closed withdrawal restriction. Both are fixed with 11 focused tests passing; a replacement deployment is required before the draw/claim/withdrawal lifecycle continues. The production architecture also remains gated by a real yield adapter and full metadata-leakage review.
+The local product-shaped slice has passed encrypted fixed-epoch TWAB, realistic-scale V5-style winner math, encrypted reserve, ERC-7984-shaped settlement, post-epoch withdrawal, and provider-backed draw tests. Live Sepolia evidence proves encrypted deposit/decryption and encrypted yield funding on a historical pool; the pre-draw audit then found fixed-point intermediate overflow and an epoch-closed withdrawal restriction. Both are fixed with 11 focused tests passing, and the corrected replacement pool is live at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2`. Its deposit, yield, fresh RNG, claim, and withdrawal lifecycle remains to be executed. Production readiness also remains gated by a real yield adapter and full metadata-leakage review.
 
 ## Local source checkouts
 

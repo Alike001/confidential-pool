@@ -409,6 +409,12 @@ The reference request script now reads `SEPOLIA_POOL_CONTRACT` and aborts before
 
 Final public readiness checks found bytecode at the pool, coordinator, adapter, and Chainlink wrapper addresses. The private keys loaded independently by the Foundry and Hardhat ignored environments both derived public address `0xdE67A35B322e5A31e8215B5245CA4e48d7977F71`, exactly matching the pool and coordinator operator; no private key was printed or recorded. The operator held `0.052796200470699497` Sepolia ETH, comfortably above the expected request and lifecycle gas budget. Its latest and pending nonces were both `60`, proving there was no unresolved transaction in the public mempool at that checkpoint. The new coordinator's native balance was zero before requesting randomness, which establishes a clean baseline for measuring any adapter refund retained there after the request.
 
+## Epoch closure and request simulation
+
+The live monitor observed Sepolia block `11635713` at timestamp `1788553128`, 38 seconds after epoch end `1788553090`, and exited with `EPOCH_CLOSED=true`. A fresh coordinator read still returned `(0, 0, 0, false)` for draw `1`, so no request had been bound early.
+
+At post-epoch gas price `966,727,089` wei, the Chainlink wrapper quoted `241,236,497,752,806` wei. Configured funding `400,000,000,000,000` wei provided a 65.8% margin. A no-broadcast Foundry simulation then passed every pool, coordinator, adapter, operator, provenance, funding, and draw-identity check and predicted adapter-local request ID `4`. The prediction is not authoritative until the transaction is broadcast and the coordinator's mined binding is read back.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

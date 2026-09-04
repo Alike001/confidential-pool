@@ -333,6 +333,20 @@ forge script script/DeployRngCoordinator.s.sol:DeployRngCoordinator \
 
 After its address and `PROVENANCE_VERSION() == 1` are verified, set that address as `POOL_RNG_COORDINATOR_ADDRESS` in the ignored `zama-context/fhevm/library-solidity/.env`. Then deploy a fresh pool; the deployment script rejects a coordinator whose version, adapter, or operator does not match.
 
+The coordinator was subsequently deployed and verified at `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA`. A hardened pool dry run passed with:
+
+```text
+epoch:                  1788545890 → 1788553090
+coordinator version:    1
+estimated deployment:   3,391,953 gas
+gas limit:              4,070,343
+deployment nonce:       54
+expected pool:          0xF99747C771c09909f6Ad56F43D742c7757ECD9E0
+precomputed tx:         0x80a5361da8442869d50e2faf7564dbca8493ac6e2c2c8f4e8c1aab935c923fdc
+```
+
+The address and transaction hash are provisional until broadcast and mining. No hardened pool transaction has been sent at this checkpoint.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

@@ -6,6 +6,22 @@ The Chainlink RNG adapter and atomic draw coordinator were deployed successfully
 
 The deployed coordinator is now historical: it records the request block but predates the timestamp/provenance-version fields required by the hardened pool. The adapter remains reusable. A fresh coordinator must be deployed before the next pool.
 
+## Hardened coordinator deployment
+
+A timestamp-aware coordinator was deployed against the existing adapter and verified onchain:
+
+| Field | Value |
+| --- | --- |
+| Coordinator | `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA` |
+| Transaction | `0xb84f7e3ec39f2e392b6522827fa74ed5365507685a9fa1685e134f5a2a210736` |
+| Block | `11634983` |
+| Provenance version | `1` |
+| RNG adapter | `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A` |
+| Operator | `0xdE67A35B322e5A31e8215B5245CA4e48d7977F71` |
+| Gas used | `370634` |
+
+Read-only calls confirmed all three configuration values. This coordinator is the required provenance dependency for the next hardened pool; the original coordinator remains historical evidence only.
+
 | Component                | Address                                      | Evidence                                                                                            |
 | ------------------------ | -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `ChainlinkVrfRngAdapter` | `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A` | `callbackGasLimit()` returns `100000`; `i_vrfV2PlusWrapper()` returns the published Sepolia wrapper |

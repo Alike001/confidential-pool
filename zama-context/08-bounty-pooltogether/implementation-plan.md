@@ -104,7 +104,7 @@ Progress: the first multi-user fairness/privacy regression, isolated claim-surfa
 
 ## Immediate next gate
 
-Continue Phase 6 hardening around the now-proven loop. Contract-level post-epoch RNG provenance now passes locally. The next deployment gate is a new versioned coordinator plus a new pool, followed by one live request proving the onchain binding. Then continue broader multi-user probability tests, metadata analysis, transaction-recovery UX, contract/API cleanup, and a production-quality frontend. In parallel, replace explicitly funded mock yield with a real yield adapter or clearly bounded integration. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
+Continue Phase 6 hardening around the now-proven loop. Contract-level post-epoch RNG provenance passes locally, and provenance-version-1 coordinator `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA` is deployed and verified on Sepolia. The hardened pool deployment dry run passes; the next gate is broadcasting that pool and completing one live request through the new coordinator. Then continue broader multi-user probability tests, metadata analysis, transaction-recovery UX, contract/API cleanup, and a production-quality frontend. In parallel, replace explicitly funded mock yield with a real yield adapter or clearly bounded integration. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
 
 Do not call the pool deployment production-ready until the live confidential-token transfer, relayer decryption flow, fresh-request lifecycle, real yield source, full V5 compatibility, and metadata-leakage review pass.
 

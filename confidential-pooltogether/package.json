@@ -1,0 +1,9 @@
+{
+  "name": "confidential-pooltogether",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:reference": "node --test test/reference/*.test.mjs",
+    "check": "npm run test:reference && forge build"
+  }
+}

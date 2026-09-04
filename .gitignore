@@ -1,0 +1,13 @@
+# Large source snapshots used only for local reverse-engineering.
+zama-context/fhevm/
+zama-context/08-bounty-pooltogether/_repos/
+
+# Generated build artifacts.
+confidential-pooltogether/node_modules/
+confidential-pooltogether/out/
+confidential-pooltogether/cache/
+
+# Local/runtime files.
+**/.env
+**/.env.local
+*.log

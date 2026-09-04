@@ -1,0 +1,37 @@
+# Confidential PoolTogether build workspace
+
+This is the implementation workspace for the bounded bounty design. It is intentionally separate from `zama-context/fhevm`, which remains a pinned research checkout.
+
+## Current slice
+
+- `src/reference/pool-model.mjs` — plaintext economic and V5 winner-selection reference model.
+- `src/reference/twab-epoch.mjs` — fixed draw-epoch average-balance reference model for the confidential adaptation.
+- `src/reference/DrawTranscript.sol` — public V5-style user-specific entropy and unbiased reduction helpers.
+- `src/interfaces/IConfidentialPrizePool.sol` — FHEVM-version-neutral contract boundary.
+- `src/interfaces/IRng.sol` — PoolTogether V5-compatible randomness-provider boundary.
+- `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
+- `src/config/sepolia.mjs` — single source of truth for the currently verified Sepolia cUSDTMock target.
+- `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
+- `test/reference/pool-model.test.mjs` — invariant and boundary tests.
+- `test/reference/twab-epoch.test.mjs` — mid-period deposit/withdrawal vectors for the epoch model.
+
+The reference model uses the exact fixed-point winning-zone formula and V5 rejection/modulo semantics. Its random input is supplied as an already-derived user-specific value; hashing the draw transcript into that value belongs in the Solidity implementation layer. The FHEVM research checkout now also has a separate encrypted fixed-epoch accumulator that matches the plaintext TWAB vectors.
+
+The interface deliberately exposes no plaintext amount events. Its `aggregateSupply` field is public by design for the first bounded path and must be described as aggregate metadata, not private accounting.
+
+The next adapter must call the transcript helper (or reproduce its exact semantics) when constructing a claim. The current product-shaped slice derives the reduced value from the draw transcript; the lower-level candidate-A harness still accepts a reduced value directly for isolated cost measurement only.
+
+The current asset decision is documented in `zama-context/08-bounty-pooltogether/asset-settlement.md`: use ERC-7984's handle-only confidential transfer for an encrypted payout. The official registry currently lists Sepolia `cUSDTMock` at `0x4E7B06D78965594eB5EF5414c357ca21E1554491`; this is testnet evidence, not a production cUSDT confirmation.
+
+The local FHEVM slice now includes an ERC-7984-shaped payout-token mock and verifies the pool-to-token ACL handoff. It records an encrypted draw prize, encrypted yield reserve, and fixed draw-epoch TWAB, so claims no longer use a current-balance stand-in or supply an arbitrary prize at claim time. Draw opening is operator-authenticated with commit/reveal, but the seed is still operator-chosen and therefore not an unbiased production RNG. The build workspace now reserves the V5-compatible `IRng` seam for the production adapter. It remains a test proof until entropy provenance, real yield integration, full V5 compatibility, and live transfer behavior are checked.
+
+The Sepolia `cUSDTMock` target is now read-only verified: chain ID `11155111`, 6 decimals, ERC-7984 support, and a valid wrapper-registry association. No live encrypted transfer has been sent yet.
+
+## Checks
+
+```text
+npm run test:reference
+forge build
+```
+
+No production FHEVM implementation, frontend, asset adapter, or Sepolia deployment has been added yet. The FHEVM checkout under `zama-context/fhevm` contains the separately tracked Phase 2 experiments and first product-shaped encrypted slice.

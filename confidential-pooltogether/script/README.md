@@ -47,7 +47,6 @@ cd /home/ali/Desktop/zama/confidential-pooltogether
 set -a
 source .env
 set +a
-export SEPOLIA_POOL_CONTRACT="0x..."
 export SEPOLIA_RNG_ADAPTER_CONTRACT="0x..."
 forge script script/DeployRngCoordinator.s.sol:DeployRngCoordinator \
   --rpc-url "$SEPOLIA_RPC_URL" \
@@ -63,6 +62,9 @@ The request and draw binding must be in one transaction. `SEPOLIA_RNG_REQUEST_FU
 
 ```sh
 cd /home/ali/Desktop/zama/confidential-pooltogether
+set -a
+source .env
+set +a
 gas_price=$(cast gas-price --rpc-url "$SEPOLIA_RPC_URL")
 cast call 0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1 \
   "estimateRequestPriceNative(uint32,uint32,uint256)(uint256)" \
@@ -77,6 +79,7 @@ cd /home/ali/Desktop/zama/confidential-pooltogether
 set -a
 source .env
 set +a
+export SEPOLIA_POOL_CONTRACT="0x..."
 export SEPOLIA_RNG_ADAPTER_CONTRACT="0x..."
 export SEPOLIA_RNG_COORDINATOR_CONTRACT="0x..."
 export SEPOLIA_DRAW_ID=1
@@ -95,15 +98,45 @@ request transaction is sent.
 
 ## 4. Inspect completion
 
-The provider callback is asynchronous. After Chainlink fulfills the request, inspect the adapter using the returned local request ID:
+The provider callback is asynchronous. First confirm the request ID atomically bound to the draw by the coordinator. Record that returned request ID as `SEPOLIA_RNG_REQUEST_ID`; never infer it from an earlier deployment:
 
 ```sh
 cd /home/ali/Desktop/zama/confidential-pooltogether
-cast call "$ADAPTER" "isRequestComplete(uint32)(bool)" 1 --rpc-url "$SEPOLIA_RPC_URL"
-cast call "$ADAPTER" "randomNumber(uint32)(uint256)" 1 --rpc-url "$SEPOLIA_RPC_URL"
+set -a
+source .env
+set +a
+
+cast call "$SEPOLIA_RNG_COORDINATOR_CONTRACT" \
+  "getDrawRequest(uint64)((uint32,uint256,uint256,bool))" \
+  "$SEPOLIA_DRAW_ID" \
+  --rpc-url "$SEPOLIA_RPC_URL"
 ```
 
-The second call must only succeed after fulfillment. The current adapter's timeout is a local liveness policy and is not proof that the provider cryptographically failed.
+Then inspect the configured adapter using that exact ID:
+
+```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
+set -a
+source .env
+set +a
+
+cast call "$SEPOLIA_RNG_ADAPTER_CONTRACT" \
+  "isRequestComplete(uint32)(bool)" \
+  "$SEPOLIA_RNG_REQUEST_ID" \
+  --rpc-url "$SEPOLIA_RPC_URL"
+
+cast call "$SEPOLIA_RNG_ADAPTER_CONTRACT" \
+  "isRequestFailed(uint32)(bool)" \
+  "$SEPOLIA_RNG_REQUEST_ID" \
+  --rpc-url "$SEPOLIA_RPC_URL"
+
+cast call "$SEPOLIA_RNG_ADAPTER_CONTRACT" \
+  "randomNumber(uint32)(uint256)" \
+  "$SEPOLIA_RNG_REQUEST_ID" \
+  --rpc-url "$SEPOLIA_RPC_URL"
+```
+
+The `randomNumber` call must only be treated as usable after `isRequestComplete` is `true` and `isRequestFailed` is `false`. The current adapter's timeout is a local liveness policy and is not proof that the provider cryptographically failed.
 
 ## Current limitations
 

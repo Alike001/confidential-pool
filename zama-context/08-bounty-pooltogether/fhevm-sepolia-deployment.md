@@ -471,6 +471,20 @@ TWAB handle after:      0x1288d3f159d25089338bbd07a0c4f152a3f8aca616ff0000000000
 
 The nonzero post-finalization handle was confirmed both in the transaction logs and through a fresh contract read. A subsequent encrypted-claim dry run passed with a `710052`-gas estimate; it did not broadcast.
 
+The encrypted claim then completed successfully:
+
+```text
+claim tx:               0xb1d8c5dcb05d680670da3564a89f29828bf717a7e63a1a72a0fb45ca4b15e4b5
+claim block:            11636082
+gas used:               696662
+receipt status:         1
+payout handle:          0x6e030afbfbf96035797f614aef01c1148851bddbb7ff0000000000aa36a70500
+winner-only payout:     100000
+wallet cUSDT after claim: 1100000
+```
+
+An independent receipt read and the script's read-only `inspect-claim` recovery both confirmed the same payout handle and user-authorized decryption result. The pool's public claim event remained amount-free. A subsequent withdrawal dry run decrypted `1000000` principal in the pool, generated the encrypted withdrawal proof, and estimated `830064` gas without broadcasting. The expected post-withdrawal wallet balance is `2100000` confidential cUSDTMock units.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

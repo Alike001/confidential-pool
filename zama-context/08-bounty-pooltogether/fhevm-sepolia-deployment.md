@@ -25,11 +25,12 @@ Create a local `.env` in `zama-context/fhevm/library-solidity/` or pass equivale
 
 ```text
 RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
-SEPOLIA_PRIVATE_KEY=<local-only-deployer-key>
+# Fill this locally with 0x + 64 hexadecimal characters. Never share it.
+SEPOLIA_PRIVATE_KEY=
 POOL_PAYOUT_TOKEN_ADDRESS=0x4E7B06D78965594eB5EF5414c357ca21E1554491
 POOL_RNG_PROVIDER_ADDRESS=0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
-POOL_EPOCH_START=<unix-seconds>
-POOL_EPOCH_END=<later-unix-seconds>
+POOL_EPOCH_START=
+POOL_EPOCH_END=
 ```
 
 Use an epoch far enough in the future to complete an encrypted deposit and yield-funding test. The script rejects every chain other than Sepolia.

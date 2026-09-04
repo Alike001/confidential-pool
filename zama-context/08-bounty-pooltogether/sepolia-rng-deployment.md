@@ -4,10 +4,10 @@
 
 The Chainlink RNG adapter and atomic draw coordinator were deployed successfully to Ethereum Sepolia at block `11632465`.
 
-| Component | Address | Evidence |
-|---|---|---|
+| Component                | Address                                      | Evidence                                                                                            |
+| ------------------------ | -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `ChainlinkVrfRngAdapter` | `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A` | `callbackGasLimit()` returns `100000`; `i_vrfV2PlusWrapper()` returns the published Sepolia wrapper |
-| `RngRequestCoordinator` | `0x9Ce976b5A46aC5d126e71bcDfdbBC7442d3489B5` | `getDrawRequest(1)` returns an empty request; its `rng()` points at the adapter |
+| `RngRequestCoordinator`  | `0x9Ce976b5A46aC5d126e71bcDfdbBC7442d3489B5` | `getDrawRequest(1)` returns an empty request; its `rng()` points at the adapter                     |
 
 The deployment transactions were:
 
@@ -26,18 +26,18 @@ The observed explicit native VRF estimate was `271554552416188` wei, approximate
 
 The first live request was submitted and fulfilled successfully.
 
-| Observation | Result |
-|---|---|
-| Coordinator draw | `1` bound to local request `1` |
-| Request transaction | [`0x803e2e75f1ca1c06f645d884b272657f2568512849a0ab959e5e4eaf0e8eb7aa`](https://sepolia.etherscan.io/tx/0x803e2e75f1ca1c06f645d884b272657f2568512849a0ab959e5e4eaf0e8eb7aa) |
-| Request block | `11632527` |
+| Observation          | Result                                                                                                                                                                     |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Coordinator draw     | `1` bound to local request `1`                                                                                                                                             |
+| Request transaction  | [`0x803e2e75f1ca1c06f645d884b272657f2568512849a0ab959e5e4eaf0e8eb7aa`](https://sepolia.etherscan.io/tx/0x803e2e75f1ca1c06f645d884b272657f2568512849a0ab959e5e4eaf0e8eb7aa) |
+| Request block        | `11632527`                                                                                                                                                                 |
 | Callback transaction | [`0xbe0db23b48dc0ac82ef6dffd6aa0e1a3df407cbc58b7acdd7152bf4df678e9fb`](https://sepolia.etherscan.io/tx/0xbe0db23b48dc0ac82ef6dffd6aa0e1a3df407cbc58b7acdd7152bf4df678e9fb) |
-| Adapter completion | `true` |
-| Random word | `30893444001510450800972496451683106932918560680717279051904389633394519713945` |
+| Adapter completion   | `true`                                                                                                                                                                     |
+| Random word          | `30893444001510450800972496451683106932918560680717279051904389633394519713945`                                                                                            |
 
 The request transaction and callback were separate transactions, as expected for an asynchronous VRF provider. The random word is public entropy; it is not a balance, fee, or encrypted value.
 
-The next request must be sent to the **coordinator**, not directly to the adapter. The logical draw ID is `1`; the local RNG request ID is also `1`, while Chainlink's wider provider ID remains internal to the adapter.
+The next request must be sent to the **coordinator**, not directly to the adapter. Coordinator draw ID `1` and local RNG request ID `1` were consumed by the smoke test. The confidential pool's first draw will therefore use coordinator draw ID `2`, which is expected to create local RNG request ID `2`; that request ID will later be bound to pool draw ID `1`. Chainlink's wider provider ID remains internal to the adapter.
 
 ## Next commands
 
@@ -46,7 +46,7 @@ Run these from `confidential-pooltogether/` with the same Sepolia wallet used fo
 ```sh
 export SEPOLIA_RNG_COORDINATOR_CONTRACT=0x9Ce976b5A46aC5d126e71bcDfdbBC7442d3489B5
 export ADAPTER=0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
-export SEPOLIA_DRAW_ID=1
+export SEPOLIA_DRAW_ID=2
 export SEPOLIA_RNG_REQUEST_FUNDING_WEI=400000000000000
 
 forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
@@ -58,11 +58,13 @@ forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
 Then inspect the local request ID returned by the script:
 
 ```sh
-cast call "$ADAPTER" "isRequestComplete(uint32)(bool)" 1 --rpc-url "$SEPOLIA_RPC_URL"
-cast call "$ADAPTER" "randomNumber(uint32)(uint256)" 1 --rpc-url "$SEPOLIA_RPC_URL"
+cast call "$ADAPTER" "isRequestComplete(uint32)(bool)" 2 --rpc-url "$SEPOLIA_RPC_URL"
+cast call "$ADAPTER" "randomNumber(uint32)(uint256)" 2 --rpc-url "$SEPOLIA_RPC_URL"
 ```
 
 The first call should initially return `false`. The second call should revert until Chainlink fulfills the callback. After fulfillment, it should return a nonzero random word.
+
+Immediately before the second request, the wrapper estimate was `240310090715567` wei at gas price `963014621` wei. The configured `400000000000000` wei funding retains a safety margin, and the adapter refunds any excess to the coordinator.
 
 ## Important limitation
 

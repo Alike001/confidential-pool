@@ -5,7 +5,7 @@ import {IRng} from "../interfaces/IRng.sol";
 
 /// @notice Extension required by a provider adapter that creates requests itself.
 interface IRequestableRng is IRng {
-    function requestRandom() external returns (uint32 requestId);
+    function requestRandom() external payable returns (uint32 requestId);
 }
 
 /// @notice Minimal proof of atomic provider-request and draw binding.
@@ -33,12 +33,12 @@ contract RngRequestCoordinator {
     }
 
     /// @notice Creates and binds one provider request atomically.
-    function requestDraw(uint64 drawId) external returns (uint32 requestId) {
+    function requestDraw(uint64 drawId) external payable returns (uint32 requestId) {
         require(msg.sender == operator, "not-operator");
         require(drawId != 0, "draw-id-zero");
         require(!_drawRequests[drawId].bound, "draw-bound");
 
-        requestId = rng.requestRandom();
+        requestId = rng.requestRandom{value: msg.value}();
         uint256 requestedAtBlock = rng.requestedAtBlock(requestId);
         require(requestedAtBlock == block.number, "rng-not-same-block");
 
@@ -53,4 +53,7 @@ contract RngRequestCoordinator {
     function getDrawRequest(uint64 drawId) external view returns (DrawRequest memory) {
         return _drawRequests[drawId];
     }
+
+    /// @dev Allows the provider adapter to refund an overpayment after a request.
+    receive() external payable {}
 }

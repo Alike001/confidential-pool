@@ -102,9 +102,9 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ## Immediate next gate
 
-Build and test a provider-specific adapter behind the existing `IRng` seam. The adapter must preserve PoolTogether's request lifecycle, including same-block request binding, while keeping the returned random word public and the user-specific winner calculation encrypted. See [`rng-provider-sepolia.md`](./rng-provider-sepolia.md).
+Run a live Sepolia smoke test for the provider-specific adapter behind the existing `IRng` seam. The test must fund the configured wrapper, create and bind one request atomically, wait for the callback, finalize one draw, and feed the returned public word into the same winner transcript while keeping the user-specific winner calculation encrypted. See [`rng-provider-sepolia.md`](./rng-provider-sepolia.md).
 
-Do not integrate provider-specific addresses into the product contracts until the mocked callback, request mapping, retry/failure behavior, transcript reduction, and Sepolia dry run pass.
+Do not integrate provider-specific addresses into the product contracts until the official callback/payment proof, request mapping, retry/failure behavior, transcript reduction, and Sepolia dry run pass.
 
 ## Decision gates
 

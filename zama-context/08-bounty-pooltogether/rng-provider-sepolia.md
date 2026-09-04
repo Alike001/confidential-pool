@@ -94,13 +94,13 @@ Before selecting it, we need a minimal adapter proof with:
 - a public transcript test showing the returned word feeds the same reduction as the plaintext baseline;
 - a Sepolia dry run using testnet ETH/LINK and the exact deployed addresses.
 
-The local adapter proof now covers the request mapping, same-block coordinator binding, authenticated callback, and duplicate callback rejection at the interface boundary. It still does not cover the official Chainlink base contract, payment flow, transcript reduction, or a live provider callback.
+The local adapter proof now covers the request mapping, same-block coordinator binding, authenticated callback, duplicate callback rejection, native payment, and official consumer-base callback behavior. It still does not cover a live provider callback, live fee pricing, deployment funding, transcript reduction, or provider-specific retry behavior.
 
 ## Dependency integration result
 
 The current stable npm package is `@chainlink/contracts@1.5.0`. Its package metadata includes a broad set of ecosystem dependencies, including several chain-specific contract packages and a GitHub-sourced `@zksync/contracts` dependency. A trial install was stopped before completion; it created no lockfile or tracked files in this workspace.
 
-For this reason, the product workspace does not yet add the package. The next integration should either pin the official package in a dedicated deployment workspace or add only a deliberately pinned, auditable Solidity dependency through Foundry. The local ABI proof must not be presented as equivalent to the official audited consumer base.
+For this reason, the product workspace does not add the full npm package. Instead, it contains a deliberately pinned, minimal Solidity subset from the `contracts-v1.5.0` tag: `VRFV2PlusWrapperConsumerBase`, `IVRFV2PlusWrapper`, and `LinkTokenInterface`. The official consumer-base behavior is now exercised locally, but the vendored subset must be reviewed against the exact release before deployment and must not be presented as a substitute for the complete package's release process.
 
 ## Sources
 

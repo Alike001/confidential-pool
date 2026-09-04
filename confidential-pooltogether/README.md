@@ -11,7 +11,9 @@ This is the implementation workspace for the bounded bounty design. It is intent
 - `src/interfaces/IRng.sol` — PoolTogether V5-compatible randomness-provider boundary.
 - `src/reference/RngLifecycleAdapter.sol` — tested request-binding/finalization seam for an `IRng` provider.
 - `src/reference/RngRequestCoordinator.sol` — atomic request-and-draw-binding proof for a requestable provider.
-- `src/reference/ChainlinkVrfRngAdapter.sol` — Chainlink-shaped callback and request-ID mapping proof; not production code.
+- `src/reference/ChainlinkVrfRngAdapter.sol` — pinned Chainlink VRF v2.5 native-payment adapter proof.
+- `src/reference/ChainlinkVrfRngAdapterReference.sol` — minimal ABI callback proof retained for comparison.
+- `src/vendor/chainlink/` — minimal Solidity subset pinned from Chainlink contracts tag `contracts-v1.5.0`.
 - `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
 - `src/config/sepolia.mjs` — single source of truth for the currently verified Sepolia cUSDTMock target.
 - `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
@@ -26,7 +28,7 @@ The next production adapter must call the transcript helper (or reproduce its ex
 
 The current asset decision is documented in `zama-context/08-bounty-pooltogether/asset-settlement.md`: use ERC-7984's handle-only confidential transfer for an encrypted payout. The official registry currently lists Sepolia `cUSDTMock` at `0x4E7B06D78965594eB5EF5414c357ca21E1554491`; this is testnet evidence, not a production cUSDT confirmation.
 
-The local FHEVM slice now includes an ERC-7984-shaped payout-token mock and verifies the pool-to-token ACL handoff. It records an encrypted draw prize, encrypted yield reserve, and fixed draw-epoch TWAB, so claims no longer use a current-balance stand-in or supply an arbitrary prize at claim time. Draw opening supports both operator commit/reveal and a provider-backed `IRng` path; the provider path is exercised with a local mock, not a production Sepolia oracle. The reference workspace additionally proves a Chainlink-shaped callback adapter, but it remains a test proof until the official Chainlink base contract, payment flow, entropy provenance, real yield integration, full V5 compatibility, and live transfer behavior are checked.
+The local FHEVM slice now includes an ERC-7984-shaped payout-token mock and verifies the pool-to-token ACL handoff. It records an encrypted draw prize, encrypted yield reserve, and fixed draw-epoch TWAB, so claims no longer use a current-balance stand-in or supply an arbitrary prize at claim time. Draw opening supports both operator commit/reveal and a provider-backed `IRng` path; the provider path is exercised with a local mock, not a production Sepolia oracle. The reference workspace now also compiles the pinned Chainlink consumer base and tests native payment plus callback mapping, but it remains a test proof until live provider behavior, entropy provenance, real yield integration, full V5 compatibility, and live transfer behavior are checked.
 
 The Sepolia `cUSDTMock` target is now read-only verified: chain ID `11155111`, 6 decimals, ERC-7984 support, and a valid wrapper-registry association. No live encrypted transfer has been sent yet.
 

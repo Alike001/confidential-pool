@@ -10,7 +10,9 @@ import {
 import {
     ChainlinkVrfRngAdapterReference,
     IChainlinkVrfWrapperLike
-} from "../src/reference/ChainlinkVrfRngAdapter.sol";
+} from "../src/reference/ChainlinkVrfRngAdapterReference.sol";
+import {ChainlinkVrfRngAdapter} from "../src/reference/ChainlinkVrfRngAdapter.sol";
+import {IVRFV2PlusWrapper} from "../src/vendor/chainlink/IVRFV2PlusWrapper.sol";
 
 contract MockRng is IRng {
     struct State {
@@ -47,7 +49,7 @@ contract RequestableMockRng is IRequestableRng {
     uint32 private _nextRequestId = 1;
     mapping(uint32 requestId => MockRng.State state) private _states;
 
-    function requestRandom() external returns (uint32 requestId) {
+    function requestRandom() external payable returns (uint32 requestId) {
         requestId = _nextRequestId++;
         _states[requestId] = MockRng.State(block.number, false, false, 0);
     }
@@ -84,6 +86,54 @@ contract MockChainlinkVrfWrapper is IChainlinkVrfWrapperLike {
 
     function fulfill(
         ChainlinkVrfRngAdapterReference adapter,
+        uint256 providerRequestId,
+        uint256[] calldata randomWords
+    ) external {
+        adapter.rawFulfillRandomWords(providerRequestId, randomWords);
+    }
+}
+
+contract MockOfficialChainlinkVrfWrapper is IVRFV2PlusWrapper {
+    uint256 private _nextProviderRequestId = 500;
+    uint256 public lastRequestId;
+
+    function calculateRequestPrice(uint32, uint32) external pure returns (uint256) {
+        return 1;
+    }
+
+    function calculateRequestPriceNative(uint32, uint32) external pure returns (uint256) {
+        return 1;
+    }
+
+    function estimateRequestPrice(uint32, uint32, uint256) external pure returns (uint256) {
+        return 1;
+    }
+
+    function estimateRequestPriceNative(uint32, uint32, uint256) external pure returns (uint256) {
+        return 1;
+    }
+
+    function requestRandomWordsInNative(
+        uint32,
+        uint16,
+        uint32,
+        bytes calldata
+    ) external payable returns (uint256 requestId) {
+        require(msg.value == 1, "wrong-price");
+        requestId = ++_nextProviderRequestId;
+        lastRequestId = requestId;
+    }
+
+    function link() external view returns (address) {
+        return address(this);
+    }
+
+    function linkNativeFeed() external view returns (address) {
+        return address(this);
+    }
+
+    function fulfill(
+        ChainlinkVrfRngAdapter adapter,
         uint256 providerRequestId,
         uint256[] calldata randomWords
     ) external {
@@ -238,5 +288,29 @@ contract RngLifecycleAdapterTest {
             abi.encodeWithSelector(wrapper.fulfill.selector, adapter, 101, randomWords)
         );
         require(!duplicate, "duplicate callback accepted");
+    }
+
+    function testOfficialChainlinkConsumerBaseMapsNativeRequestAndCallback() public {
+        MockOfficialChainlinkVrfWrapper wrapper = new MockOfficialChainlinkVrfWrapper();
+        ChainlinkVrfRngAdapter adapter = new ChainlinkVrfRngAdapter(
+            address(wrapper),
+            100_000,
+            3,
+            1,
+            20,
+            hex""
+        );
+        RngRequestCoordinator coordinator = new RngRequestCoordinator(adapter);
+
+        uint32 requestId = coordinator.requestDraw{value: 1}(1);
+        require(requestId == 1, "wrong local request id");
+        require(adapter.requestedAtBlock(requestId) == block.number, "wrong request block");
+        require(!adapter.isRequestComplete(requestId), "request completed early");
+
+        uint256[] memory randomWords = new uint256[](1);
+        randomWords[0] = 123456789;
+        wrapper.fulfill(adapter, wrapper.lastRequestId(), randomWords);
+        require(adapter.isRequestComplete(requestId), "request not completed");
+        require(adapter.randomNumber(requestId) == randomWords[0], "wrong random word");
     }
 }

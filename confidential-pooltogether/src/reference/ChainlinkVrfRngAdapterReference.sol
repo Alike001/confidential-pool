@@ -2,12 +2,20 @@
 pragma solidity ^0.8.24;
 
 import {IRequestableRng} from "./RngRequestCoordinator.sol";
-import {VRFV2PlusWrapperConsumerBase} from "../vendor/chainlink/VRFV2PlusWrapperConsumerBase.sol";
 
-/// @notice Chainlink VRF v2.5 native-payment adapter implementing PoolTogether IRng.
-/// @dev This is still an integration proof. Payment reserve management, retry
-///      economics, access policy, and deployment configuration remain outside it.
-contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng {
+/// @notice Minimal ABI used by the earlier Chainlink-shaped adapter proof.
+interface IChainlinkVrfWrapperLike {
+    function requestRandomness(
+        uint32 callbackGasLimit,
+        uint16 requestConfirmations,
+        uint32 numWords,
+        bytes calldata extraArgs
+    ) external returns (uint256 requestId, uint256 requestPrice);
+}
+
+/// @notice Reference adapter for request-ID translation and callback checks.
+/// @dev The official integration lives in ChainlinkVrfRngAdapter.sol.
+contract ChainlinkVrfRngAdapterReference is IRequestableRng {
     struct Request {
         uint256 providerRequestId;
         uint256 requestedAt;
@@ -15,6 +23,7 @@ contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng
         bool fulfilled;
     }
 
+    IChainlinkVrfWrapperLike public immutable wrapper;
     uint32 public immutable callbackGasLimit;
     uint16 public immutable requestConfirmations;
     uint32 public immutable numWords;
@@ -25,19 +34,18 @@ contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng
     mapping(uint32 requestId => Request request) private _requests;
     mapping(uint256 providerRequestId => uint32 requestId) private _providerToLocal;
 
-    event RequestSent(uint32 indexed requestId, uint256 indexed providerRequestId, uint256 requestedAtBlock);
-    event RequestFulfilled(uint32 indexed requestId, uint256 indexed providerRequestId);
-
     constructor(
-        address wrapper_,
+        IChainlinkVrfWrapperLike wrapper_,
         uint32 callbackGasLimit_,
         uint16 requestConfirmations_,
         uint32 numWords_,
         uint256 failureTimeoutBlocks_,
         bytes memory extraArgs_
-    ) VRFV2PlusWrapperConsumerBase(wrapper_) {
+    ) {
+        require(address(wrapper_) != address(0), "wrapper-zero");
         require(numWords_ > 0, "num-words-zero");
         require(failureTimeoutBlocks_ > 0, "timeout-zero");
+        wrapper = wrapper_;
         callbackGasLimit = callbackGasLimit_;
         requestConfirmations = requestConfirmations_;
         numWords = numWords_;
@@ -45,13 +53,9 @@ contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng
         extraArgs = extraArgs_;
     }
 
-    /// @notice Creates a native-paid Chainlink request and maps it to a V5 ID.
     function requestRandom() external payable returns (uint32 requestId) {
-        uint256 expectedPrice = i_vrfV2PlusWrapper.calculateRequestPriceNative(callbackGasLimit, numWords);
-        require(msg.value >= expectedPrice, "insufficient-rng-payment");
-
         requestId = ++_nextRequestId;
-        (uint256 providerRequestId, uint256 requestPrice) = requestRandomnessPayInNative(
+        (uint256 providerRequestId, ) = wrapper.requestRandomness(
             callbackGasLimit,
             requestConfirmations,
             numWords,
@@ -67,16 +71,10 @@ contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng
             fulfilled: false
         });
         _providerToLocal[providerRequestId] = requestId;
-        emit RequestSent(requestId, providerRequestId, block.number);
-
-        uint256 refund = msg.value - requestPrice;
-        if (refund != 0) {
-            (bool success, ) = payable(msg.sender).call{value: refund}("");
-            require(success, "rng-refund-failed");
-        }
     }
 
-    function fulfillRandomWords(uint256 providerRequestId, uint256[] memory randomWords) internal override {
+    function rawFulfillRandomWords(uint256 providerRequestId, uint256[] calldata randomWords) external {
+        require(msg.sender == address(wrapper), "not-wrapper");
         uint32 requestId = _providerToLocal[providerRequestId];
         require(requestId != 0, "unknown-provider-request");
         require(!_requests[requestId].fulfilled, "request-fulfilled");
@@ -85,7 +83,6 @@ contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng
 
         _requests[requestId].random = randomWords[0];
         _requests[requestId].fulfilled = true;
-        emit RequestFulfilled(requestId, providerRequestId);
     }
 
     function requestedAtBlock(uint32 requestId) external view returns (uint256) {
@@ -96,7 +93,6 @@ contract ChainlinkVrfRngAdapter is VRFV2PlusWrapperConsumerBase, IRequestableRng
         return _requests[requestId].fulfilled;
     }
 
-    /// @dev Timeout is a local liveness policy, not proof that Chainlink failed.
     function isRequestFailed(uint32 requestId) external view returns (bool) {
         Request memory request = _requests[requestId];
         return request.requestedAt != 0 && !request.fulfilled && block.number > request.requestedAt + failureTimeoutBlocks;

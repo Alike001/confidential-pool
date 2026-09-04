@@ -14,6 +14,7 @@ This is the implementation workspace for the bounded bounty design. It is intent
 - `src/reference/ChainlinkVrfRngAdapter.sol` — pinned Chainlink VRF v2.5 native-payment adapter proof.
 - `src/reference/ChainlinkVrfRngAdapterReference.sol` — minimal ABI callback proof retained for comparison.
 - `src/vendor/chainlink/` — minimal Solidity subset pinned from Chainlink contracts tag `contracts-v1.5.0`.
+- `script/` — explicit deploy and request scripts for the Sepolia RNG smoke test.
 - `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
 - `src/config/sepolia.mjs` — single source of truth for the verified Sepolia cUSDTMock and Chainlink VRF v2.5 targets.
 - `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
@@ -38,5 +39,7 @@ The Sepolia `cUSDTMock` target is now read-only verified: chain ID `11155111`, 6
 npm run test:reference
 forge build
 ```
+
+The provider smoke-test commands are documented in [`script/README.md`](./script/README.md). They require an externally supplied Sepolia RPC URL, deployer key, and funded test wallet.
 
 No production FHEVM implementation, frontend, asset adapter, or Sepolia deployment has been added yet. The FHEVM checkout under `zama-context/fhevm` contains the separately tracked Phase 2 experiments and first product-shaped encrypted slice.

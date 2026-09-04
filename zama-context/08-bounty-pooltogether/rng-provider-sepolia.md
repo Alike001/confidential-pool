@@ -104,6 +104,8 @@ For this reason, the product workspace does not add the full npm package. Instea
 
 The read-only Sepolia check used `https://ethereum-sepolia-rpc.publicnode.com` and confirmed chain ID `11155111` plus non-empty bytecode at the published LINK token, VRF wrapper, and VRF coordinator addresses. This proves address presence only; it does not prove that our deployer is funded, that the wrapper will accept our callback gas limit, or that a request can be fulfilled.
 
+The workspace now contains explicit Foundry scripts under [`confidential-pooltogether/script/`](../../confidential-pooltogether/script/): one deploys the adapter and coordinator, and one submits a separately funded request. They require an external RPC URL, private key, and native funding at execution time; none are stored in the repository and no broadcast has been performed.
+
 ## Sources
 
 - [PoolTogether V5 `IRng`](https://github.com/GenerationSoftware/pt-v5-draw-manager/blob/main/src/interfaces/IRng.sol)

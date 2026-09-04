@@ -1,0 +1,56 @@
+# Sepolia RNG smoke test
+
+These scripts exercise only the randomness boundary. They do not deploy the FHEVM pool, the confidential token, or a yield source.
+
+## 1. Compile
+
+```sh
+forge build
+```
+
+## 2. Deploy the adapter and coordinator
+
+Keep the deployer key outside the repository and provide an RPC URL through the shell or CI secret store:
+
+```sh
+export SEPOLIA_RPC_URL="..."
+forge script script/DeployChainlinkRng.s.sol:DeployChainlinkRng \
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --private-key "$SEPOLIA_PRIVATE_KEY" \
+  --broadcast
+```
+
+Record the emitted adapter and coordinator addresses. The script uses the Ethereum Sepolia VRF wrapper address pinned in `src/config/sepolia.mjs`.
+
+## 3. Create one request
+
+The request and draw binding must be in one transaction. `SEPOLIA_RNG_REQUEST_FUNDING_WEI` must cover the current native VRF price; do not hardcode a price in source code.
+
+```sh
+export SEPOLIA_RNG_COORDINATOR_CONTRACT="0x..."
+export SEPOLIA_DRAW_ID=1
+export SEPOLIA_RNG_REQUEST_FUNDING_WEI="..."
+
+forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --private-key "$SEPOLIA_PRIVATE_KEY" \
+  --broadcast
+```
+
+## 4. Inspect completion
+
+The provider callback is asynchronous. After Chainlink fulfills the request, inspect the adapter using the returned local request ID:
+
+```sh
+cast call "$ADAPTER" "isRequestComplete(uint32)(bool)" 1 --rpc-url "$SEPOLIA_RPC_URL"
+cast call "$ADAPTER" "randomNumber(uint32)(uint256)" 1 --rpc-url "$SEPOLIA_RPC_URL"
+```
+
+The second call must only succeed after fulfillment. The current adapter's timeout is a local liveness policy and is not proof that the provider cryptographically failed.
+
+## Current limitations
+
+- This smoke test does not yet call the FHEVM draw contract.
+- It does not implement PoolTogether's auction rewards or retries.
+- The vendored Chainlink subset is pinned for review; it is not the complete npm package.
+- A live request spends testnet native currency and should be run only with a dedicated test wallet.

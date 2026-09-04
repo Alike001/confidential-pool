@@ -72,9 +72,9 @@ This is a design checklist, not a security audit. The bounty itself emphasizes p
 ## Current verification evidence
 
 - A complete one-user Sepolia lifecycle proves encrypted deposit, fixed-epoch TWAB, post-epoch Chainlink randomness, encrypted winner evaluation, winner-only payout decryption, confidential prize settlement, and full principal withdrawal.
-- A deterministic local two-user test gives Alice TWAB `400`, Bob TWAB `300`, and aggregate `700`. Both claim transactions succeed and emit the same amount-free event shape; authorized decryption returns payout `60` for Alice and `0` for Bob.
+- A deterministic local two-user test gives Alice TWAB `400`, Bob TWAB `300`, and aggregate `700`. From the same pre-claim snapshot, both claim transactions use identical calldata, consume `676600` gas, and emit identical application-level log structures; authorized decryption returns payout `60` for Alice and `0` for Bob.
 - Bob cannot decrypt Alice's payout handle. The reserve falls only by Alice's winning payout, from `100` to `40`.
-- These checks remove a direct revert/result oracle. They do not prove that gas, timing, claim participation, event correlation, or relayer behavior is side-channel free.
+- These checks remove a direct revert/result oracle and show no local gas delta in this vector. They do not prove that sender identity, timing, claim participation, event correlation, future state combinations, or relayer behavior is side-channel free.
 - The two-user case is local, not live Sepolia evidence. More participant counts, deposit timings, repeated draws, claim ordering, underfunding, and adversarial parameter combinations remain to be tested.
 
 ## Sources

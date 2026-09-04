@@ -173,6 +173,20 @@ The local cost signals were:
 
 The winner and non-winner calls had almost identical HCU, but native gas differed by roughly 8,400 gas in the observed run. This means the non-reverting encrypted claim pattern is promising for reducing an obvious winner oracle, but it is not evidence that timing, gas, calldata size, or transaction correlation are side-channel free.
 
+## Product-shaped two-user metadata comparison
+
+Phase 6 repeats the comparison inside the full `ConfidentialPoolTogetherSlice` rather than the earlier isolated accounting harness. Alice has TWAB `400`, Bob has TWAB `300`, and both claims execute from the same pre-claim snapshot with the same reserve and draw state. The deterministic transcript makes Alice a winner and Bob a non-winner.
+
+| Observation | Winner | Non-winner |
+| --- | ---: | ---: |
+| Native gas | `676600` | `676600` |
+| Calldata | same function and bytes | same function and bytes |
+| Token event shape | 3 topics, 0 data bytes | 3 topics, 0 data bytes |
+| Pool event shape | 3 topics, 64 data bytes | 3 topics, 64 data bytes |
+| Authorized payout | `60` | `0` |
+
+The isolated local gas delta is `0`, and the application-level event structures are identical. This is stronger evidence than the earlier primitive measurement, but it is still not a general side-channel proof: sender addresses and claim participation are public, and live relayer latency, network timing, ciphertext-processing behavior, and future state combinations may remain distinguishable.
+
 ## Private-denominator result
 
 A third research-only harness tests fixed-round encrypted long division:

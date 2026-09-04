@@ -84,7 +84,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 - failure and retry handling;
 - frontend explanation of what is and is not public.
 
-Progress: the first multi-user fairness/privacy regression is complete. Transaction recovery is implemented in the live scripts for uncertain broadcasts and already-claimed payout inspection. Gas/timing analysis, repeated-draw coverage, metadata review, and frontend work remain.
+Progress: the first multi-user fairness/privacy regression and isolated claim-surface comparison are complete. From identical pre-claim state, the local winner and non-winner paths have the same calldata, application log shapes, and `676600` gas. Transaction recovery is implemented for uncertain broadcasts and already-claimed payout inspection. Live timing/relayer analysis, repeated-draw coverage, broader metadata review, and frontend work remain.
 
 ### Phase 7 — Deploy to Sepolia
 

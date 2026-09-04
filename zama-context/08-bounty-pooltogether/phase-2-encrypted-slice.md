@@ -64,6 +64,6 @@ The focused suite covers:
 9. realistic six-decimal full-odds arithmetic without encrypted intermediate overflow;
 10. withdrawal after epoch close and user finalization;
 11. ERC-7984 callback ACL compatibility;
-12. two users with TWABs `400` and `300`, aggregate `700`, identical successful claim surfaces, payouts `60` and `0`, and cross-user payout decryption rejection.
+12. two users with TWABs `400` and `300`, aggregate `700`, identical successful claim surfaces, payouts `60` and `0`, and cross-user payout decryption rejection. Isolated from the same pre-claim snapshot, both paths use `676600` local gas and identical application-level log structures.
 
 The draw transcript, encrypted epoch accounting, local and live asset settlement, provider-backed draw finalization, private winner/non-winner results, and principal conservation now pass. The next implementation gate is Phase 6 hardening: adversarial multi-user/repeated-draw coverage, metadata and gas analysis, recovery UX, and a real yield source/Prize Vault adapter.

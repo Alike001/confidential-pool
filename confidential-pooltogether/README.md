@@ -15,7 +15,7 @@ This is the implementation workspace for the bounded bounty design. It is intent
 - `src/reference/ChainlinkVrfRngAdapterReference.sol` — minimal ABI callback proof retained for comparison.
 - `src/vendor/chainlink/` — minimal Solidity subset pinned from Chainlink contracts tag `contracts-v1.5.0`.
 - `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
-- `src/config/sepolia.mjs` — single source of truth for the currently verified Sepolia cUSDTMock target.
+- `src/config/sepolia.mjs` — single source of truth for the verified Sepolia cUSDTMock and Chainlink VRF v2.5 targets.
 - `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
 - `test/reference/pool-model.test.mjs` — invariant and boundary tests.
 - `test/reference/twab-epoch.test.mjs` — mid-period deposit/withdrawal vectors for the epoch model.

@@ -102,6 +102,8 @@ The current stable npm package is `@chainlink/contracts@1.5.0`. Its package meta
 
 For this reason, the product workspace does not add the full npm package. Instead, it contains a deliberately pinned, minimal Solidity subset from the `contracts-v1.5.0` tag: `VRFV2PlusWrapperConsumerBase`, `IVRFV2PlusWrapper`, and `LinkTokenInterface`. The official consumer-base behavior is now exercised locally, but the vendored subset must be reviewed against the exact release before deployment and must not be presented as a substitute for the complete package's release process.
 
+The read-only Sepolia check used `https://ethereum-sepolia-rpc.publicnode.com` and confirmed chain ID `11155111` plus non-empty bytecode at the published LINK token, VRF wrapper, and VRF coordinator addresses. This proves address presence only; it does not prove that our deployer is funded, that the wrapper will accept our callback gas limit, or that a request can be fulfilled.
+
 ## Sources
 
 - [PoolTogether V5 `IRng`](https://github.com/GenerationSoftware/pt-v5-draw-manager/blob/main/src/interfaces/IRng.sol)

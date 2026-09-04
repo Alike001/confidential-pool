@@ -407,6 +407,8 @@ At gas price `996,787,288` wei, the Chainlink wrapper quoted `248,737,701,775,14
 
 The reference request script now reads `SEPOLIA_POOL_CONTRACT` and aborts before broadcasting unless the pool epoch has closed, its coordinator and adapter exactly match the configured addresses, coordinator provenance is version `1`, funding is nonzero, and the draw ID is still unbound. A live dry run during the open epoch reverted with `epoch-still-open`, proving that an accidental early invocation cannot permanently bind unusable randomness to draw 1.
 
+Final public readiness checks found bytecode at the pool, coordinator, adapter, and Chainlink wrapper addresses. The operator held `0.052796200470699497` Sepolia ETH, comfortably above the expected request and lifecycle gas budget. Its latest and pending nonces were both `60`, proving there was no unresolved transaction in the public mempool at that checkpoint. The new coordinator's native balance was zero before requesting randomness, which establishes a clean baseline for measuring any adapter refund retained there after the request.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

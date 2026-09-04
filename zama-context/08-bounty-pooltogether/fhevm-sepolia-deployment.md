@@ -347,6 +347,32 @@ precomputed tx:         0x80a5361da8442869d50e2faf7564dbca8493ac6e2c2c8f4e8c1aab
 
 The address and transaction hash are provisional until broadcast and mining. No hardened pool transaction has been sent at this checkpoint.
 
+## Hardened pool deployment and deposit
+
+The coordinator-bound pool was subsequently deployed and its immutable configuration was verified onchain:
+
+```text
+pool:                   0xF99747C771c09909f6Ad56F43D742c7757ECD9E0
+deployment tx:          0x316dfe57ed9d2c64afd897f89260a238e44d41c406ca07d69e98415286ba195b
+deployment block:       11635007
+payout token:           0x4E7B06D78965594eB5EF5414c357ca21E1554491
+rng provider:           0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
+rng coordinator:        0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA
+epoch:                  1788545890 → 1788553090
+```
+
+The fresh encrypted deposit completed:
+
+```text
+deposit:                1,000,000 encrypted principal units
+deposit tx:             0x7909329211f15fa6e8a2da66ca2f569a4b3232f8d75eb854964057d0ff98e84c
+deposit block:          11635231
+deposit timestamp:      1788547104
+decrypted pool balance: 1,000,000
+```
+
+The deposit participated for `5,986` of the `7,200` epoch seconds. Therefore the exact floor-divided aggregate TWAB for the one-user draw is `1,000,000 × 5,986 / 7,200 = 831388`. A `100,000`-unit encrypted yield-funding dry run generated a valid proof and estimated `994747` gas; it has not yet been broadcast at this checkpoint.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

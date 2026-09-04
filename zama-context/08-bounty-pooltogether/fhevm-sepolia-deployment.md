@@ -4,7 +4,7 @@
 
 The first FHEVM slice is now configured for canonical Zama host contracts. `ConfidentialPoolTogetherSlice` inherits `ZamaEthereumConfig`, so construction selects the Sepolia ACL, coprocessor, and KMS verifier from `block.chainid`. It no longer points at the local test host addresses.
 
-The local FHEVM test remains green after the callback, arithmetic, and withdrawal changes: 11 focused tests pass.
+The local FHEVM test remains green after the callback, arithmetic, withdrawal, and two-user privacy changes: 12 focused tests pass.
 
 The first FHEVM pool skeleton was deployed to Sepolia, but live integration found an ERC-7984 callback incompatibility in that bytecode:
 
@@ -52,7 +52,7 @@ The live deposit and yield-funding evidence remains valid, but the pre-draw para
 1. The winning-zone calculation multiplied a realistic six-decimal TWAB by both `1e18` factors before scaling down. `317083 * 1e18 * 1e18` exceeds `uint128`, so the encrypted intermediate can overflow even though the final probability is small.
 2. `requestWithdrawal` rejected every call after `epochEnd` and after user finalization, contradicting the requirement that principal remain withdrawable.
 
-The implementation now divides after each fixed-point multiplication, constrains both public fractions to at most `1e18`, and accrues only to `epochEnd` while allowing post-epoch and post-finalization withdrawal. A realistic `1,000,000`-unit full-odds regression and a post-epoch withdrawal regression bring the focused suite to 11 passing tests.
+The implementation now divides after each fixed-point multiplication, constrains both public fractions to at most `1e18`, and accrues only to `epochEnd` while allowing post-epoch and post-finalization withdrawal. A realistic `1,000,000`-unit full-odds regression and a post-epoch withdrawal regression brought the suite to 11 tests; the subsequent two-user winner/non-winner regression brings it to 12.
 
 No draw was committed to `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Because it is immutable, this address is now superseded for the final lifecycle. Its deposited assets are testnet-only mock cUSDT; the old withdrawal rule leaves them inaccessible after this epoch, which is recorded as a prototype failure rather than hidden as a successful production path.
 

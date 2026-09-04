@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 complete; Phases 2–4 have produced a locally tested and live-proven bounded design; Phase 5's smallest lifecycle is complete on Sepolia. The corrected pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed encrypted deposit, encrypted yield funding, post-epoch Chainlink request `3`, draw commit/finalization, user TWAB finalization, encrypted winner evaluation, winner-only `100,000`-unit decryption, confidential prize settlement, and full `1,000,000`-unit principal withdrawal. Final balances were pool principal `0` and wallet cUSDT `1,100,000`. Phases 6–8 remain. Production architecture is still gated by a real yield adapter, multi-user/full V5 compatibility, broader testing, UX, and metadata-leakage review.
+Current phase map: Phase 1 complete; Phases 2–4 have produced a locally tested and live-proven bounded design; Phase 5's smallest lifecycle is complete on Sepolia. Phase 6 has started with a passing deterministic two-user winner/non-winner test, bringing the focused suite to 12 tests. The test verifies TWABs `400` and `300`, aggregate `700`, successful amount-free claims for both users, authorized payouts `60` and `0`, reserve conservation, and cross-user ACL denial. Production architecture is still gated by a real yield adapter, broader multi-user/repeated-draw testing, full V5 scope decisions, UX, and metadata-leakage review.
 
 ## Guiding rule
 
@@ -42,7 +42,7 @@ The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`
 
 ### Phase 3 — Design the confidential PoolTogether architecture
 
-Status: bounded candidate design integrated and proven through one complete Sepolia lifecycle. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, provider-backed finalization, ERC-7984 settlement, encrypted claim, and post-epoch withdrawal pass locally and live. Real yield integration, multi-user behavior, full V5 compatibility, and production hardening remain open.
+Status: bounded candidate design integrated and proven through one complete Sepolia lifecycle. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, provider-backed finalization, ERC-7984 settlement, encrypted claim, and post-epoch withdrawal pass locally and live. A two-user weighted winner/non-winner path now passes locally. Real yield integration, broader multi-user/repeated-draw behavior, full V5 scope, and production hardening remain open.
 
 - choose the confidentiality boundary for deposits, weights, winner status, and prize amounts;
 - choose one asset and one vault model for the first slice;
@@ -83,6 +83,8 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 - privacy and leakage tests;
 - failure and retry handling;
 - frontend explanation of what is and is not public.
+
+Progress: the first multi-user fairness/privacy regression is complete. Transaction recovery is implemented in the live scripts for uncertain broadcasts and already-claimed payout inspection. Gas/timing analysis, repeated-draw coverage, metadata review, and frontend work remain.
 
 ### Phase 7 — Deploy to Sepolia
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-The first product-shaped FHEVM slice passes its focused integration suite against the local mocked coprocessor. It is a feasibility milestone, not a Sepolia-ready contract.
+The product-shaped FHEVM slice passes 12 focused tests against the local mocked coprocessor, including a deterministic two-user winner/non-winner path. The same bounded contract has also completed one full Sepolia lifecycle with live Zama encryption/decryption, cUSDTMock settlement, and Chainlink randomness. It remains a prototype rather than a production-ready PoolTogether V5 implementation.
 
 Implementation: [`ConfidentialPoolTogetherSlice.sol`](../fhevm/library-solidity/examples/ConfidentialPoolTogetherSlice.sol)
 
@@ -28,8 +28,9 @@ The product-shaped contract now maintains an encrypted fixed draw epoch:
 accrue        = balance × elapsedSeconds
 userTwab      = cumulativeBalance / epochDuration
 firstProduct  = userTwab × tierOdds
-secondProduct = firstProduct × vaultContributionFraction
-W             = floor(secondProduct / 1e18 / 1e18)
+firstScaled   = floor(firstProduct / 1e18)
+secondProduct = firstScaled × vaultContributionFraction
+W             = floor(secondProduct / 1e18)
 winner        = publicReducedRandom < W
 payout        = winner ? encryptedPrize : encryptedZero
 ```
@@ -38,15 +39,15 @@ This matches the fixed-point shape reconstructed from V5 for positive values. Th
 
 ## What remains deliberately incomplete
 
-- The product-shaped slice derives user-specific entropy from `keccak256(drawId, vault, user, tier, prizeIndex, drawRandomNumber)` and applies V5-style rejection sampling. The operator is now authenticated and the random value is bound to the draw parameters by commit/reveal. This still does not provide unbiased randomness if the single operator can choose the seed before committing.
+- The product-shaped slice derives user-specific entropy from `keccak256(drawId, vault, user, tier, prizeIndex, drawRandomNumber)` and applies V5-style rejection sampling. The live provider-backed path uses post-epoch Chainlink VRF through the deployed adapter; the separate operator commit/reveal fallback still carries single-operator seed-selection risk.
 - The older `Phase2WinnerPrimitive` remains a lower-level experiment that accepts an already-reduced random value for isolated FHE cost testing.
 - TWAB finalization is a separate transaction from claiming because combining epoch division, winner selection, reserve solvency, and token transfer exceeded the local FHE transaction-depth limit.
-- No real Sepolia ERC-7984 transfer occurs; only the local token mock is exercised.
-- The yield reserve is only an encrypted accounting bucket funded by a designated provider in the local mock; no real yield source or Prize Vault adapter exists.
+- Sepolia ERC-7984 cUSDTMock deposit, payout, and withdrawal transfers are live-proven for one wallet. Multi-user live settlement is not yet proven.
+- The yield reserve remains an encrypted accounting bucket funded explicitly by the designated provider; no real yield source or Prize Vault adapter exists.
 - The draw stores an encrypted prize, but the local opener is not yet a production-authorized prize-tier manager.
 - Claim identity is public and one-time, but there is no full V5 claim bitmap or permissionless claimer flow.
 - No multi-tier prize accounting, fee accounting, liquidation, or permissionless claiming exists.
-- The local coprocessor is test infrastructure, not Sepolia evidence.
+- The local coprocessor remains test infrastructure; the separate recorded Sepolia lifecycle is the live protocol evidence.
 
 ## Acceptance evidence
 
@@ -59,6 +60,10 @@ The focused suite covers:
 5. duplicate-claim rejection using public claim identity;
 6. late deposit producing a TWAB of `10` rather than a closing balance of `100`;
 7. operator authorization, nonzero randomness, and commitment/reveal mismatch checks;
-8. incomplete, failed, and completed provider-backed RNG lifecycle behavior.
+8. incomplete, failed, and completed provider-backed RNG lifecycle behavior;
+9. realistic six-decimal full-odds arithmetic without encrypted intermediate overflow;
+10. withdrawal after epoch close and user finalization;
+11. ERC-7984 callback ACL compatibility;
+12. two users with TWABs `400` and `300`, aggregate `700`, identical successful claim surfaces, payouts `60` and `0`, and cross-user payout decryption rejection.
 
-The draw transcript, encrypted epoch accounting, local asset-settlement portions, operator commit/reveal checks, and provider-backed draw finalization now pass. The next implementation gate is replacing the local mock with a selected external unbiased RNG/VRF, connecting the accounting model to a real yield source/Prize Vault adapter, and replacing the mock with the verified Sepolia ERC-7984 wrapper. No real cUSDT transaction has been sent.
+The draw transcript, encrypted epoch accounting, local and live asset settlement, provider-backed draw finalization, private winner/non-winner results, and principal conservation now pass. The next implementation gate is Phase 6 hardening: adversarial multi-user/repeated-draw coverage, metadata and gas analysis, recovery UX, and a real yield source/Prize Vault adapter.

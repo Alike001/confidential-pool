@@ -66,7 +66,20 @@ deployer:      0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
 epoch:         1788533536 → 1788537136
 ```
 
-Independent read-only checks confirm receipt status `1`, non-empty bytecode, the expected cUSDTMock payout token, the expected RNG adapter, and both epoch boundaries. This bytecode includes the realistic-scale fixed-point calculation and post-epoch withdrawal fixes. It has not yet received a principal deposit or yield funding, and no draw has been committed.
+Independent read-only checks confirm receipt status `1`, non-empty bytecode, the expected cUSDTMock payout token, the expected RNG adapter, and both epoch boundaries. This bytecode includes the realistic-scale fixed-point calculation and post-epoch withdrawal fixes. No draw has been committed.
+
+The corrected pool's encrypted principal deposit is complete:
+
+```text
+deposit:       1,000,000 encrypted units (1 cUSDTMock)
+deposit tx:    0x56c1bc039a2e2463f8805553af23be93a201187461a8c3e74a68ddb6e2d6d861
+deposit block: 11634233
+gas estimate:  1,358,359
+pool balance handle: 0x6f8f030926b26f3ac6c4c5938a45273747e934fab7ff0000000000aa36a70600
+user-decrypted pool balance: 1,000,000
+```
+
+The guarded script first decrypted the wallet's own cUSDTMock balance as `1,000,000`, generated a fresh encrypted input and proof, sent the ERC-7984 callback transfer, and decrypted the resulting pool balance to the same amount. This repeats the confidential principal path on the corrected bytecode. Separate encrypted yield funding remains next.
 
 ## Live callback finding and fix
 
@@ -150,7 +163,7 @@ The successful retry used PublicNode without JSON-RPC batching and mined the cal
 
 ## Deployment gates still open
 
-- live encrypted yield funding and handle-only payout;
+- repeat live encrypted yield funding and handle-only payout on the corrected pool;
 - using a fresh RNG request for the deployed pool rather than the already-consumed smoke-test request;
 - full draw/tier/claim lifecycle and repeated-claim behavior;
 - live encrypted withdrawal and principal conservation;

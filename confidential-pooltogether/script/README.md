@@ -79,6 +79,7 @@ cd /home/ali/Desktop/zama/confidential-pooltogether
 set -a
 source .env
 set +a
+export SEPOLIA_OPERATOR_ADDRESS="0x..."
 export SEPOLIA_POOL_CONTRACT="0x..."
 export SEPOLIA_RNG_ADAPTER_CONTRACT="0x..."
 export SEPOLIA_RNG_COORDINATOR_CONTRACT="0x..."
@@ -92,9 +93,11 @@ forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
 ```
 
 The request script performs read-only checks before broadcasting: the pool epoch
-has closed, the pool points to the expected coordinator and adapter, provenance
-version `1`, nonzero funding, and an unbound draw ID. A mismatch aborts before a
-request transaction is sent.
+has closed, the pool and coordinator expose the expected operator, the pool
+points to the expected coordinator and adapter, provenance version `1`, nonzero
+funding, and an unbound draw ID. A mismatch aborts before a request transaction
+is sent. The coordinator still authenticates the actual transaction signer
+onchain.
 
 ## 4. Inspect completion
 

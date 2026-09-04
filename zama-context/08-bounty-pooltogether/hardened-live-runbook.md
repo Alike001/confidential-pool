@@ -6,6 +6,7 @@ This runbook is only for the provenance-version-1 deployment:
 pool:        0xF99747C771c09909f6Ad56F43D742c7757ECD9E0
 coordinator: 0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA
 adapter:     0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
+operator:    0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
 draw:        1
 epoch end:   1788553090
 TWAB:        831388
@@ -70,7 +71,7 @@ forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
   --private-key "$SEPOLIA_PRIVATE_KEY"
 ```
 
-The simulation must pass its closed-epoch, pool, coordinator, adapter, provenance-version, funding, and unused-draw checks.
+The simulation must pass its closed-epoch, pool, coordinator, adapter, operator, provenance-version, funding, and unused-draw checks.
 
 ## 4. Broadcast exactly one request
 

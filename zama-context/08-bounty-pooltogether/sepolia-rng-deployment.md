@@ -22,14 +22,22 @@ The deployment consumed approximately `0.001411319395324458 ETH` in transaction 
 
 The observed explicit native VRF estimate was `271554552416188` wei, approximately `0.000271554552 ETH`. That estimate changes with gas price. The request transaction also needs ordinary Sepolia gas, so a request funding value with a safety margin is appropriate. The adapter refunds unused request funding to the coordinator.
 
-## Current state
+## Live request result
 
-No randomness request has been submitted yet:
+The first live request was submitted and fulfilled successfully.
 
-- coordinator draw `1`: not bound;
-- adapter local request `1`: incomplete because it does not exist yet.
+| Observation | Result |
+|---|---|
+| Coordinator draw | `1` bound to local request `1` |
+| Request transaction | [`0x803e2e75f1ca1c06f645d884b272657f2568512849a0ab959e5e4eaf0e8eb7aa`](https://sepolia.etherscan.io/tx/0x803e2e75f1ca1c06f645d884b272657f2568512849a0ab959e5e4eaf0e8eb7aa) |
+| Request block | `11632527` |
+| Callback transaction | [`0xbe0db23b48dc0ac82ef6dffd6aa0e1a3df407cbc58b7acdd7152bf4df678e9fb`](https://sepolia.etherscan.io/tx/0xbe0db23b48dc0ac82ef6dffd6aa0e1a3df407cbc58b7acdd7152bf4df678e9fb) |
+| Adapter completion | `true` |
+| Random word | `30893444001510450800972496451683106932918560680717279051904389633394519713945` |
 
-The next request must be sent to the **coordinator**, not directly to the adapter. The logical draw ID is `1`; the local RNG request ID will be returned by the script, while Chainlink's wider provider ID remains internal to the adapter.
+The request transaction and callback were separate transactions, as expected for an asynchronous VRF provider. The random word is public entropy; it is not a balance, fee, or encrypted value.
+
+The next request must be sent to the **coordinator**, not directly to the adapter. The logical draw ID is `1`; the local RNG request ID is also `1`, while Chainlink's wider provider ID remains internal to the adapter.
 
 ## Next commands
 

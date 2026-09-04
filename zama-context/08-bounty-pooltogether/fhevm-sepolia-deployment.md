@@ -458,6 +458,19 @@ opened aggregate TWAB:  831388
 
 Independent receipt decoding confirmed `DrawOpened(1, 831388, randomWord)`, with the emitted random word matching fulfilled RNG request `4`. The next `finalize-user` dry run observed `draw committed == true`, `draw opened == true`, a zero pre-finalization user TWAB handle, and a successful `194241`-gas estimate. It did not broadcast.
 
+The user's encrypted TWAB was then finalized:
+
+```text
+user finalization tx:   0xacdb69d924dd219ae3d845d39a0f4e7848dac3c0e97b5be062931d7d78c4e09e
+user finalization block: 11636072
+gas used:               191553
+receipt status:         1
+TWAB handle before:     encrypted zero
+TWAB handle after:      0x1288d3f159d25089338bbd07a0c4f152a3f8aca616ff0000000000aa36a70600
+```
+
+The nonzero post-finalization handle was confirmed both in the transaction logs and through a fresh contract read. A subsequent encrypted-claim dry run passed with a `710052`-gas estimate; it did not broadcast.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

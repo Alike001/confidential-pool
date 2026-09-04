@@ -24,9 +24,10 @@ This folder is the challenge-specific research database. It studies PoolTogether
 18. [`rng-provider-sepolia.md`](./rng-provider-sepolia.md)
 19. [`sepolia-rng-deployment.md`](./sepolia-rng-deployment.md)
 20. [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md)
-21. [`implementation-plan.md`](./implementation-plan.md)
-22. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
-23. [`experiments/`](./experiments/)
+21. [`hardened-live-runbook.md`](./hardened-live-runbook.md)
+22. [`implementation-plan.md`](./implementation-plan.md)
+23. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
+24. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 

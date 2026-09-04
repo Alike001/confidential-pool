@@ -106,6 +106,8 @@ The read-only Sepolia check used `https://ethereum-sepolia-rpc.publicnode.com` a
 
 The workspace now contains explicit Foundry scripts under [`confidential-pooltogether/script/`](../../confidential-pooltogether/script/): one deploys the adapter and coordinator, and one submits a separately funded request. They require an external RPC URL, private key, and native funding at execution time; none are stored in the repository and no broadcast has been performed.
 
+The public Sepolia read-only check returned chain ID `11155111` and block `11632427`. At the observed gas price `1,099,012,821` wei, the wrapper's explicit `estimateRequestPriceNative(100000, 1, gasPrice)` returned `274246999944647` wei. A direct `calculateRequestPriceNative` call returned zero under `eth_call`, confirming that the explicit gas-price estimate is the safer preflight input for a transaction-funded request. This quote is volatile and must be recomputed immediately before requesting randomness.
+
 ## Sources
 
 - [PoolTogether V5 `IRng`](https://github.com/GenerationSoftware/pt-v5-draw-manager/blob/main/src/interfaces/IRng.sol)

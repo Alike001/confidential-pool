@@ -2,6 +2,19 @@
 
 These scripts exercise only the randomness boundary. They do not deploy the FHEVM pool, the confidential token, or a yield source.
 
+## Before running
+
+Create a fresh Sepolia-only wallet. Never reuse a wallet holding real funds, and never send its private key to anyone. Copy the repository template into a local ignored file:
+
+```sh
+cp .env.example .env
+set -a
+source .env
+set +a
+```
+
+Fund the wallet with Sepolia ETH from a faucet. Native VRF payment is charged by the wrapper, so the wallet needs enough ETH for deployment gas and the randomness request. The private key stays in the shell environment and is consumed only by Foundry.
+
 ## 1. Compile
 
 ```sh
@@ -24,7 +37,17 @@ Record the emitted adapter and coordinator addresses. The script uses the Ethere
 
 ## 3. Create one request
 
-The request and draw binding must be in one transaction. `SEPOLIA_RNG_REQUEST_FUNDING_WEI` must cover the current native VRF price; do not hardcode a price in source code.
+The request and draw binding must be in one transaction. `SEPOLIA_RNG_REQUEST_FUNDING_WEI` must cover the current native VRF price; do not hardcode a price in source code. Estimate it using the wrapper and current gas price:
+
+```sh
+gas_price=$(cast gas-price --rpc-url "$SEPOLIA_RPC_URL")
+cast call 0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1 \
+  "estimateRequestPriceNative(uint32,uint32,uint256)(uint256)" \
+  100000 1 "$gas_price" \
+  --rpc-url "$SEPOLIA_RPC_URL"
+```
+
+Add a safety margin for gas-price movement and deployment cost. A zero result from `calculateRequestPriceNative` under `eth_call` is not a usable funding quote because the wrapper price depends on the transaction gas price; use the explicit estimate method above.
 
 ```sh
 export SEPOLIA_RNG_COORDINATOR_CONTRACT="0x..."

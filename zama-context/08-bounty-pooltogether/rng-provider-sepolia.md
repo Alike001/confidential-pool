@@ -50,6 +50,8 @@ The adapter we eventually deploy must do all of the following:
 
 The adapter should not decrypt any FHE state. Its only output to the confidential pool is public randomness and lifecycle status.
 
+The local reference workspace now includes `ChainlinkVrfRngAdapterReference`. It maps the provider's wider request ID to a V5-compatible `uint32`, authenticates the wrapper callback, stores the first random word, and applies an explicit timeout policy for liveness experiments. The timeout is only a local policy; it is not cryptographic evidence that a Chainlink request failed.
+
 ## Atomicity question
 
 There are two viable integration shapes, but they have different trust and implementation costs:
@@ -91,6 +93,8 @@ Before selecting it, we need a minimal adapter proof with:
 - the same-block binding test required by V5;
 - a public transcript test showing the returned word feeds the same reduction as the plaintext baseline;
 - a Sepolia dry run using testnet ETH/LINK and the exact deployed addresses.
+
+The local adapter proof now covers the request mapping, same-block coordinator binding, authenticated callback, and duplicate callback rejection at the interface boundary. It still does not cover the official Chainlink base contract, payment flow, transcript reduction, or a live provider callback.
 
 ## Sources
 

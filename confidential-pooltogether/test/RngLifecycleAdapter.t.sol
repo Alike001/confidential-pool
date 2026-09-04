@@ -7,6 +7,10 @@ import {
     IRequestableRng,
     RngRequestCoordinator
 } from "../src/reference/RngRequestCoordinator.sol";
+import {
+    ChainlinkVrfRngAdapterReference,
+    IChainlinkVrfWrapperLike
+} from "../src/reference/ChainlinkVrfRngAdapter.sol";
 
 contract MockRng is IRng {
     struct State {
@@ -62,6 +66,28 @@ contract RequestableMockRng is IRequestableRng {
 
     function randomNumber(uint32 requestId) external view returns (uint256) {
         return _states[requestId].random;
+    }
+}
+
+contract MockChainlinkVrfWrapper is IChainlinkVrfWrapperLike {
+    uint256 private _nextProviderRequestId = 100;
+
+    function requestRandomness(
+        uint32,
+        uint16,
+        uint32,
+        bytes calldata
+    ) external returns (uint256 requestId, uint256 requestPrice) {
+        requestId = ++_nextProviderRequestId;
+        requestPrice = 1;
+    }
+
+    function fulfill(
+        ChainlinkVrfRngAdapterReference adapter,
+        uint256 providerRequestId,
+        uint256[] calldata randomWords
+    ) external {
+        adapter.rawFulfillRandomWords(providerRequestId, randomWords);
     }
 }
 
@@ -160,5 +186,57 @@ contract RngLifecycleAdapterTest {
             abi.encodeWithSelector(coordinator.requestDraw.selector, 1)
         );
         require(!second, "duplicate draw bound");
+    }
+
+    function testChainlinkAdapterMapsCallbackAndPreservesSameBlockBinding() public {
+        MockChainlinkVrfWrapper wrapper = new MockChainlinkVrfWrapper();
+        ChainlinkVrfRngAdapterReference adapter = new ChainlinkVrfRngAdapterReference(
+            wrapper,
+            100_000,
+            3,
+            1,
+            20,
+            hex""
+        );
+        RngRequestCoordinator coordinator = new RngRequestCoordinator(adapter);
+
+        uint32 requestId = coordinator.requestDraw(1);
+        require(requestId == 1, "wrong local request id");
+        RngRequestCoordinator.DrawRequest memory drawRequest = coordinator.getDrawRequest(1);
+        require(drawRequest.requestedAtBlock == block.number, "wrong request block");
+        require(!adapter.isRequestComplete(requestId), "request completed early");
+
+        uint256[] memory randomWords = new uint256[](1);
+        randomWords[0] = 987654321;
+        wrapper.fulfill(adapter, 101, randomWords);
+
+        require(adapter.isRequestComplete(requestId), "request not completed");
+        require(adapter.randomNumber(requestId) == randomWords[0], "wrong random word");
+    }
+
+    function testChainlinkAdapterRejectsUnauthorizedAndDuplicateCallbacks() public {
+        MockChainlinkVrfWrapper wrapper = new MockChainlinkVrfWrapper();
+        ChainlinkVrfRngAdapterReference adapter = new ChainlinkVrfRngAdapterReference(
+            wrapper,
+            100_000,
+            3,
+            1,
+            20,
+            hex""
+        );
+        adapter.requestRandom();
+
+        uint256[] memory randomWords = new uint256[](1);
+        randomWords[0] = 1;
+        (bool unauthorized, ) = address(adapter).call(
+            abi.encodeWithSelector(adapter.rawFulfillRandomWords.selector, 101, randomWords)
+        );
+        require(!unauthorized, "unauthorized callback accepted");
+
+        wrapper.fulfill(adapter, 101, randomWords);
+        (bool duplicate, ) = address(wrapper).call(
+            abi.encodeWithSelector(wrapper.fulfill.selector, adapter, 101, randomWords)
+        );
+        require(!duplicate, "duplicate callback accepted");
     }
 }

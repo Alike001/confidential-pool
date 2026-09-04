@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven live; the Chainlink adapter has three fulfilled Sepolia requests. The corrected replacement pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` has a successful encrypted `1,000,000`-unit principal deposit and encrypted `100,000`-unit yield reserve. Its exact one-user aggregate TWAB is `687,777`, and fresh adapter request `3` was created after epoch close and fulfilled. A guarded encrypted-prize commit dry run passes with estimated gas `535,903`. Phase 5 now proceeds to commit, finalize, claim, and withdrawal; Phases 6–8 have not started. Production architecture remains gated by the full live lifecycle, a real yield adapter, full V5 compatibility, and metadata-leakage review.
+Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven live; the Chainlink adapter has three fulfilled Sepolia requests. The corrected pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` has completed encrypted deposit, encrypted yield funding, post-epoch request `3`, draw commit/finalization, user TWAB finalization, encrypted winner evaluation, winner-only `100,000`-unit decryption, and confidential prize settlement. The guarded withdrawal dry run confirms `1,000,000` principal remains recoverable. Phase 5 now needs only the live principal withdrawal to close the bounded lifecycle; Phases 6–8 have not started. Production architecture remains gated by a real yield adapter, multi-user/full V5 compatibility, broader testing, UX, and metadata-leakage review.
 
 ## Guiding rule
 
@@ -102,7 +102,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ## Immediate next gate
 
-Bind fulfilled adapter request ID `3` to corrected pool draw ID `1` using aggregate TWAB `687,777` and the encrypted `100,000`-unit prize. Fulfilled request `2` remains excluded because its random word predates the replacement pool's deposits. Then finalize the draw and user TWAB, exercise winner-only decryption and handle-only cUSDTMock settlement, and withdraw principal. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
+Broadcast the guarded `1,000,000`-unit principal withdrawal, then verify pool principal `0` and wallet cUSDT `1,100,000`. This closes the bounded live lifecycle. Afterward, move to hardening: multi-user probability tests, real yield integration, metadata analysis, UX, and deployment automation. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
 
 Do not call the pool deployment production-ready until the live confidential-token transfer, relayer decryption flow, fresh-request lifecycle, real yield source, full V5 compatibility, and metadata-leakage review pass.
 

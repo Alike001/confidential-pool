@@ -280,6 +280,21 @@ Independent receipt inspection confirms status `1` and the pool's amount-free `E
 
 For the corrected one-user epoch, the tracked parameters are pool draw ID `1`, adapter request ID `3`, aggregate TWAB `687777`, full `1e18` tier odds, full `1e18` vault fraction, and encrypted prize `100000`. A complete commit dry run reconstructed the deposit timestamp, confirmed the request occurred after epoch close, generated the encrypted prize proof, and estimated `535903` gas without broadcasting.
 
+The live draw and winner path is now complete:
+
+| Step                 | Transaction                                                          | Block      | Gas used  |
+| -------------------- | -------------------------------------------------------------------- | ---------- | --------- |
+| Encrypted draw commit | `0x92904bba8b42b136238829e48814654df3b7155a4d764be3524d880b494f876a` | `11634551` | `530525`  |
+| RNG finalization      | `0x9813f91ecbfb91598b78f5561d7f526c302e441bfeecb83d5df0faf4466162b9` | `11634592` | `69786`   |
+| User TWAB finalization | `0x8d5b881b758b46b97e1eed0cef427d4a0e41d377382836f99197cdac4a5a10ba` | `11634599` | `191602`  |
+| Encrypted claim       | `0xfe2919a655ee5ec7b2a2be5013e56021503504c68a79783d330266716cd77a2e` | `11634615` | `696663`  |
+
+Receipt logs confirm `DrawRngCommitted(1, 3)`, `DrawOpened(1, 687777, randomWord)`, the confidential-token transfer, and the amount-free `EncryptedClaimRequested(account, 1, 0, 0)` event. The claim RPC connection reset after broadcasting, but recovery by exact transaction hash confirmed receipt status `1` and `claimed(account, 1, 0, 0) == true`; the claim was not retried.
+
+The stored payout handle is `0xc98800f17413be7848a6292bc86bd3edfa69fb2dceff0000000000aa36a70500`. A read-only recovery action using the current Zama SDK decrypted that user-authorized handle to `100000`, and the wallet's confidential cUSDT balance also decrypted to `100000`. This proves encrypted eligibility, winner-only payout access, and confidential token settlement for the bounded one-user draw.
+
+`scripts/liveSepoliaWithdraw.ts` now guards the final principal withdrawal. Its dry run decrypted `1000000` principal in the pool and `100000` prize tokens in the wallet, generated an `euint128` withdrawal proof, and estimated `830080` gas. After broadcast it will require the pool principal to become zero and the wallet cUSDT balance to become `1100000`.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

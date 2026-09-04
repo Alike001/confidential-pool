@@ -70,9 +70,51 @@ The broadcast command sends a transaction. Use it only after confirming the addr
 - full draw/tier/claim lifecycle and repeated-claim behavior;
 - metadata-leakage review and real yield adapter design.
 
+## Live encrypted deposit script
+
+The pinned FHEVM checkout now includes `scripts/liveSepoliaDeposit.ts`. It uses the current Relayer SDK Sepolia configuration to create an encrypted `euint64` amount bound to the cUSDTMock wrapper and the deployer wallet, then calls the wrapper's ERC-7984 callback transfer into the deployed pool.
+
+The script has two independent write switches:
+
+```text
+SETUP_BROADCAST=true     mint underlying mock USDT, approve wrapper, and wrap cUSDTMock
+DEPOSIT_BROADCAST=true   send the encrypted confidentialTransferAndCall transaction
+```
+
+Both default to `false`. The setup step is available because the official Sepolia registry documents the underlying mock USDT as publicly mintable, with a per-call limit of 1,000,000 tokens. The wrapper and pool still require real Sepolia gas.
+
+Add these local values to the FHEVM checkout environment, or export them in the shell:
+
+```text
+POOL_ADDRESS=0xf692D572BE4e38858e9838A9accDBB2902b602Bf
+POOL_PAYOUT_TOKEN_ADDRESS=0x4E7B06D78965594eB5EF5414c357ca21E1554491
+POOL_UNDERLYING_TOKEN_ADDRESS=0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0
+DEPOSIT_AMOUNT_UNITS=1000000
+SETUP_AMOUNT_UNITS=1000000
+```
+
+`1000000` is one token unit at six decimals. First run the setup and deposit dry path with both switches unset. Then run setup once:
+
+```sh
+SETUP_BROADCAST=true \
+npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
+```
+
+After the mint, approval, and wrap receipts succeed, run the encrypted deposit:
+
+```sh
+DEPOSIT_BROADCAST=true \
+npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
+```
+
+If the deposit succeeds, the script reads the pool's encrypted balance handle and requests user decryption through the Sepolia Relayer. It never prints the private key or plaintext amount in transaction calldata. Do not enable both switches until the addresses and amount have been reviewed.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)
 - [FHEVM Sepolia deployment guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/hardhat/run_test.md)
 - [Zama Sepolia configuration in this checkout](../fhevm/library-solidity/config/ZamaConfig.sol)
 - [Live RNG deployment record](./sepolia-rng-deployment.md)
+- [Zama Sepolia address registry](https://github.com/zama-ai/protocol-apps/blob/main/docs/addresses/testnet/sepolia.md)
+- [Relayer SDK encrypted-input guide](https://github.com/zama-ai/relayer-sdk/blob/main/docs/input.md)
+- [OpenZeppelin ERC-7984 wrapper API](https://docs.openzeppelin.com/confidential-contracts/api/token)

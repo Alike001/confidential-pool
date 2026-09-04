@@ -17,6 +17,7 @@ This is the implementation workspace for the bounded bounty design. It is intent
 - `script/` — explicit deploy and request scripts for the Sepolia RNG smoke test.
 - `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
 - `src/config/sepolia.mjs` — single source of truth for the verified Sepolia cUSDTMock and Chainlink VRF v2.5 targets.
+- `zama-context/fhevm/library-solidity/scripts/liveSepoliaDeposit.ts` — guarded Sepolia mock-USDT setup, encrypted deposit, and user-decryption probe.
 - `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
 - `test/reference/pool-model.test.mjs` — invariant and boundary tests.
 - `test/reference/twab-epoch.test.mjs` — mid-period deposit/withdrawal vectors for the epoch model.

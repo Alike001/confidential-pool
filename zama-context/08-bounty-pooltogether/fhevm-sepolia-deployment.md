@@ -19,6 +19,18 @@ Read-only verification confirmed non-empty pool bytecode, the expected payout-to
 
 The setup transactions remain valid: mock USDT was minted, approved, and wrapped successfully. The resulting cUSDTMock balance is still held by the deployer wallet; setup must not be repeated merely because the pool must be redeployed.
 
+The callback-fixed pool is now deployed and independently verified:
+
+```text
+pool:          0x363C1B7bFF57Af01466B4B2342655E5f270a9f62
+deployment tx: 0x7a889ba5091b0e7d4c7c21c9f365d0b37492b33c8b1249303d1a98db8468ce28
+deployment block: 11633795
+deployer:      0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
+epoch:         1788524619 → 1788531819
+```
+
+The receipt succeeded, deployed bytecode is non-empty, and read-only calls return the expected cUSDTMock token, RNG adapter, and epoch boundaries. Current-SDK encrypted-input generation and transfer-and-call gas estimation also pass against this address; the encrypted deposit estimates at `1,358,318` gas.
+
 ## Live callback finding and fix
 
 The legacy `@zama-fhe/relayer-sdk` endpoint returned `404` at `/v1/keyurl`, so the live script now uses `@zama-fhe/sdk` `3.5.1`. Current-SDK encryption and a confidential self-transfer both succeeded on Sepolia. A transfer-and-call to the old pool then failed with:
@@ -74,7 +86,7 @@ DEPLOY_BROADCAST=true npx hardhat run scripts/deployConfidentialPoolTogetherSepo
 
 The broadcast command sends a transaction. Use it only after confirming the addresses, epoch, wallet, gas balance, and the fact that the payout token is explicitly the `cUSDTMock` testnet wrapper. It does not create a real yield strategy, fund the reserve, or prove the full PoolTogether V5 lifecycle.
 
-## Redeploy the fixed pool
+## Callback-fixed deployment procedure
 
 Set a fresh epoch with enough time for integration, then perform the dry run:
 
@@ -97,11 +109,11 @@ The deployment script signs locally and prints the deployment nonce, expected CR
 
 The first callback-fixed broadcast attempt timed out after gas estimation. A second attempt through Tenderly's public endpoint reached local signing but hit HTTP `429` while broadcasting transaction `0x5d2e22ada273f99382f86d33b3d5ea79b20fa122ed5f9b1058b5b6319ef89a2c`. Read-only recovery checks against both PublicNode and 1RPC showed latest and pending deployer nonce `31`, no transaction after nonce `30`, no transaction matching that hash, and no code at the deterministic nonce-31 address `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Neither attempt was accepted. 1RPC later rejected an ethers startup batch because Sepolia was unavailable on its free plan. Both Sepolia scripts now disable JSON-RPC batching, pin the static Sepolia network, and use explicit polling and request timeouts. A complete no-broadcast run passed through `https://ethereum-sepolia-rpc.publicnode.com` with that configuration; use PublicNode for the next deliberate retry.
 
-Record the new pool address and replace `POOL_ADDRESS` locally. Do not use `0xf692D572BE4e38858e9838A9accDBB2902b602Bf`; the live script rejects it explicitly.
+The successful retry used PublicNode without JSON-RPC batching and mined the callback-fixed pool shown above. Keep `POOL_ADDRESS=0x363C1B7bFF57Af01466B4B2342655E5f270a9f62` locally. Do not use `0xf692D572BE4e38858e9838A9accDBB2902b602Bf`; the live script rejects it explicitly.
 
 ## Deployment gates still open
 
-- redeployment of the callback-fixed pool and a live encrypted deposit against the ERC-7984 wrapper;
+- broadcasting and decrypting the already-estimated live encrypted deposit against the ERC-7984 wrapper;
 - live encrypted yield funding and handle-only payout;
 - relayer SDK user decryption on Sepolia;
 - using a fresh RNG request for the deployed pool rather than the already-consumed smoke-test request;
@@ -124,7 +136,7 @@ Both default to `false`. The setup step is available because the official Sepoli
 Add these local values to the FHEVM checkout environment, or export them in the shell:
 
 ```text
-POOL_ADDRESS=<new callback-fixed pool address>
+POOL_ADDRESS=0x363C1B7bFF57Af01466B4B2342655E5f270a9f62
 POOL_PAYOUT_TOKEN_ADDRESS=0x4E7B06D78965594eB5EF5414c357ca21E1554491
 POOL_UNDERLYING_TOKEN_ADDRESS=0xa7dA08FafDC9097Cc0E7D4f113A61e31d7e8e9b0
 DEPOSIT_AMOUNT_UNITS=1000000

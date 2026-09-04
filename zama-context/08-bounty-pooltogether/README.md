@@ -30,7 +30,7 @@ This folder is the challenge-specific research database. It studies PoolTogether
 
 ## Current decision boundary
 
-The local product-shaped slice has passed the encrypted fixed-epoch TWAB, V5-style winner calculation, encrypted reserve, ERC-7984-shaped confidential-token settlement, and operator commit/reveal tests. The first live Sepolia pass also found and fixed a receiver-return ACL incompatibility; the original pool deployment is superseded and must be replaced before repeating the deposit. The smallest viable direction is selected for local implementation, but the production architecture is still not final until the random source is unbiased, the yield adapter is defined, and the corrected Sepolia confidential-token path passes end to end.
+The local product-shaped slice has passed the encrypted fixed-epoch TWAB, V5-style winner calculation, encrypted reserve, ERC-7984-shaped confidential-token settlement, and operator commit/reveal tests. The first live Sepolia pass found and fixed a receiver-return ACL incompatibility; the callback-fixed pool is deployed, verified, and now passes encrypted transfer-and-call gas estimation. The smallest viable direction is selected for local implementation, but the production architecture is still not final until the live deposit/decryption completes, the random source is unbiased, and the yield adapter is defined.
 
 ## Local source checkouts
 

@@ -485,6 +485,22 @@ wallet cUSDT after claim: 1100000
 
 An independent receipt read and the script's read-only `inspect-claim` recovery both confirmed the same payout handle and user-authorized decryption result. The pool's public claim event remained amount-free. A subsequent withdrawal dry run decrypted `1000000` principal in the pool, generated the encrypted withdrawal proof, and estimated `830064` gas without broadcasting. The expected post-withdrawal wallet balance is `2100000` confidential cUSDTMock units.
 
+The final encrypted principal withdrawal completed and the strict lifecycle auditor passed:
+
+```text
+withdrawal tx:          0xd3791a241ebfe6dfa2f41c12161fb1c4f17f592b417a0e0acacd698230c9d3c5
+withdrawal block:       11636100
+gas used:               822386
+receipt status:         1
+principal before:       1000000
+principal after:        0
+wallet before:          1100000
+wallet after:           2100000
+audit result:           HARDENED_LIFECYCLE_COMPLETE: true
+```
+
+The strict read-only audit independently reconstructed the coordinator request, adapter fulfillment, draw commitment, opened aggregate TWAB and random word, claim, withdrawal, and all corresponding transaction hashes. It also used only user-authorized decryption to confirm zero remaining principal, the `100000` payout, and the final `2100000` wallet balance. This completes the bounded hardened Sepolia lifecycle from encrypted deposit through verifiable draw, winner-only prize access, and principal recovery.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

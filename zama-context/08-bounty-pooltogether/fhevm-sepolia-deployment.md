@@ -428,7 +428,23 @@ coordinator binding:    (4, 11635737, 1788553416, true)
 
 The timestamp is 326 seconds after epoch end. Chainlink fulfilled the request at block `11635742` in transaction `0x55a845f97701856a83964d861be9efd7687731f470c08eb3f06d5a05d6a302c5`. The adapter reported `complete == true`, `failed == false`, and random word `55238967462857815757156331227237480268463187369769677237341794636024078658265`. The adapter retained no native currency; its `130,558,422,702,851`-wei overpayment refund moved to the coordinator, confirming the bounded coordinator refund limitation documented above.
 
-A subsequent encrypted draw-commit dry run reconstructed aggregate TWAB `831388`, matched coordinator and provider request block/timestamp, generated a fresh encrypted `100000`-unit prize proof, and estimated `571098` gas. It did not broadcast the draw transaction.
+A subsequent encrypted draw-commit dry run reconstructed aggregate TWAB `831388`, matched coordinator and provider request block/timestamp, generated a fresh encrypted `100000`-unit prize proof, and estimated `571098` gas.
+
+The encrypted draw commit was then broadcast and independently verified:
+
+```text
+draw ID:                1
+RNG request ID:         4
+aggregate TWAB:         831388
+encrypted prize input:  100000 units
+draw commit tx:         0x6b089c16ded3165f85619e346ed8f9822834877ad0b69b66eeed363552ae3857
+draw commit block:      11635817
+gas used:               565427
+receipt status:         1
+rngRequestUsed(4):      true
+```
+
+The pool emitted `DrawRngCommitted(1, 4)`. This proves that the hardened pool consumed the coordinator-bound post-epoch request exactly once. The draw has not yet been opened, the user TWAB has not yet been finalized, and no claim or withdrawal has yet occurred for this deployment.
 
 ## Sources
 

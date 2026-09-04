@@ -73,6 +73,10 @@ Add a safety margin for gas-price movement and deployment cost. A zero result fr
 
 ```sh
 cd /home/ali/Desktop/zama/confidential-pooltogether
+set -a
+source .env
+set +a
+export SEPOLIA_RNG_ADAPTER_CONTRACT="0x..."
 export SEPOLIA_RNG_COORDINATOR_CONTRACT="0x..."
 export SEPOLIA_DRAW_ID=1
 export SEPOLIA_RNG_REQUEST_FUNDING_WEI="..."
@@ -82,6 +86,10 @@ forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
   --private-key "$SEPOLIA_PRIVATE_KEY" \
   --broadcast
 ```
+
+The request script performs read-only checks before broadcasting: provenance
+version `1`, the expected adapter address, nonzero funding, and an unbound draw
+ID. A mismatch aborts before a request transaction is sent.
 
 ## 4. Inspect completion
 

@@ -20,11 +20,23 @@ contract RequestChainlinkDraw {
 
     function run() external returns (uint32 requestId) {
         address coordinatorAddress = vm.envAddress("SEPOLIA_RNG_COORDINATOR_CONTRACT");
+        address expectedAdapter = vm.envAddress("SEPOLIA_RNG_ADAPTER_CONTRACT");
         uint64 drawId = uint64(vm.envUint("SEPOLIA_DRAW_ID"));
         uint256 funding = vm.envUint("SEPOLIA_RNG_REQUEST_FUNDING_WEI");
 
+        require(coordinatorAddress != address(0), "coordinator-zero");
+        require(expectedAdapter != address(0), "adapter-zero");
+        require(funding != 0, "funding-zero");
+
+        RngRequestCoordinator coordinator = RngRequestCoordinator(payable(coordinatorAddress));
+        require(coordinator.PROVENANCE_VERSION() == 1, "wrong-provenance-version");
+        require(address(coordinator.rng()) == expectedAdapter, "wrong-adapter");
+
+        RngRequestCoordinator.DrawRequest memory existingRequest = coordinator.getDrawRequest(drawId);
+        require(!existingRequest.bound, "draw-already-bound");
+
         vm.startBroadcast();
-        requestId = RngRequestCoordinator(payable(coordinatorAddress)).requestDraw{value: funding}(drawId);
+        requestId = coordinator.requestDraw{value: funding}(drawId);
         vm.stopBroadcast();
 
         emit RequestSubmitted(coordinatorAddress, drawId, requestId);

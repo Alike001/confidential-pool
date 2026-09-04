@@ -201,6 +201,20 @@ npx hardhat run scripts/liveSepoliaFundYield.ts --network sepolia
 
 The script records the reserve handle before and after funding. It requires the handle to change but does not attempt unauthorized plaintext reserve decryption.
 
+The first live encrypted yield funding is complete:
+
+```text
+yield funding: 100,000 encrypted units (0.1 cUSDTMock)
+funding tx:     0x57748dd1a07b12be77dcea0babb091a249b1bf12015606c546b8337ac8082e5a
+funding block:  11634041
+gas estimate:   994,790
+gas used:       976,951
+reserve before: zero handle
+reserve after:  0xf428c5213c2862dd3913f39bb0936c4e38974d5bf9ff0000000000aa36a70500
+```
+
+Independent receipt inspection confirms status `1` and the pool's amount-free `EncryptedYieldFunded()` event. A fresh read returns the same post-funding handle. The reserve plaintext remains inaccessible through the pool API, so this proves confidential reserve funding without converting the private amount into public state.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

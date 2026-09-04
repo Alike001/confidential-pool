@@ -117,7 +117,7 @@ No exported Replit source is present locally. The final frontend will therefore 
 ## Plan Prerequisites
 
 1. Freeze the public name and consolidate the public repository layout.
-2. Choose rolling epochs/periodic draws for the final contract, or explicitly approve the bounded fixed-epoch departure.
+2. Harden and freeze the locally implemented rolling-epoch/KMS-proven candidate ABI.
 3. Decide genuine yield adapter versus prominently disclosed controlled encrypted yield.
 4. Freeze the final pool/token/coordinator ABI and versioned Sepolia deployment manifest.
 5. Then implement the approved frontend with real wallet, Relayer SDK, contract, and evidence adapters.
@@ -126,7 +126,7 @@ No exported Replit source is present locally. The final frontend will therefore 
 
 - `Confidential Pool` remains a working name, not a frozen brand.
 - The implementation is split between the research root, reference contract repository, and nested FHEVM checkout; it must be consolidated before public release.
-- The current pool has immutable `epochStart`/`epochEnd`; this does not provide a normal rolling deposit/draw experience.
+- The live evidence pool has immutable `epochStart`/`epochEnd`. A recurring candidate now exists locally, but it still needs adversarial validation, scripts, and a fresh Sepolia lifecycle before replacing that deployment.
 - The current prize reserve is controlled operator-funded yield, not strategy-generated yield.
 - A fresh live multi-wallet winner/non-winner run has not yet been captured against the final contract release.
 - Source verification, stable public hosting, video, X/article, and final submission copy remain undone.
@@ -135,7 +135,7 @@ No exported Replit source is present locally. The final frontend will therefore 
 
 Planning is allowed for the smaller real-integration slice: frontend shell, typed deployment configuration, wallet/network state, read-only draw/evidence adapters, operation-state model, and development fixtures.
 
-Production write integration is gated by the final contract ABI and yield disclosure decision. The current hardened deployment remains valid protocol evidence, but it should not be treated as the final recurring-pool release.
+Production write integration is gated by hardening/deploying the recurring candidate ABI and the yield disclosure decision. The current hardened deployment remains valid protocol evidence, but it should not be treated as the final recurring-pool release.
 
 ## Evidence
 

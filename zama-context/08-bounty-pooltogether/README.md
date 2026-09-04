@@ -26,13 +26,16 @@ This folder is the challenge-specific research database. It studies PoolTogether
 20. [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md)
 21. [`hardened-live-runbook.md`](./hardened-live-runbook.md)
 22. [`replit-frontend-design-brief.md`](./replit-frontend-design-brief.md)
-23. [`implementation-plan.md`](./implementation-plan.md)
-24. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
-25. [`experiments/`](./experiments/)
+23. [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md)
+24. [`implementation-plan.md`](./implementation-plan.md)
+25. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
+26. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 
-The earlier pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed the first bounded Sepolia loop and remains historical evidence. The focused local suite has 14 passing tests, including weighted two-user outcomes, RNG request-replay rejection, and coordinator-enforced post-epoch provenance. Hardened coordinator `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA` and pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` then completed the full encrypted deposit → yield → post-epoch Chainlink request → draw → winner-only claim → principal withdrawal lifecycle. The strict auditor returned `HARDENED_LIFECYCLE_COMPLETE: true`. Remaining work is frontend prototype reintegration and live dApp implementation, a real-yield integration or explicit controlled-yield boundary, broader multi-user/adversarial and metadata testing, contract verification/API cleanup, deployment operations, and submission packaging.
+The earlier pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed the first bounded Sepolia loop and remains historical evidence. The focused fixed-epoch suite has 14 passing tests, including weighted two-user outcomes, RNG request-replay rejection, and coordinator-enforced post-epoch provenance. Hardened coordinator `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA` and pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` then completed the full encrypted deposit → yield → post-epoch Chainlink request → draw → winner-only claim → principal withdrawal lifecycle. The strict auditor returned `HARDENED_LIFECYCLE_COMPLETE: true`.
+
+A recurring candidate now adds permissionless rolling epochs, draw-scoped encrypted TWABs, sequential user checkpoints, and KMS-proven public aggregate denominators. Its seven focused tests pass locally, and it is documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). It has not replaced the hardened Sepolia deployment yet. Remaining work is rolling-contract hardening and live deployment, a real-yield integration or explicit controlled-yield boundary, broader multi-user/adversarial and metadata testing, real frontend implementation, contract verification/deployment operations, and submission packaging.
 
 ## Local source checkouts
 

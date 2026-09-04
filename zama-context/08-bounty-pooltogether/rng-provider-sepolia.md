@@ -62,7 +62,7 @@ The operator calls the adapter to create a VRF request, then calls the pool to b
 
 One coordinator contract calls the provider adapter and immediately records the returned request in the draw state during the same transaction. Later, anyone may finalize the draw after the provider callback. This is closer to the V5 lifecycle and removes a loose request-ID handoff, but it adds a coordinator and provider-specific callback plumbing.
 
-The generic local `RngLifecycleAdapter` now enforces the V5 same-block binding rule. The FHEVM `ConfidentialPoolTogetherSlice` intentionally remains a looser Shape-A experiment: it accepts a previously created request so the encrypted draw path can be tested independently. Shape B is the production candidate to test next.
+The generic local `RngLifecycleAdapter` now enforces the V5 same-block binding rule. A separate reference `RngRequestCoordinator` also proves that a request can be created and bound in one transaction. The FHEVM `ConfidentialPoolTogetherSlice` intentionally remains a looser Shape-A experiment: it accepts a previously created request so the encrypted draw path can be tested independently. Shape B is the production candidate to test next.
 
 ## Fairness and privacy boundary
 
@@ -86,6 +86,7 @@ Before selecting it, we need a minimal adapter proof with:
 
 - a mocked callback path that mirrors the provider base contract;
 - one request mapped to one `uint32` ID;
+- one coordinator transaction that creates and binds a request;
 - duplicate, unknown, incomplete, and failed request tests;
 - the same-block binding test required by V5;
 - a public transcript test showing the returned word feeds the same reduction as the plaintext baseline;

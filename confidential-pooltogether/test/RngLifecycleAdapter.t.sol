@@ -3,6 +3,10 @@ pragma solidity ^0.8.24;
 
 import {IRng} from "../src/interfaces/IRng.sol";
 import {RngLifecycleAdapter} from "../src/reference/RngLifecycleAdapter.sol";
+import {
+    IRequestableRng,
+    RngRequestCoordinator
+} from "../src/reference/RngRequestCoordinator.sol";
 
 contract MockRng is IRng {
     struct State {
@@ -16,6 +20,32 @@ contract MockRng is IRng {
 
     function setRequest(uint32 requestId, uint256 requestedAt, bool complete, bool failed, uint256 random) external {
         _states[requestId] = State(requestedAt, complete, failed, random);
+    }
+
+    function requestedAtBlock(uint32 requestId) external view returns (uint256) {
+        return _states[requestId].requestedAt;
+    }
+
+    function isRequestComplete(uint32 requestId) external view returns (bool) {
+        return _states[requestId].complete;
+    }
+
+    function isRequestFailed(uint32 requestId) external view returns (bool) {
+        return _states[requestId].failed;
+    }
+
+    function randomNumber(uint32 requestId) external view returns (uint256) {
+        return _states[requestId].random;
+    }
+}
+
+contract RequestableMockRng is IRequestableRng {
+    uint32 private _nextRequestId = 1;
+    mapping(uint32 requestId => MockRng.State state) private _states;
+
+    function requestRandom() external returns (uint32 requestId) {
+        requestId = _nextRequestId++;
+        _states[requestId] = MockRng.State(block.number, false, false, 0);
     }
 
     function requestedAtBlock(uint32 requestId) external view returns (uint256) {
@@ -100,5 +130,35 @@ contract RngLifecycleAdapterTest {
             abi.encodeWithSelector(adapter.finalizeDraw.selector, 1)
         );
         require(!zeroRandom, "zero randomness accepted");
+    }
+
+    function testCoordinatorBindsProviderRequestAtomically() public {
+        RequestableMockRng rng = new RequestableMockRng();
+        RngRequestCoordinator coordinator = new RngRequestCoordinator(rng);
+
+        uint32 requestId = coordinator.requestDraw(1);
+        RngRequestCoordinator.DrawRequest memory request = coordinator.getDrawRequest(1);
+        require(request.bound, "request not bound");
+        require(request.requestId == requestId, "wrong request id");
+        require(request.requestedAtBlock == block.number, "wrong request block");
+    }
+
+    function testCoordinatorAuthenticatesOperatorAndDrawIdentity() public {
+        RequestableMockRng rng = new RequestableMockRng();
+        RngRequestCoordinator coordinator = new RngRequestCoordinator(rng);
+
+        (bool zeroDraw, ) = address(coordinator).call(
+            abi.encodeWithSelector(coordinator.requestDraw.selector, 0)
+        );
+        require(!zeroDraw, "zero draw accepted");
+
+        (bool duplicate, ) = address(coordinator).call(
+            abi.encodeWithSelector(coordinator.requestDraw.selector, 1)
+        );
+        require(duplicate, "coordinator self-call unexpectedly failed");
+        (bool second, ) = address(coordinator).call(
+            abi.encodeWithSelector(coordinator.requestDraw.selector, 1)
+        );
+        require(!second, "duplicate draw bound");
     }
 }

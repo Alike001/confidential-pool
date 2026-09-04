@@ -286,3 +286,19 @@ npx hardhat run scripts/liveSepoliaWithdraw.ts --network sepolia
 ```
 
 The final conservation target is zero user principal remaining in the pool and a wallet cUSDTMock balance increased by the `1000000` returned principal while retaining the claimed prize.
+
+## 12. Run the read-only completion audit
+
+The auditor derives the request ID from the coordinator, decodes every lifecycle event, cross-checks the opened aggregate and random word, and decrypts only the user's authorized principal, payout, and wallet balance. It sends no transaction.
+
+```sh
+cd /home/ali/Desktop/zama/zama-context/fhevm/library-solidity
+set -a
+source .env
+set +a
+
+AUDIT_REQUIRE_COMPLETE=true \
+npx hardhat run scripts/auditSepoliaLifecycle.ts --network sepolia
+```
+
+Completion requires the final line `HARDENED_LIFECYCLE_COMPLETE: true`. A pre-draw baseline run returned `false` while correctly recovering the existing `1000000` encrypted principal, `1000000` wallet cUSDTMock, exact deposit and yield transaction hashes, empty request binding, and no draw/claim/withdrawal events.

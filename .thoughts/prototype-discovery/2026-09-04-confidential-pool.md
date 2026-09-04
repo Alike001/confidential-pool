@@ -223,7 +223,7 @@ The final contract ABI should be frozen before wiring the full frontend. In part
 
 ## Open Questions
 
-- Approve the hybrid product-first concept or keep the current long-page composition after mobile fixes?
+- Visual direction resolved on 2026-09-04: the hybrid product-first concept is approved. Keep the Replit visual system and educational content, use the Codex product-first workspace/mobile stack, and fix the documented overflow before release.
 - Is the final public name `Confidential Pool`, or should branding be frozen before implementation?
 - Will the final contract support rolling epochs and periodic draws?
 - Which real or controlled yield boundary will the submission claim?
@@ -239,4 +239,3 @@ The final contract ABI should be frozen before wiring the full frontend. In part
 - `zama-context/08-bounty-pooltogether/prototype-evidence/codex-product-first-mobile-v1.png`
 - `zama-context/08-bounty-pooltogether/replit-frontend-design-brief.md`
 - `zama-context/08-bounty-pooltogether/fhevm-sepolia-deployment.md`
-

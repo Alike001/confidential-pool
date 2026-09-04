@@ -1,6 +1,6 @@
 # Replit frontend design brief
 
-The frontend is not approved or implemented. Use this brief to generate a design prototype in Replit, review it visually, and return the approved prototype to the implementation repository. `Confidential Pool` is a working product name, not a finalized brand decision.
+The frontend prototype has been reviewed and the hybrid product-first visual direction was approved on 2026-09-04. This remains the original generation brief and design-history record; it is not permission to ship the prototype's mocked wallet, chain, encryption, balance, draw, or evidence behavior. The real integration decisions are recorded in `.thoughts/prototype-reintegration/2026-09-04-confidential-pool.md`. `Confidential Pool` is still a working product name, not a finalized brand decision.
 
 ## Initial Replit Agent prompt
 

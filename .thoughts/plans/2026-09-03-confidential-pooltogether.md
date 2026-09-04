@@ -30,7 +30,7 @@ The plan is intentionally narrower than a full PoolTogether V5 port. It preserve
 
 ## Prototype Reintegration Gate
 
-A candidate Replit UI prototype now exists, but it is not accepted until its public preview is inspected across desktop, mobile, and all required states. The prototype's wallet, encryption, transactions, balances, draw, claim, and withdrawal behavior is mocked design evidence only. Prototype reintegration must map each mock to the live Sepolia contracts and Zama SDK before implementation. The private-denominator multi-transaction circuit remains a feasibility experiment, not the MVP denominator path.
+The hybrid product-first visual direction is approved. Prototype reintegration is complete in `.thoughts/prototype-reintegration/2026-09-04-confidential-pool.md`: every important mock is classified and mapped to the wallet, Zama Relayer SDK, Sepolia contracts, confidential token, RNG provenance, or development-only fixtures. The product should use one application route with a compact landing/explanation layer rather than build a second marketing site. Production write integration remains gated by the final rolling-epoch/fixed-epoch ABI decision and honest yield boundary. The private-denominator multi-transaction circuit remains a feasibility experiment, not the MVP denominator path.
 
 ## Phase 1: freeze the economic boundary — complete for the reference slice
 

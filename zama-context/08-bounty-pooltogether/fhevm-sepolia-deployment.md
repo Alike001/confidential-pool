@@ -311,6 +311,12 @@ wallet cUSDT after:     1,100,000
 
 Independent receipt inspection confirms status `1`, the ERC-7984 confidential-transfer event, and the pool's amount-free `EncryptedWithdrawalRequested(account)` event. User-authorized decryption proves exact conservation: the wallet recovered all `1000000` principal units while retaining the `100000` prize units. This closes the smallest live economic and confidentiality loop; it does not make the prototype production-ready.
 
+## Post-deployment hardening boundary
+
+The current local contract now prevents a provider RNG request ID from being committed to more than one draw. Pool `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` was deployed before that guard was added. Keep it as reproducible evidence for the completed bounded lifecycle; do not label it as the latest production candidate or fund it for additional draws.
+
+The live draw script also checked that request `3` was created after epoch close. That is an operational guard, not yet a pool-contract invariant: the contract can read the provider's request block but cannot recover that historical block's timestamp. The next deployment should follow a coordinator design that enforces post-epoch request creation and one-request/one-draw binding onchain.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

@@ -179,13 +179,19 @@ Phase 6 repeats the comparison inside the full `ConfidentialPoolTogetherSlice` r
 
 | Observation | Winner | Non-winner |
 | --- | ---: | ---: |
-| Native gas | `676600` | `676600` |
+| Native gas | `676578` | `676578` |
 | Calldata | same function and bytes | same function and bytes |
 | Token event shape | 3 topics, 0 data bytes | 3 topics, 0 data bytes |
 | Pool event shape | 3 topics, 64 data bytes | 3 topics, 64 data bytes |
 | Authorized payout | `60` | `0` |
 
 The isolated local gas delta is `0`, and the application-level event structures are identical. This is stronger evidence than the earlier primitive measurement, but it is still not a general side-channel proof: sender addresses and claim participation are public, and live relayer latency, network timing, ciphertext-processing behavior, and future state combinations may remain distinguishable.
+
+## Repeated-draw RNG replay result
+
+The product-shaped contract now records provider request IDs at draw commitment. A focused regression confirms that request `21` can commit draw `1` only once: trying to reuse it for draw `2` reverts with `rng-request-used`. A separate completed request `22` can commit and finalize draw `2`. Both draws then produce encrypted payouts (`77` and `55`) and conserve the encrypted reserve (`200 - 77 - 55 = 68`).
+
+This closes request-ID replay in the local contract but not the full randomness-timing problem. The currently deployed Sepolia pool predates the guard. In addition, post-epoch request timing is checked by the live script rather than enforced by the pool contract, so coordinator-level binding remains the next security design task.
 
 ## Private-denominator result
 

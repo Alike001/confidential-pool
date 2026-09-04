@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 complete; Phases 2–4 have produced a locally tested and live-proven bounded design; Phase 5's smallest lifecycle is complete on Sepolia. Phase 6 has started with a passing deterministic two-user winner/non-winner test, bringing the focused suite to 12 tests. The test verifies TWABs `400` and `300`, aggregate `700`, successful amount-free claims for both users, authorized payouts `60` and `0`, reserve conservation, and cross-user ACL denial. Production architecture is still gated by a real yield adapter, broader multi-user/repeated-draw testing, full V5 scope decisions, UX, and metadata-leakage review.
+Current phase map: Phase 1 complete; Phases 2–4 have produced a locally tested and live-proven bounded design; Phase 5's smallest lifecycle is complete on Sepolia. Phase 6 now has 13 focused tests. They include a deterministic two-user winner/non-winner comparison and a repeated-draw regression that rejects reuse of an RNG request while allowing distinct requests across draws. Production architecture is still gated by contract-level post-epoch RNG binding, a real yield adapter, broader multi-user testing, full V5 scope decisions, UX, and metadata-leakage review.
 
 ## Guiding rule
 
@@ -42,7 +42,7 @@ The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`
 
 ### Phase 3 — Design the confidential PoolTogether architecture
 
-Status: bounded candidate design integrated and proven through one complete Sepolia lifecycle. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, provider-backed finalization, ERC-7984 settlement, encrypted claim, and post-epoch withdrawal pass locally and live. A two-user weighted winner/non-winner path now passes locally. Real yield integration, broader multi-user/repeated-draw behavior, full V5 scope, and production hardening remain open.
+Status: bounded candidate design integrated and proven through one complete Sepolia lifecycle. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, provider-backed finalization, ERC-7984 settlement, encrypted claim, and post-epoch withdrawal pass locally and live. A two-user weighted winner/non-winner path and repeated draws using distinct RNG requests pass locally. Real yield integration, broader multi-user behavior, full V5 scope, and production hardening remain open.
 
 - choose the confidentiality boundary for deposits, weights, winner status, and prize amounts;
 - choose one asset and one vault model for the first slice;
@@ -84,7 +84,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 - failure and retry handling;
 - frontend explanation of what is and is not public.
 
-Progress: the first multi-user fairness/privacy regression and isolated claim-surface comparison are complete. From identical pre-claim state, the local winner and non-winner paths have the same calldata, application log shapes, and `676600` gas. Transaction recovery is implemented for uncertain broadcasts and already-claimed payout inspection. Live timing/relayer analysis, repeated-draw coverage, broader metadata review, and frontend work remain.
+Progress: the first multi-user fairness/privacy regression, isolated claim-surface comparison, and repeated-draw RNG-replay regression are complete. From identical pre-claim state, the latest local winner and non-winner paths have the same calldata, application log shapes, and `676578` gas. Each provider request can now be committed to at most one draw, while separate completed requests can finalize separate draws and pay from the same encrypted reserve. Transaction recovery is implemented for uncertain broadcasts and already-claimed payout inspection. Live timing/relayer analysis, broader metadata review, and frontend work remain.
 
 ### Phase 7 — Deploy to Sepolia
 
@@ -104,7 +104,7 @@ Progress: the first multi-user fairness/privacy regression and isolated claim-su
 
 ## Immediate next gate
 
-Begin Phase 6 hardening around the now-proven loop: multi-user probability and non-winner tests, metadata analysis, transaction-recovery UX, contract/API cleanup, and a production-quality frontend. In parallel, replace explicitly funded mock yield with a real yield adapter or clearly bounded integration. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
+Continue Phase 6 hardening around the now-proven loop. The next security gate is to bind RNG request creation to the closed epoch in the contract/coordinator architecture, instead of relying on the live script's timestamp check. Then continue broader multi-user probability tests, metadata analysis, transaction-recovery UX, contract/API cleanup, and a production-quality frontend. In parallel, replace explicitly funded mock yield with a real yield adapter or clearly bounded integration. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
 
 Do not call the pool deployment production-ready until the live confidential-token transfer, relayer decryption flow, fresh-request lifecycle, real yield source, full V5 compatibility, and metadata-leakage review pass.
 
@@ -113,7 +113,8 @@ Do not call the pool deployment production-ready until the live confidential-tok
 The original Phase 2 → Phase 3 gate and bounded Phase 5 live gate are satisfied. The remaining production gate is:
 
 - define and integrate the real yield source rather than operator-funded mock yield;
-- validate multi-user probability, non-winner, repeated-draw, and adversarial paths;
+- validate broader multi-user probability, repeated-draw ordering, and adversarial paths;
+- enforce post-epoch RNG request creation through contracts rather than deployment-script policy;
 - validate full-path HCU/depth, liveness, recovery, and metadata leakage;
 - build and test the production frontend and deployment operations;
 - decide which V5 compatibility features are required for the bounty submission.

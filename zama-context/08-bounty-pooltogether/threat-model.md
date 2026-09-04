@@ -72,10 +72,12 @@ This is a design checklist, not a security audit. The bounty itself emphasizes p
 ## Current verification evidence
 
 - A complete one-user Sepolia lifecycle proves encrypted deposit, fixed-epoch TWAB, post-epoch Chainlink randomness, encrypted winner evaluation, winner-only payout decryption, confidential prize settlement, and full principal withdrawal.
-- A deterministic local two-user test gives Alice TWAB `400`, Bob TWAB `300`, and aggregate `700`. From the same pre-claim snapshot, both claim transactions use identical calldata, consume `676600` gas, and emit identical application-level log structures; authorized decryption returns payout `60` for Alice and `0` for Bob.
+- A deterministic local two-user test gives Alice TWAB `400`, Bob TWAB `300`, and aggregate `700`. From the same pre-claim snapshot, both claim transactions use identical calldata, consume `676578` gas in the latest run, and emit identical application-level log structures; authorized decryption returns payout `60` for Alice and `0` for Bob.
 - Bob cannot decrypt Alice's payout handle. The reserve falls only by Alice's winning payout, from `100` to `40`.
 - These checks remove a direct revert/result oracle and show no local gas delta in this vector. They do not prove that sender identity, timing, claim participation, event correlation, future state combinations, or relayer behavior is side-channel free.
-- The two-user case is local, not live Sepolia evidence. More participant counts, deposit timings, repeated draws, claim ordering, underfunding, and adversarial parameter combinations remain to be tested.
+- A repeated-draw regression proves that one RNG request ID cannot be bound to two draw IDs. Distinct requests `21` and `22` finalize two draws, produce encrypted payouts `77` and `55`, and leave encrypted reserve `68` from `200`.
+- The replay guard is only in the current local contract; the live Sepolia pool predates it. The contract also does not yet enforce that the RNG request itself was created after epoch close—that check currently exists only in the operational script.
+- The two-user and repeated-draw cases are local, not live Sepolia evidence. More participant counts, deposit timings, claim ordering, underfunding, and adversarial parameter combinations remain to be tested.
 
 ## Sources
 

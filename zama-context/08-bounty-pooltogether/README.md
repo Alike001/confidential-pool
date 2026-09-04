@@ -30,7 +30,7 @@ This folder is the challenge-specific research database. It studies PoolTogether
 
 ## Current decision boundary
 
-The corrected pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` has completed the entire bounded Sepolia loop: encrypted `1,000,000`-unit deposit, encrypted `100,000`-unit yield reserve, post-epoch Chainlink request `3`, draw finalization, encrypted winner evaluation, winner-only prize decryption and settlement, then full principal withdrawal. The focused local suite now has 12 passing tests, including a weighted two-user winner/non-winner case with cross-user ACL denial. This proves the smallest protocol loop and starts hardening, not production readiness. Remaining work includes a real yield adapter, broader multi-user/full V5 behavior, adversarial and metadata testing, polished UX, and deployment operations.
+The corrected pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` has completed the entire bounded Sepolia loop: encrypted `1,000,000`-unit deposit, encrypted `100,000`-unit yield reserve, post-epoch Chainlink request `3`, draw finalization, encrypted winner evaluation, winner-only prize decryption and settlement, then full principal withdrawal. The focused local suite now has 13 passing tests, including a weighted two-user winner/non-winner case with cross-user ACL denial and repeated draws that reject RNG request reuse. The Sepolia pool predates the replay guard and remains lifecycle evidence, not the current production candidate. Remaining work includes onchain post-epoch RNG binding, a real yield adapter, broader multi-user/full V5 behavior, adversarial and metadata testing, polished UX, and deployment operations.
 
 ## Local source checkouts
 

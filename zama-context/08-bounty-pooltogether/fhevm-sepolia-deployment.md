@@ -345,7 +345,7 @@ expected pool:          0xF99747C771c09909f6Ad56F43D742c7757ECD9E0
 precomputed tx:         0x80a5361da8442869d50e2faf7564dbca8493ac6e2c2c8f4e8c1aab935c923fdc
 ```
 
-The address and transaction hash are provisional until broadcast and mining. No hardened pool transaction has been sent at this checkpoint.
+That dry-run address was subsequently confirmed by the mined deployment below.
 
 ## Hardened pool deployment and deposit
 
@@ -385,6 +385,27 @@ reserve after:          0x7d31a579874e123fc0b52345b1d4470c7b5f3b069eff0000000000
 ```
 
 Independent receipt lookup confirmed status `1`. The pool event and script output disclose only that the encrypted reserve handle changed; the plaintext amount above comes from the controlled test input rather than an onchain amount field.
+
+## Hardened pre-draw checkpoint
+
+Before the epoch closed, read-only Sepolia calls reconfirmed the complete dependency chain and untouched draw state:
+
+```text
+draw operator:          0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
+yield provider:         0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
+payout token:           0x4E7B06D78965594eB5EF5414c357ca21E1554491
+total finalized:        false
+coordinator version:    1
+coordinator operator:   0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
+coordinator adapter:    0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
+draw 1 binding:         unbound
+principal handle:       0x6b0cbdc00493d1bc165c3e2fb143f7af74e16f30efff0000000000aa36a70600
+yield reserve handle:   0x7d31a579874e123fc0b52345b1d4470c7b5f3b069eff0000000000aa36a70500
+```
+
+At gas price `996,787,288` wei, the Chainlink wrapper quoted `248,737,701,775,147` wei for the configured callback. The staged funding value of `400,000,000,000,000` wei was 60.8% above that snapshot. This is not the final quote: price must be recomputed after epoch close immediately before the request.
+
+The reference request script now reads `SEPOLIA_POOL_CONTRACT` and aborts before broadcasting unless the pool epoch has closed, its coordinator and adapter exactly match the configured addresses, coordinator provenance is version `1`, funding is nonzero, and the draw ID is still unbound. A live dry run during the open epoch reverted with `epoch-still-open`, proving that an accidental early invocation cannot permanently bind unusable randomness to draw 1.
 
 ## Sources
 

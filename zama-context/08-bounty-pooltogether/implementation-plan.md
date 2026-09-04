@@ -114,7 +114,7 @@ The original Phase 2 → Phase 3 gate and bounded Phase 5 live gate are satisfie
 
 - define and integrate the real yield source rather than operator-funded mock yield;
 - validate broader multi-user probability, repeated-draw ordering, and adversarial paths;
-- deploy and live-validate the locally passing post-epoch RNG provenance contracts;
+- complete the post-epoch request, draw, claim, and withdrawal lifecycle on the deployed provenance contracts;
 - validate full-path HCU/depth, liveness, recovery, and metadata leakage;
 - build and test the production frontend and deployment operations;
 - decide which V5 compatibility features are required for the bounty submission.

@@ -172,6 +172,35 @@ npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
 
 This path succeeded for the deployment recorded above. The script reads the pool's encrypted balance handle and requests user decryption through the Sepolia protocol. It never prints the private key or plaintext amount in transaction calldata. Do not enable both switches until the addresses and amount have been reviewed.
 
+## Live encrypted yield-funding script
+
+`scripts/liveSepoliaFundYield.ts` funds the separate encrypted prize reserve using the same ERC-7984 wrapper but callback data kind `1`. It verifies that the connected wallet is the pool's immutable `yieldProvider`, decrypts the wallet's own cUSDTMock balance before sending, and refuses to continue when that balance cannot cover the requested yield. This avoids treating ERC-7984's non-reverting zero transfer as successful funding.
+
+The initial live check correctly found a zero wallet balance after the principal deposit. The ignored local environment is configured for `100000` units (`0.1 cUSDTMock`):
+
+```text
+YIELD_AMOUNT_UNITS=100000
+YIELD_SETUP_AMOUNT_UNITS=100000
+```
+
+Mint and wrap this separate yield amount once, without funding yet:
+
+```sh
+YIELD_SETUP_BROADCAST=true \
+YIELD_FUND_BROADCAST=false \
+npx hardhat run scripts/liveSepoliaFundYield.ts --network sepolia
+```
+
+After the three setup receipts and dry-run gas estimate succeed, fund the encrypted reserve without repeating setup:
+
+```sh
+YIELD_SETUP_BROADCAST=false \
+YIELD_FUND_BROADCAST=true \
+npx hardhat run scripts/liveSepoliaFundYield.ts --network sepolia
+```
+
+The script records the reserve handle before and after funding. It requires the handle to change but does not attempt unauthorized plaintext reserve decryption.
+
 ## Sources
 
 - [FHEVM network configuration guide](https://github.com/zama-ai/fhevm/blob/main/docs/solidity-guides/configure.md)

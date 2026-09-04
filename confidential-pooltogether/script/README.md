@@ -35,6 +35,8 @@ forge script script/DeployChainlinkRng.s.sol:DeployChainlinkRng \
 
 Record the emitted adapter and coordinator addresses. The script uses the Ethereum Sepolia VRF wrapper address pinned in `src/config/sepolia.mjs`.
 
+The adapter and coordinator have different jobs. Send the request to the coordinator address, then inspect completion on the adapter address. The deployment checkpoint and verified addresses are recorded in [`zama-context/08-bounty-pooltogether/sepolia-rng-deployment.md`](../../zama-context/08-bounty-pooltogether/sepolia-rng-deployment.md).
+
 ## 3. Create one request
 
 The request and draw binding must be in one transaction. `SEPOLIA_RNG_REQUEST_FUNDING_WEI` must cover the current native VRF price; do not hardcode a price in source code. Estimate it using the wrapper and current gas price:

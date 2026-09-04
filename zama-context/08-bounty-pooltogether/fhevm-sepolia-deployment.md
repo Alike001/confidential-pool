@@ -29,7 +29,21 @@ deployer:      0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
 epoch:         1788524619 → 1788531819
 ```
 
-The receipt succeeded, deployed bytecode is non-empty, and read-only calls return the expected cUSDTMock token, RNG adapter, and epoch boundaries. Current-SDK encrypted-input generation and transfer-and-call gas estimation also pass against this address; the encrypted deposit estimates at `1,358,318` gas.
+The receipt succeeded, deployed bytecode is non-empty, and read-only calls return the expected cUSDTMock token, RNG adapter, and epoch boundaries. Current-SDK encrypted-input generation and transfer-and-call gas estimation also pass against this address.
+
+The first live encrypted deposit is complete:
+
+```text
+deposit:       1,000,000 encrypted units
+deposit tx:    0x33b238cd19c9f4e2405887f0d23aaba93b229c2dd1aecb5e8064bdcee5c10f1a
+deposit block: 11633822
+gas estimate:  1,358,347
+gas used:      1,334,819
+pool balance handle: 0x32578a6f7ce0e5034b0b36b7213ad9153f828efa30ff0000000000aa36a70600
+user-decrypted pool balance: 1,000,000
+```
+
+Independent receipt inspection confirms status `1`, the cUSDTMock confidential-transfer event, and the pool's account-only `EncryptedDeposit(address)` event. Reading the pool again returns the same encrypted balance handle. This proves the first live path from SDK encryption through ERC-7984 callback accounting and user-authorized decryption; it does not yet prove yield funding, draw finalization, prize claiming, or withdrawal.
 
 ## Live callback finding and fix
 
@@ -113,11 +127,10 @@ The successful retry used PublicNode without JSON-RPC batching and mined the cal
 
 ## Deployment gates still open
 
-- broadcasting and decrypting the already-estimated live encrypted deposit against the ERC-7984 wrapper;
 - live encrypted yield funding and handle-only payout;
-- relayer SDK user decryption on Sepolia;
 - using a fresh RNG request for the deployed pool rather than the already-consumed smoke-test request;
 - full draw/tier/claim lifecycle and repeated-claim behavior;
+- live encrypted withdrawal and principal conservation;
 - metadata-leakage review and real yield adapter design.
 
 ## Live encrypted deposit script
@@ -157,7 +170,7 @@ DEPOSIT_BROADCAST=true \
 npx hardhat run scripts/liveSepoliaDeposit.ts --network sepolia
 ```
 
-If the deposit succeeds, the script reads the pool's encrypted balance handle and requests user decryption through the Sepolia Relayer. It never prints the private key or plaintext amount in transaction calldata. Do not enable both switches until the addresses and amount have been reviewed.
+This path succeeded for the deployment recorded above. The script reads the pool's encrypted balance handle and requests user decryption through the Sepolia protocol. It never prints the private key or plaintext amount in transaction calldata. Do not enable both switches until the addresses and amount have been reviewed.
 
 ## Sources
 

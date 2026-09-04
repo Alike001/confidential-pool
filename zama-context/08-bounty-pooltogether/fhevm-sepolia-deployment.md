@@ -293,7 +293,23 @@ Receipt logs confirm `DrawRngCommitted(1, 3)`, `DrawOpened(1, 687777, randomWord
 
 The stored payout handle is `0xc98800f17413be7848a6292bc86bd3edfa69fb2dceff0000000000aa36a70500`. A read-only recovery action using the current Zama SDK decrypted that user-authorized handle to `100000`, and the wallet's confidential cUSDT balance also decrypted to `100000`. This proves encrypted eligibility, winner-only payout access, and confidential token settlement for the bounded one-user draw.
 
-`scripts/liveSepoliaWithdraw.ts` now guards the final principal withdrawal. Its dry run decrypted `1000000` principal in the pool and `100000` prize tokens in the wallet, generated an `euint128` withdrawal proof, and estimated `830080` gas. After broadcast it will require the pool principal to become zero and the wallet cUSDT balance to become `1100000`.
+`scripts/liveSepoliaWithdraw.ts` guards the final principal withdrawal. Its dry run decrypted `1000000` principal in the pool and `100000` prize tokens in the wallet, generated an `euint128` withdrawal proof, and estimated approximately `830000` gas.
+
+The live withdrawal completed the bounded lifecycle:
+
+```text
+withdrawal:             1,000,000 encrypted principal units
+withdrawal tx:          0xd6095a8254cdf4ec5bdb733d5a17d089a3a05dffdd6f137006e17d75b227fcc8
+withdrawal block:       11634760
+gas estimate:           830,044
+gas used:               822,350
+pool principal before:  1,000,000
+pool principal after:   0
+wallet cUSDT before:    100,000
+wallet cUSDT after:     1,100,000
+```
+
+Independent receipt inspection confirms status `1`, the ERC-7984 confidential-transfer event, and the pool's amount-free `EncryptedWithdrawalRequested(account)` event. User-authorized decryption proves exact conservation: the wallet recovered all `1000000` principal units while retaining the `100000` prize units. This closes the smallest live economic and confidentiality loop; it does not make the prototype production-ready.
 
 ## Sources
 

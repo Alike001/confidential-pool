@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 complete; Phases 2–3 have a passing local feasibility slice; Phase 4 is partially proven live; the Chainlink adapter has three fulfilled Sepolia requests. The corrected pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` has completed encrypted deposit, encrypted yield funding, post-epoch request `3`, draw commit/finalization, user TWAB finalization, encrypted winner evaluation, winner-only `100,000`-unit decryption, and confidential prize settlement. The guarded withdrawal dry run confirms `1,000,000` principal remains recoverable. Phase 5 now needs only the live principal withdrawal to close the bounded lifecycle; Phases 6–8 have not started. Production architecture remains gated by a real yield adapter, multi-user/full V5 compatibility, broader testing, UX, and metadata-leakage review.
+Current phase map: Phase 1 complete; Phases 2–4 have produced a locally tested and live-proven bounded design; Phase 5's smallest lifecycle is complete on Sepolia. The corrected pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed encrypted deposit, encrypted yield funding, post-epoch Chainlink request `3`, draw commit/finalization, user TWAB finalization, encrypted winner evaluation, winner-only `100,000`-unit decryption, confidential prize settlement, and full `1,000,000`-unit principal withdrawal. Final balances were pool principal `0` and wallet cUSDT `1,100,000`. Phases 6–8 remain. Production architecture is still gated by a real yield adapter, multi-user/full V5 compatibility, broader testing, UX, and metadata-leakage review.
 
 ## Guiding rule
 
@@ -25,7 +25,7 @@ Primary outputs: `pooltogether-current-architecture.md` and `prize-mechanism.md`
 
 ### Phase 2 — Reverse-engineer Zama primitives needed for the draw
 
-Status: primitive experiments and epoch-integrated accounting complete locally; operator commit/reveal and provider-backed finalization are implemented; two Chainlink VRF requests are live-fulfilled. Current-SDK encryption, confidential transfer, deposit accounting, user decryption, and encrypted reserve funding are live-proven. Realistic fixed-point arithmetic and post-epoch withdrawal are locally fixed and await replacement deployment.
+Status: primitive experiments and epoch-integrated accounting are complete locally; provider-backed finalization is implemented; three Chainlink VRF requests are live-fulfilled. Current-SDK encryption/decryption, confidential transfers, deposit accounting, encrypted reserve funding, winner-only payout access, and post-epoch withdrawal are live-proven on the corrected deployment.
 
 Next implementation/research pass:
 
@@ -42,7 +42,7 @@ The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`
 
 ### Phase 3 — Design the confidential PoolTogether architecture
 
-Status: candidate design integrated into the product-shaped slice. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, operator commit/reveal, provider-backed finalization, ERC-7984 callback/refund behavior, and post-epoch withdrawal pass locally. The first live deposit/decryption and encrypted yield funding remain valid historical integration evidence, and the corrected replacement is deployed. Repeating funding on that pool, the RNG-backed draw/claim/withdrawal, real yield integration, and full V5 compatibility remain open.
+Status: bounded candidate design integrated and proven through one complete Sepolia lifecycle. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, provider-backed finalization, ERC-7984 settlement, encrypted claim, and post-epoch withdrawal pass locally and live. Real yield integration, multi-user behavior, full V5 compatibility, and production hardening remain open.
 
 - choose the confidentiality boundary for deposits, weights, winner status, and prize amounts;
 - choose one asset and one vault model for the first slice;
@@ -102,18 +102,18 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ## Immediate next gate
 
-Broadcast the guarded `1,000,000`-unit principal withdrawal, then verify pool principal `0` and wallet cUSDT `1,100,000`. This closes the bounded live lifecycle. Afterward, move to hardening: multi-user probability tests, real yield integration, metadata analysis, UX, and deployment automation. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
+Begin Phase 6 hardening around the now-proven loop: multi-user probability and non-winner tests, metadata analysis, transaction-recovery UX, contract/API cleanup, and a production-quality frontend. In parallel, replace explicitly funded mock yield with a real yield adapter or clearly bounded integration. See [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md).
 
 Do not call the pool deployment production-ready until the live confidential-token transfer, relayer decryption flow, fresh-request lifecycle, real yield source, full V5 compatibility, and metadata-leakage review pass.
 
 ## Decision gates
 
-The original Phase 2 → Phase 3 gate is satisfied for the bounded local slice. The remaining production gate is:
+The original Phase 2 → Phase 3 gate and bounded Phase 5 live gate are satisfied. The remaining production gate is:
 
-- select a verifiable unbiased RNG provider and prove its adapter boundary;
-- connect the verified provider adapter to a deployed FHEVM pool;
-- define the real yield source and reserve accounting;
-- test the confidential-token transfer on Sepolia;
-- validate full-path HCU/depth and metadata leakage.
+- define and integrate the real yield source rather than operator-funded mock yield;
+- validate multi-user probability, non-winner, repeated-draw, and adversarial paths;
+- validate full-path HCU/depth, liveness, recovery, and metadata leakage;
+- build and test the production frontend and deployment operations;
+- decide which V5 compatibility features are required for the bounty submission.
 
 Do not proceed from Phase 3 to Phase 5 until we know what “production-oriented” means for the chosen simplified boundary and can state the remaining risks honestly.

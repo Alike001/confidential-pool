@@ -10,7 +10,8 @@ This is the implementation workspace for the bounded bounty design. It is intent
 - `src/interfaces/IConfidentialPrizePool.sol` — FHEVM-version-neutral contract boundary.
 - `src/interfaces/IRng.sol` — PoolTogether V5-compatible randomness-provider boundary.
 - `src/reference/RngLifecycleAdapter.sol` — tested request-binding/finalization seam for an `IRng` provider.
-- `src/reference/RngRequestCoordinator.sol` — atomic request-and-draw-binding proof for a requestable provider.
+- `src/reference/RngRequestCoordinator.sol` — versioned atomic request-and-draw-binding proof that records both the request block and timestamp.
+- `script/DeployRngCoordinator.s.sol` — deploys the timestamp-aware coordinator against an existing adapter.
 - `src/reference/ChainlinkVrfRngAdapter.sol` — pinned Chainlink VRF v2.5 native-payment adapter proof.
 - `src/reference/ChainlinkVrfRngAdapterReference.sol` — minimal ABI callback proof retained for comparison.
 - `src/vendor/chainlink/` — minimal Solidity subset pinned from Chainlink contracts tag `contracts-v1.5.0`.
@@ -32,7 +33,7 @@ The current asset decision is documented in `zama-context/08-bounty-pooltogether
 
 The local FHEVM slice now includes an ERC-7984-shaped payout-token mock and verifies the pool-to-token ACL handoff. It records an encrypted draw prize, encrypted yield reserve, and fixed draw-epoch TWAB, so claims no longer use a current-balance stand-in or supply an arbitrary prize at claim time. Draw opening supports both operator commit/reveal and a provider-backed `IRng` path; the provider path is exercised with a local mock, not a production Sepolia oracle. The reference workspace now also compiles the pinned Chainlink consumer base and tests native payment plus callback mapping, but it remains a test proof until live provider behavior, entropy provenance, real yield integration, full V5 compatibility, and live transfer behavior are checked.
 
-The Sepolia `cUSDTMock` target is verified for the bounded prototype. Pool `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed encrypted deposit/yield funding, post-epoch Chainlink randomness, draw opening, encrypted winner evaluation, winner-only `100,000`-unit prize settlement, and full `1,000,000`-unit principal withdrawal. The focused local suite now has 12 passing tests, including a weighted two-user winner/non-winner case. The smallest live lifecycle is complete; real yield, broader multi-user/full V5 scope, hardening, and frontend work remain.
+The Sepolia `cUSDTMock` target is verified for the bounded prototype. Pool `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed encrypted deposit/yield funding, post-epoch Chainlink randomness, draw opening, encrypted winner evaluation, winner-only `100,000`-unit prize settlement, and full `1,000,000`-unit principal withdrawal. The focused local suite now has 14 passing tests, including weighted two-user outcomes, RNG replay rejection, and coordinator-enforced post-epoch request provenance. The live pool and coordinator predate the two latest guards and remain evidence rather than the current deployment candidate. Real yield, broader multi-user/full V5 scope, hardening, and frontend work remain.
 
 ## Checks
 

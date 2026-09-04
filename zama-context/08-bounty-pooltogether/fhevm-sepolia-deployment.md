@@ -52,7 +52,7 @@ The live deposit and yield-funding evidence remains valid, but the pre-draw para
 1. The winning-zone calculation multiplied a realistic six-decimal TWAB by both `1e18` factors before scaling down. `317083 * 1e18 * 1e18` exceeds `uint128`, so the encrypted intermediate can overflow even though the final probability is small.
 2. `requestWithdrawal` rejected every call after `epochEnd` and after user finalization, contradicting the requirement that principal remain withdrawable.
 
-The implementation now divides after each fixed-point multiplication, constrains both public fractions to at most `1e18`, and accrues only to `epochEnd` while allowing post-epoch and post-finalization withdrawal. A realistic `1,000,000`-unit full-odds regression and a post-epoch withdrawal regression brought the suite to 11 tests; the subsequent two-user winner/non-winner regression brings it to 12.
+The implementation now divides after each fixed-point multiplication, constrains both public fractions to at most `1e18`, and accrues only to `epochEnd` while allowing post-epoch and post-finalization withdrawal. Subsequent two-user, replay, and coordinator-provenance regressions bring the focused suite to 14 tests.
 
 No draw was committed to `0x363C1B7bFF57Af01466B4B2342655E5f270a9f62`. Because it is immutable, this address is now superseded for the final lifecycle. Its deposited assets are testnet-only mock cUSDT; the old withdrawal rule leaves them inaccessible after this epoch, which is recorded as a prototype failure rather than hidden as a successful production path.
 
@@ -123,7 +123,7 @@ rngProvider: 0x2387Ac275b6ADa26959c587d93abFbd491A64D5A  (ChainlinkVrfRngAdapter
 coordinator: 0x9Ce976b5A46aC5d126e71bcDfdbBC7442d3489B5  (RngRequestCoordinator)
 ```
 
-The pool must receive the adapter address, not the coordinator address, because the pool calls the V5-compatible `IRng` methods (`isRequestComplete`, `isRequestFailed`, and `randomNumber`) directly on the adapter.
+The hardened pool receives both addresses: it calls V5-compatible completion/randomness methods on the adapter and verifies draw binding plus request timing through the timestamp-aware coordinator. The historical coordinator above predates provenance version `1` and cannot be used for a new hardened pool.
 
 ## Required local environment
 
@@ -135,6 +135,7 @@ RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
 SEPOLIA_PRIVATE_KEY=
 POOL_PAYOUT_TOKEN_ADDRESS=0x4E7B06D78965594eB5EF5414c357ca21E1554491
 POOL_RNG_PROVIDER_ADDRESS=0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
+POOL_RNG_COORDINATOR_ADDRESS=
 POOL_EPOCH_START=
 POOL_EPOCH_END=
 ```
@@ -313,9 +314,24 @@ Independent receipt inspection confirms status `1`, the ERC-7984 confidential-tr
 
 ## Post-deployment hardening boundary
 
-The current local contract now prevents a provider RNG request ID from being committed to more than one draw. Pool `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` was deployed before that guard was added. Keep it as reproducible evidence for the completed bounded lifecycle; do not label it as the latest production candidate or fund it for additional draws.
+The current local contract prevents a provider RNG request ID from being committed to more than one draw. Pool `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` was deployed before that guard was added. Keep it as reproducible evidence for the completed bounded lifecycle; do not label it as the latest production candidate or fund it for additional draws.
 
-The live draw script also checked that request `3` was created after epoch close. That is an operational guard, not yet a pool-contract invariant: the contract can read the provider's request block but cannot recover that historical block's timestamp. The next deployment should follow a coordinator design that enforces post-epoch request creation and one-request/one-draw binding onchain.
+The local coordinator now records the request timestamp atomically, and the local pool enforces post-epoch creation, exact draw/request binding, and coordinator/provider block agreement. Because the historical coordinator does not expose this timestamp, the next deployment requires a new coordinator. The existing Chainlink adapter can remain in use.
+
+Prepare the new coordinator from the reference repository; this is a dry run unless `--broadcast` is added:
+
+```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
+set -a
+source .env
+set +a
+export SEPOLIA_RNG_ADAPTER_CONTRACT=0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
+forge script script/DeployRngCoordinator.s.sol:DeployRngCoordinator \
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --private-key "$SEPOLIA_PRIVATE_KEY"
+```
+
+After its address and `PROVENANCE_VERSION() == 1` are verified, set that address as `POOL_RNG_COORDINATOR_ADDRESS` in the ignored `zama-context/fhevm/library-solidity/.env`. Then deploy a fresh pool; the deployment script rejects a coordinator whose version, adapter, or operator does not match.
 
 ## Sources
 

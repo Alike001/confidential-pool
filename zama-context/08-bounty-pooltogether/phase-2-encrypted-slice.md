@@ -2,7 +2,7 @@
 
 ## Status
 
-The product-shaped FHEVM slice passes 13 focused tests against the local mocked coprocessor, including a deterministic two-user winner/non-winner path and repeated draws with RNG-replay rejection. An earlier revision of the bounded contract has also completed one full Sepolia lifecycle with live Zama encryption/decryption, cUSDTMock settlement, and Chainlink randomness. It remains a prototype rather than a production-ready PoolTogether V5 implementation.
+The product-shaped FHEVM slice passes 14 focused tests against the local mocked coprocessor, including a deterministic two-user winner/non-winner path, repeated draws with RNG-replay rejection, and onchain coordinator provenance checks. An earlier revision of the bounded contract has also completed one full Sepolia lifecycle with live Zama encryption/decryption, cUSDTMock settlement, and Chainlink randomness. It remains a prototype rather than a production-ready PoolTogether V5 implementation.
 
 Implementation: [`ConfidentialPoolTogetherSlice.sol`](../fhevm/library-solidity/examples/ConfidentialPoolTogetherSlice.sol)
 
@@ -41,7 +41,7 @@ This matches the fixed-point shape reconstructed from V5 for positive values. Th
 
 - The product-shaped slice derives user-specific entropy from `keccak256(drawId, vault, user, tier, prizeIndex, drawRandomNumber)` and applies V5-style rejection sampling. The live provider-backed path uses post-epoch Chainlink VRF through the deployed adapter; the separate operator commit/reveal fallback still carries single-operator seed-selection risk.
 - The local contract marks each provider request ID as consumed when a draw is committed, preventing the same random result from being reused for another draw. The already-deployed Sepolia pool predates this guard.
-- The live script verifies that the RNG request block occurred after epoch close, but the pool contract cannot independently verify a historical block timestamp. A production candidate needs coordinator-mediated post-epoch request binding or equivalent onchain enforcement.
+- The pool now verifies the coordinator's exact draw/request binding, the coordinator-recorded request timestamp, and equality between the coordinator and provider request blocks. Pre-epoch, wrong-draw, and unbound requests revert locally. This boundary is not yet deployed live.
 - The older `Phase2WinnerPrimitive` remains a lower-level experiment that accepts an already-reduced random value for isolated FHE cost testing.
 - TWAB finalization is a separate transaction from claiming because combining epoch division, winner selection, reserve solvency, and token transfer exceeded the local FHE transaction-depth limit.
 - Sepolia ERC-7984 cUSDTMock deposit, payout, and withdrawal transfers are live-proven for one wallet. Multi-user live settlement is not yet proven.
@@ -66,7 +66,8 @@ The focused suite covers:
 9. realistic six-decimal full-odds arithmetic without encrypted intermediate overflow;
 10. withdrawal after epoch close and user finalization;
 11. ERC-7984 callback ACL compatibility;
-12. two users with TWABs `400` and `300`, aggregate `700`, identical successful claim surfaces, payouts `60` and `0`, and cross-user payout decryption rejection. Isolated from the same pre-claim snapshot, both paths use `676578` local gas and identical application-level log structures.
+12. two users with TWABs `400` and `300`, aggregate `700`, identical successful claim surfaces, payouts `60` and `0`, and cross-user payout decryption rejection. Isolated from the same pre-claim snapshot, both paths use `676599` local gas in the latest run and identical application-level log structures.
 13. an RNG request cannot be committed to a second draw, while two distinct completed requests support two finalized draws and encrypted payouts `77` and `55`; the encrypted reserve conserves the remaining `68`.
+14. a coordinator-bound request is accepted only when its draw ID and provider request block agree and its recorded timestamp is at or after epoch close; pre-epoch, mismatched, and unbound requests revert.
 
-The draw transcript, encrypted epoch accounting, local and live asset settlement, provider-backed draw finalization, private winner/non-winner results, RNG replay rejection, and principal conservation now pass. The next implementation gate is Phase 6 hardening: contract-level post-epoch RNG binding, broader adversarial multi-user coverage, metadata analysis, recovery UX, and a real yield source/Prize Vault adapter.
+The draw transcript, encrypted epoch accounting, local and live asset settlement, provider-backed draw finalization, private winner/non-winner results, RNG replay rejection, coordinator provenance, and principal conservation now pass locally. The next implementation gate is deploying and live-validating the hardened coordinator/pool pair, followed by broader adversarial multi-user coverage, metadata analysis, recovery UX, and a real yield source/Prize Vault adapter.

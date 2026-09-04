@@ -213,10 +213,12 @@ contract RngLifecycleAdapterTest {
         RngRequestCoordinator coordinator = new RngRequestCoordinator(rng);
 
         uint32 requestId = coordinator.requestDraw(1);
+        require(coordinator.PROVENANCE_VERSION() == 1, "wrong provenance version");
         RngRequestCoordinator.DrawRequest memory request = coordinator.getDrawRequest(1);
         require(request.bound, "request not bound");
         require(request.requestId == requestId, "wrong request id");
         require(request.requestedAtBlock == block.number, "wrong request block");
+        require(request.requestedAtTimestamp == block.timestamp, "wrong request timestamp");
     }
 
     function testCoordinatorAuthenticatesOperatorAndDrawIdentity() public {
@@ -254,6 +256,7 @@ contract RngLifecycleAdapterTest {
         require(requestId == 1, "wrong local request id");
         RngRequestCoordinator.DrawRequest memory drawRequest = coordinator.getDrawRequest(1);
         require(drawRequest.requestedAtBlock == block.number, "wrong request block");
+        require(drawRequest.requestedAtTimestamp == block.timestamp, "wrong request timestamp");
         require(!adapter.isRequestComplete(requestId), "request completed early");
 
         uint256[] memory randomWords = new uint256[](1);

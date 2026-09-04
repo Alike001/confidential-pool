@@ -179,7 +179,7 @@ Phase 6 repeats the comparison inside the full `ConfidentialPoolTogetherSlice` r
 
 | Observation | Winner | Non-winner |
 | --- | ---: | ---: |
-| Native gas | `676578` | `676578` |
+| Native gas | `676599` | `676599` |
 | Calldata | same function and bytes | same function and bytes |
 | Token event shape | 3 topics, 0 data bytes | 3 topics, 0 data bytes |
 | Pool event shape | 3 topics, 64 data bytes | 3 topics, 64 data bytes |
@@ -191,7 +191,13 @@ The isolated local gas delta is `0`, and the application-level event structures 
 
 The product-shaped contract now records provider request IDs at draw commitment. A focused regression confirms that request `21` can commit draw `1` only once: trying to reuse it for draw `2` reverts with `rng-request-used`. A separate completed request `22` can commit and finalize draw `2`. Both draws then produce encrypted payouts (`77` and `55`) and conserve the encrypted reserve (`200 - 77 - 55 = 68`).
 
-This closes request-ID replay in the local contract but not the full randomness-timing problem. The currently deployed Sepolia pool predates the guard. In addition, post-epoch request timing is checked by the live script rather than enforced by the pool contract, so coordinator-level binding remains the next security design task.
+This closes request-ID replay in the local contract. The currently deployed Sepolia pool predates the guard.
+
+## Coordinator provenance result
+
+The coordinator now records both `block.number` and `block.timestamp` in the same transaction that creates and binds the provider request. The pool accepts the request only if the coordinator's draw ID and request ID match, the recorded timestamp is at or after `epochEnd`, and the provider reports the same request block. A focused adversarial regression rejects a pre-epoch request, a request bound to another draw, and an unbound request before accepting a correctly bound post-epoch request.
+
+This moves the timing rule from script policy into contract validation. The coordinator is an immutable trusted dependency selected when the pool is deployed, so deployment tooling additionally verifies coordinator provenance version `1`, its adapter address, and its operator. The hardened pair remains locally proven but not yet deployed to Sepolia.
 
 ## Private-denominator result
 

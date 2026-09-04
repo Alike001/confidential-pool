@@ -4,6 +4,8 @@
 
 The Chainlink RNG adapter and atomic draw coordinator were deployed successfully to Ethereum Sepolia at block `11632465`.
 
+The deployed coordinator is now historical: it records the request block but predates the timestamp/provenance-version fields required by the hardened pool. The adapter remains reusable. A fresh coordinator must be deployed before the next pool.
+
 | Component                | Address                                      | Evidence                                                                                            |
 | ------------------------ | -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `ChainlinkVrfRngAdapter` | `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A` | `callbackGasLimit()` returns `100000`; `i_vrfV2PlusWrapper()` returns the published Sepolia wrapper |

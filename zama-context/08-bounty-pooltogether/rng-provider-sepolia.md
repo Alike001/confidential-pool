@@ -17,7 +17,7 @@ randomNumber(uint32 requestId) returns (uint256)
 
 The current V5 `DrawManager` requires the RNG request to have been made in the same block as `startDraw`. It then waits for completion and passes `randomNumber(requestId)` into `PrizePool.awardDraw`. The request ID stored by PoolTogether is a `uint32`; a provider adapter may use a wider provider-native request ID internally.
 
-This matters for our slice: `commitDrawFromRng` currently verifies that a request exists and is not from a future block, but it does not yet enforce V5's same-block rule or perform request creation and draw binding atomically. It is therefore an interface experiment, not a drop-in replacement for `DrawManager`.
+This matters for our slice: the coordinator now creates the provider request and binds it to a draw ID atomically, recording both the block and timestamp. `commitDrawFromRng` later verifies that onchain record against the provider and the pool's `epochEnd`. This closes the loose request-ID handoff, but the bounded coordinator still does not implement V5's auctions, rewards, retries, or full `DrawManager` lifecycle.
 
 ## Sepolia candidate: Chainlink VRF v2.5
 
@@ -64,7 +64,7 @@ The operator calls the adapter to create a VRF request, then calls the pool to b
 
 One coordinator contract calls the provider adapter and immediately records the returned request in the draw state during the same transaction. Later, anyone may finalize the draw after the provider callback. This is closer to the V5 lifecycle and removes a loose request-ID handoff, but it adds a coordinator and provider-specific callback plumbing.
 
-The generic local `RngLifecycleAdapter` now enforces the V5 same-block binding rule. A separate reference `RngRequestCoordinator` also proves that a request can be created and bound in one transaction. The FHEVM `ConfidentialPoolTogetherSlice` intentionally remains a looser Shape-A experiment: it accepts a previously created request so the encrypted draw path can be tested independently. Shape B is the production candidate to test next.
+The generic local `RngLifecycleAdapter` enforces the V5 same-block binding rule. The versioned `RngRequestCoordinator` creates and binds a request in one transaction and records the request timestamp. The FHEVM `ConfidentialPoolTogetherSlice` now requires that coordinator record and validates its draw ID, request ID, timestamp against `epochEnd`, and request block against the provider. Shape B therefore passes locally; it still needs a fresh coordinator and pool deployment for live validation.
 
 ## Fairness and privacy boundary
 
@@ -94,7 +94,7 @@ Before selecting it, we need a minimal adapter proof with:
 - a public transcript test showing the returned word feeds the same reduction as the plaintext baseline;
 - a Sepolia dry run using testnet ETH/LINK and the exact deployed addresses.
 
-The local adapter proof now covers the request mapping, same-block coordinator binding, authenticated callback, duplicate callback rejection, native payment, and official consumer-base callback behavior. It still does not cover a live provider callback, live fee pricing, deployment funding, transcript reduction, or provider-specific retry behavior.
+The local adapter proof covers request mapping, same-block coordinator binding, timestamp provenance, authenticated callback, duplicate callback rejection, native payment, and official consumer-base callback behavior. Earlier deployments proved live callbacks and fee funding. The new timestamp-aware coordinator/pool combination is not yet live-proven, and provider-specific retry behavior remains open.
 
 ## Dependency integration result
 
@@ -104,7 +104,7 @@ For this reason, the product workspace does not add the full npm package. Instea
 
 The read-only Sepolia check used `https://ethereum-sepolia-rpc.publicnode.com` and confirmed chain ID `11155111` plus non-empty bytecode at the published LINK token, VRF wrapper, and VRF coordinator addresses. This proves address presence only; it does not prove that our deployer is funded, that the wrapper will accept our callback gas limit, or that a request can be fulfilled.
 
-The workspace now contains explicit Foundry scripts under [`confidential-pooltogether/script/`](../../confidential-pooltogether/script/): one deploys the adapter and coordinator, and one submits a separately funded request. They require an external RPC URL, private key, and native funding at execution time; none are stored in the repository and no broadcast has been performed.
+The workspace contains explicit Foundry scripts under [`confidential-pooltogether/script/`](../../confidential-pooltogether/script/): one deploys the adapter/coordinator pair, one deploys only the timestamp-aware coordinator against an existing adapter, and one submits a separately funded request. They require an external RPC URL, private key, and native funding at execution time. Historical broadcasts are recorded separately; the new coordinator-only deployment has not been broadcast.
 
 The public Sepolia read-only check returned chain ID `11155111` and block `11632427`. At the observed gas price `1,099,012,821` wei, the wrapper's explicit `estimateRequestPriceNative(100000, 1, gasPrice)` returned `274246999944647` wei. A direct `calculateRequestPriceNative` call returned zero under `eth_call`, confirming that the explicit gas-price estimate is the safer preflight input for a transaction-funded request. This quote is volatile and must be recomputed immediately before requesting randomness.
 

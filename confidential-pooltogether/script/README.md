@@ -7,6 +7,7 @@ These scripts exercise only the randomness boundary. They do not deploy the FHEV
 Create a fresh Sepolia-only wallet. Never reuse a wallet holding real funds, and never send its private key to anyone. Copy the repository template into a local ignored file:
 
 ```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 cp .env.example .env
 set -a
 source .env
@@ -18,6 +19,7 @@ Fund the wallet with Sepolia ETH from a faucet. Native VRF payment is charged by
 ## 1. Compile
 
 ```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 forge build
 ```
 
@@ -26,6 +28,7 @@ forge build
 Keep the deployer key outside the repository and provide an RPC URL through the shell or CI secret store:
 
 ```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 export SEPOLIA_RPC_URL="..."
 forge script script/DeployChainlinkRng.s.sol:DeployChainlinkRng \
   --rpc-url "$SEPOLIA_RPC_URL" \
@@ -37,11 +40,28 @@ Record the emitted adapter and coordinator addresses. The script uses the Ethere
 
 The adapter and coordinator have different jobs. Send the request to the coordinator address, then inspect completion on the adapter address. The deployment checkpoint and verified addresses are recorded in [`zama-context/08-bounty-pooltogether/sepolia-rng-deployment.md`](../../zama-context/08-bounty-pooltogether/sepolia-rng-deployment.md).
 
+If a compatible adapter already exists, deploy only the provenance-version-1 coordinator:
+
+```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
+set -a
+source .env
+set +a
+export SEPOLIA_RNG_ADAPTER_CONTRACT="0x..."
+forge script script/DeployRngCoordinator.s.sol:DeployRngCoordinator \
+  --rpc-url "$SEPOLIA_RPC_URL" \
+  --private-key "$SEPOLIA_PRIVATE_KEY" \
+  --broadcast
+```
+
+The coordinator records both the request block and timestamp atomically. A hardened pool checks that record against its epoch end and the configured adapter.
+
 ## 3. Create one request
 
 The request and draw binding must be in one transaction. `SEPOLIA_RNG_REQUEST_FUNDING_WEI` must cover the current native VRF price; do not hardcode a price in source code. Estimate it using the wrapper and current gas price:
 
 ```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 gas_price=$(cast gas-price --rpc-url "$SEPOLIA_RPC_URL")
 cast call 0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1 \
   "estimateRequestPriceNative(uint32,uint32,uint256)(uint256)" \
@@ -52,6 +72,7 @@ cast call 0x195f15F2d49d693cE265b4fB0fdDbE15b1850Cc1 \
 Add a safety margin for gas-price movement and deployment cost. A zero result from `calculateRequestPriceNative` under `eth_call` is not a usable funding quote because the wrapper price depends on the transaction gas price; use the explicit estimate method above.
 
 ```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 export SEPOLIA_RNG_COORDINATOR_CONTRACT="0x..."
 export SEPOLIA_DRAW_ID=1
 export SEPOLIA_RNG_REQUEST_FUNDING_WEI="..."
@@ -67,6 +88,7 @@ forge script script/RequestChainlinkDraw.s.sol:RequestChainlinkDraw \
 The provider callback is asynchronous. After Chainlink fulfills the request, inspect the adapter using the returned local request ID:
 
 ```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 cast call "$ADAPTER" "isRequestComplete(uint32)(bool)" 1 --rpc-url "$SEPOLIA_RPC_URL"
 cast call "$ADAPTER" "randomNumber(uint32)(uint256)" 1 --rpc-url "$SEPOLIA_RPC_URL"
 ```

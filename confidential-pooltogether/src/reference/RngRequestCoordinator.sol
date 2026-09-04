@@ -13,18 +13,25 @@ interface IRequestableRng is IRng {
 ///      coordinator would also carry epoch state, retry policy, keeper rewards,
 ///      and the confidential pool's draw commitment.
 contract RngRequestCoordinator {
+    uint256 public constant PROVENANCE_VERSION = 1;
     IRequestableRng public immutable rng;
     address public immutable operator;
 
     struct DrawRequest {
         uint32 requestId;
         uint256 requestedAtBlock;
+        uint256 requestedAtTimestamp;
         bool bound;
     }
 
     mapping(uint64 drawId => DrawRequest request) private _drawRequests;
 
-    event DrawRngRequested(uint64 indexed drawId, uint32 indexed requestId, uint256 requestedAtBlock);
+    event DrawRngRequested(
+        uint64 indexed drawId,
+        uint32 indexed requestId,
+        uint256 requestedAtBlock,
+        uint256 requestedAtTimestamp
+    );
 
     constructor(IRequestableRng rng_) {
         require(address(rng_) != address(0), "rng-zero");
@@ -45,9 +52,10 @@ contract RngRequestCoordinator {
         _drawRequests[drawId] = DrawRequest({
             requestId: requestId,
             requestedAtBlock: requestedAtBlock,
+            requestedAtTimestamp: block.timestamp,
             bound: true
         });
-        emit DrawRngRequested(drawId, requestId, requestedAtBlock);
+        emit DrawRngRequested(drawId, requestId, requestedAtBlock, block.timestamp);
     }
 
     function getDrawRequest(uint64 drawId) external view returns (DrawRequest memory) {

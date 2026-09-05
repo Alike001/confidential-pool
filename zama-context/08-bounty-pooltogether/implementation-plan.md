@@ -4,7 +4,7 @@
 
 Phase 2 research produced a bounded build direction. The final implementation uses a public KMS-proven draw denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It intentionally does not attempt full-width private denominator division or a complete V5 port.
 
-Phases 1–6 are complete locally for the bounded submission. The official form's explicit “FHE randomness, no offchain RNG” requirement caused one final architecture correction. The first FHE-random pair is source-verified staging evidence; review then added an explicit one-tier prize-slot guard at commit `8addf2a` to prevent arbitrary extra attempts. A fresh immutable wrapper/pool pair, live lifecycle, strict audit, hosted wallet QA, and submission media remain.
+Phases 1–7 are complete for the bounded submission. The official form's explicit “FHE randomness, no offchain RNG” requirement caused the final architecture correction. The guarded immutable wrapper/pool pair is deployed and source-matched, and its complete live lifecycle passed the strict auditor. Hosted wallet QA and submission media/publication remain.
 
 ## Guiding rule
 
@@ -25,7 +25,7 @@ Primary outputs: `pooltogether-current-architecture.md` and `prize-mechanism.md`
 
 ### Phase 2 — Reverse-engineer Zama primitives needed for the draw
 
-Status: complete locally for the bounded design. Current-SDK encryption/decryption, confidential transfers, epoch TWAB accounting, KMS aggregate proof, encrypted `FHE.randEuint64()` sampling, encrypted reserve funding, winner-only payout access, and withdrawal pass the full phase-2 suite. Live proof is in progress.
+Status: complete for the bounded design. Current-SDK encryption/decryption, confidential transfers, epoch TWAB accounting, KMS aggregate proof, encrypted `FHE.randEuint64()` sampling, encrypted reserve funding, winner-only payout access, and withdrawal pass both the phase-2 suite and strict live proof.
 
 Next implementation/research pass:
 
@@ -63,7 +63,7 @@ Status: complete for the bounded architecture; revisit only if the yield adapter
 
 ### Phase 5 — Implement the smallest correct protocol
 
-Status: complete locally; fresh FHE-random Sepolia lifecycle validation is in progress.
+Status: complete locally and validated through the final FHE-random Sepolia lifecycle.
 
 The first implementation target should be one coherent loop:
 
@@ -80,7 +80,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ### Phase 6 — Polish UX, testing, and verification
 
-Status: responsive frontend implementation and local regression testing are complete. Fresh source verification, strict live lifecycle evidence, and hosted injected-wallet QA remain.
+Status: responsive frontend implementation, local regression testing, source verification, strict live lifecycle evidence, and write-enabled Vercel publication are complete. Hosted injected-wallet QA remains.
 
 - wallet and encryption onboarding;
 - clear pending states for coprocessor/decryption work;
@@ -90,11 +90,11 @@ Status: responsive frontend implementation and local regression testing are comp
 - failure and retry handling;
 - frontend explanation of what is and is not public.
 
-Progress: multi-user fairness/privacy, equalized claim surfaces, encrypted-random claim slots, Aave backing conservation, adversarial behavior, and HCU/gas checks pass locally. The active release has not yet completed its fresh strict lifecycle audit.
+Progress: multi-user fairness/privacy, equalized claim surfaces, encrypted-random claim slots, Aave backing conservation, adversarial behavior, and HCU/gas checks pass locally. The active release also passed the strict live lifecycle audit.
 
 ### Phase 7 — Deploy to Sepolia
 
-Status: staging pair deployed and source-matched. The guarded final pair, end-to-end transactions, strict audit, and write-enabled hosted deployment remain.
+Status: guarded final pair deployed, source-matched, and validated end to end. The write-enabled hosted build is live; browser-wallet QA remains as release presentation work.
 
 - deploy only after local and testnet invariants pass;
 - verify contracts and record addresses/versions;
@@ -103,7 +103,7 @@ Status: staging pair deployed and source-matched. The guarded final pair, end-to
 
 ### Phase 8 — Submission
 
-Status: packaging in progress. Remaining items are strict live evidence, source verification, final website publication/QA, walkthrough media, final copy review, X post, and external form.
+Status: packaging in progress. Remaining items are hosted wallet QA, walkthrough media, final copy review, X post, and external form.
 
 - working website;
 - source repository;
@@ -114,7 +114,7 @@ Status: packaging in progress. Remaining items are strict live evidence, source 
 
 ## Immediate next gate
 
-The immediate gate is the fresh FHE-random Sepolia lifecycle. Promote the release only after the strict auditor returns true; then complete source verification, hosted wallet QA, media, and submission.
+The contract release and hosted-build gates are passed. The immediate gate is hosted injected-wallet QA, followed by media and submission review.
 
 ## Remaining delivery sequence
 
@@ -123,8 +123,8 @@ The immediate gate is the fresh FHE-random Sepolia lifecycle. Promote the releas
 3. **Resolve yield honestly — complete.** LINK is supplied to Aave, transferable aLINK backs caLINK one-for-one, and only measured backing surplus can be harvested into the encrypted prize reserve. Public shield/redemption boundaries and the app-specific wrapper are disclosed.
 4. **Harden the final ABI — complete locally.** Multi-wallet, repeated epochs, non-winner behavior, encrypted FHE randomness, and HCU/gas checks pass.
 5. **Reintegrate and build the real frontend — complete locally.** The production Vite frontend maps wallet/network onboarding, Aave setup, Zama input encryption, confidential deposits/withdrawals, KMS checkpoints, all FHE claim stages, and owner-authorized decryption.
-6. **Create the final Sepolia release — in progress.** Contracts are deployed, source-verified, and wired into local frontend configuration. Full-cycle transactions, strict audit, Vercel promotion, and hosted-wallet QA remain.
-7. **Package and submit — pending release gate.** After the strict audit: finalize repository evidence, record the real-person walkthrough, publish the X post, and submit the one-shot form.
+6. **Create the final Sepolia release — complete.** Contracts are deployed, source-matched, and wired into frontend configuration. The full encrypted cycle passed `FHE_RANDOM_AAVE_LIFECYCLE_COMPLETE: true`.
+7. **Package and submit — in progress.** QA the write-enabled Vercel build with an injected wallet, record the real-person walkthrough, publish the X post, and submit the one-shot form.
 
 Do not call the contracts audited or claim anonymity. The final materials must keep the app-specific wrapper, public boundary amounts, public aggregate denominator, external protocol dependencies, one-tier scope, and manual keeper operations explicit.
 
@@ -132,8 +132,6 @@ Do not call the contracts audited or claim anonymity. The final materials must k
 
 The research, architecture, and local implementation gates are satisfied. Submission readiness now requires:
 
-- one complete FHE-random Sepolia lifecycle and strict audit;
-- final Vercel deployment;
 - one hosted injected-wallet QA pass;
 - a concise real-person demo video that shows generated yield, encrypted participation, FHE randomness, private payout, and principal recovery;
 - a final link/claim review;

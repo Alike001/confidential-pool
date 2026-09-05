@@ -37,13 +37,14 @@ This folder is the challenge-specific research database. It studies PoolTogether
 31. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
 32. [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md)
 33. [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md)
-34. [`experiments/`](./experiments/)
+34. [`fhe-random-keeper-runbook.md`](./fhe-random-keeper-runbook.md)
+35. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 
 Earlier cUSDTMock pools remain historical evidence for fixed and recurring FHE lifecycles, including multi-user winner/non-winner outcomes and complete principal recovery. They no longer define the submission target because their prize reserves were sponsored.
 
-The submission implementation now uses `FHE.randEuint64()` with encrypted user TWABs, thresholds, winner bits, reserves, and payouts. Pool `0x686227d54223cCF844a57C9D8bf95d1A5bE49B02` and token `0x7885283CB34d02b81e671FEA7404C3c94f594Bdd` are source-verified staging deployments only. Review added an explicit one-tier prize-slot guard at fork commit `8addf2a`; a fresh guarded pair and strict lifecycle are pending testnet gas funding. The authoritative status record is [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md).
+The submission implementation uses `FHE.randEuint64()` with encrypted user TWABs, thresholds, winner bits, reserves, and payouts. Final pool `0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88` and token `0x78da50E954d2fC69C10688032c8c07D2ABC52750` contain the explicit one-tier prize-slot guard from fork commit `8addf2a`, are source-matched, and passed the strict live Sepolia lifecycle audit. The authoritative status record is [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md).
 
 The prior Aave/Chainlink deployment completed its own lifecycle and remains useful regression evidence, but it is historical rather than the submission target because the official form requires FHE randomness and no offchain RNG.
 

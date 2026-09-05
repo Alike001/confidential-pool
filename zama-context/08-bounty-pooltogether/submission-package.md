@@ -75,27 +75,30 @@ Public:
 
 The product provides confidentiality, not anonymity. The public aggregate can leak information in a very small participant set, and repeated public actions can support inference. Winner and non-winner settlement deliberately use the same non-reverting call shape and matched application-event structure.
 
-## Sepolia staging deployment
+## Final Sepolia deployment
 
-- Source-verified staging pool: [`0x686227d54223cCF844a57C9D8bf95d1A5bE49B02`](https://sepolia.etherscan.io/address/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02)
-- Staging caLINK wrapper: [`0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`](https://sepolia.etherscan.io/address/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd)
-
-These are not the form-submission addresses. A guarded final pair is pending deployment and strict lifecycle validation.
+- Source-matched guarded pool: [`0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88`](https://sepolia.etherscan.io/address/0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88)
+- Source-matched caLINK wrapper: [`0x78da50E954d2fC69C10688032c8c07D2ABC52750`](https://sepolia.etherscan.io/address/0x78da50E954d2fC69C10688032c8c07D2ABC52750)
 - Aave V3 Pool: [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951)
 - LINK: `0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5`
 - aLINK: `0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`
 
 ## Verified live evidence
 
-Already verified locally and on predecessor releases:
+Verified on the final guarded release:
 
 - LINK → Aave → aLINK → caLINK setup;
 - encrypted `9 caLINK` deposit, privately verified as `9000000000000000000` units;
-- two strategy-yield harvests with exact post-block backing invariants;
+- real Aave yield harvested with an exact post-block backing invariant;
 - encrypted reserve handle changed without publishing its plaintext;
-- final verified harvest transaction: [`0x71e50941…c72dcf`](https://sepolia.etherscan.io/tx/0x71e50941a7192f69969f79e6eadeb8ab4cb664b8805c0772134ad2ac35c72dcf).
+- final harvest transaction: [`0xf2ad1504…95efc`](https://sepolia.etherscan.io/tx/0xf2ad1504522b122ade360d7eaab707c3a4446e81d1314a0643fc4b3bfa495efc);
+- exact KMS-proven aggregate TWAB `6720000000000000000` in [`0x80aaa07d…77962`](https://sepolia.etherscan.io/tx/0x80aaa07d93a34b51cf0c98dcd50f30c3a1ca7ecfa58cf78b5c6f5cd43f877962);
+- encrypted weight, threshold, and `FHE.randEuint64()` stages completed onchain;
+- winner-only payout decrypted to `100000000000000` units;
+- full `9 caLINK` principal withdrawn in [`0xa82c02b1…af7f`](https://sepolia.etherscan.io/tx/0xa82c02b191863acddf5c8c23dfacd90bd1f7dc710f26254be16158534552af7f);
+- strict auditor returned `FHE_RANDOM_AAVE_LIFECYCLE_COMPLETE: true`.
 
-The new FHE-random contracts are deployed, but their fresh draw, winner-only claim, full principal withdrawal, and strict-audit transcript are still in progress. Track only [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md) for final-candidate status. The previous Aave/Chainlink lifecycle remains historical evidence in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
+The complete transcript is in [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md). The previous Aave/Chainlink lifecycle remains historical regression evidence in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
 
 Historical releases separately proved two-user weighted outcomes, recurring epochs, KMS aggregate verification, post-close VRF provenance, private winner/non-winner payouts, full principal recovery, and strict lifecycle audits. They are regression evidence, not the final generated-yield deployment.
 
@@ -152,5 +155,7 @@ The system is pre-audit software and is not described as audited. The possible O
 - Product/research repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
 - Public frontend: <https://frontend-two-chi-54.vercel.app>
+- Final pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88?fields=all>
+- Final caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x78da50E954d2fC69C10688032c8c07D2ABC52750?fields=all>
 - Demo video: `TODO`
 - Submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>

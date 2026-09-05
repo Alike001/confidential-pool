@@ -1,14 +1,31 @@
 import { Header } from "./components/Header";
 import { DrawSummary } from "./components/DrawSummary";
-import { PositionWorkspace, PrivatePositionCard } from "./components/PositionWorkspace";
-import { EvidenceSection, HowItWorks, PrivacyBoundary } from "./components/InformationSections";
+import {
+  PositionWorkspace,
+  PrivatePositionCard,
+} from "./components/PositionWorkspace";
+import {
+  EvidenceSection,
+  HowItWorks,
+  PrivacyBoundary,
+} from "./components/InformationSections";
 import { ArrowIcon } from "./components/Icons";
 import { useWallet } from "./hooks/useWallet";
 import { usePoolSnapshot } from "./hooks/usePoolSnapshot";
+import { useConfidentialActions } from "./hooks/useConfidentialActions";
 
 export default function App() {
   const wallet = useWallet();
-  const pool = usePoolSnapshot(wallet.isSepolia ? wallet.provider : undefined, wallet.isSepolia ? wallet.account : undefined);
+  const pool = usePoolSnapshot(
+    wallet.isSepolia ? wallet.provider : undefined,
+    wallet.isSepolia ? wallet.account : undefined,
+  );
+  const actions = useConfidentialActions({
+    ethereum: wallet.ethereum,
+    account: wallet.account,
+    isSepolia: wallet.isSepolia,
+    refresh: pool.refresh,
+  });
 
   return (
     <div className="page" id="top">
@@ -24,10 +41,25 @@ export default function App() {
         <section className="product-intro">
           <div className="hero-copy">
             <h1>Save privately. Win transparently.</h1>
-            <p>Deposit confidential cUSDTMock, keep your position encrypted, and verify every draw onchain.</p>
-            {wallet.error ? <p className="inline-error" role="alert">{wallet.error}</p> : null}
-            {!pool.hasProvider ? <p className="read-note">Connect a Sepolia wallet to load live pool state.</p> : null}
-            {pool.error ? <p className="inline-error" role="alert">Live read failed: {pool.error}</p> : null}
+            <p>
+              Deposit confidential cUSDTMock, keep your position encrypted, and
+              verify every draw onchain.
+            </p>
+            {wallet.error ? (
+              <p className="inline-error" role="alert">
+                {wallet.error}
+              </p>
+            ) : null}
+            {!pool.hasProvider ? (
+              <p className="read-note">
+                Connect a Sepolia wallet to load live pool state.
+              </p>
+            ) : null}
+            {pool.error ? (
+              <p className="inline-error" role="alert">
+                Live read failed: {pool.error}
+              </p>
+            ) : null}
           </div>
         </section>
         <section className="product-grid">
@@ -37,10 +69,21 @@ export default function App() {
             snapshot={pool.snapshot}
             onConnect={() => void wallet.connect()}
             onSwitchNetwork={() => void wallet.switchToSepolia()}
+            operation={actions}
           />
-          <a className="compact-evidence-link" href="#fairness">View public draw evidence <ArrowIcon /></a>
+          <a className="compact-evidence-link" href="#fairness">
+            View public draw evidence <ArrowIcon />
+          </a>
           <DrawSummary snapshot={pool.snapshot} loading={pool.loading} />
-          <PrivatePositionCard snapshot={pool.snapshot} />
+          <PrivatePositionCard
+            connected={wallet.status === "connected"}
+            isSepolia={wallet.isSepolia}
+            snapshot={pool.snapshot}
+            onConnect={() => void wallet.connect()}
+            onSwitchNetwork={() => void wallet.switchToSepolia()}
+            onDecrypt={actions.decrypt}
+            operation={actions}
+          />
         </section>
 
         <HowItWorks />
@@ -49,7 +92,11 @@ export default function App() {
       </main>
       <footer>
         <span>Confidential Pool · Sepolia release candidate</span>
-        <nav aria-label="Footer navigation"><a href="#how-it-works">How it works</a><a href="#privacy">Privacy</a><a href="#fairness">Fairness</a></nav>
+        <nav aria-label="Footer navigation">
+          <a href="#how-it-works">How it works</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#fairness">Fairness</a>
+        </nav>
       </footer>
     </div>
   );

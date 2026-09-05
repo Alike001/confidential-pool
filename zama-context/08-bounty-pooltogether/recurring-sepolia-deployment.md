@@ -35,6 +35,14 @@ Wallet B received `0.01` Sepolia ETH in transaction `0xd166ca03b90d6f56463f3fdbe
 
 An interrupted deployment command also mined unused pool `0xE14f3bFcd6d9E51e3F19310F7fD2F96A820c3065` in transaction `0xe56839d89a2a434e6da2b778e0d0507737593c232d895637ab052bf7be2d55d9`. It received no deposit or reserve funding and bound no RNG request; it is historical test evidence only.
 
+### Final-candidate lifecycle evidence
+
+| Step | Epoch | Transaction | Block | Result |
+|---|---:|---|---:|---|
+| Wallet A encrypted deposit | 1 | `0xee46091da995fb8e667a3436ac3f49d6de3be20c5045b2c7afd431bd6e8e8b66` | `11638670` | Owner-authorized decryption returned `1000000` units |
+| Wallet B encrypted deposit | 1 | `0x1373f7d90ce7ab019e899b15ccd0ead6d0f9478946d712e33be8b0f77710b59a` | `11638684` | Owner-authorized decryption returned `1000000` units |
+| Sponsored encrypted prize reserve | 1 | `0x53c1b3e006a7e9c2fb33075a924785ba6e343df290807e716e498b8f393d70de` | `11638691` | Reserve changed from the zero handle to ciphertext `0x6da12f454f9e4bdbc2a36c4974b97a7ec0b6aa5eadff0000000000aa36a70500` without publishing its plaintext |
+
 ## Superseded deployment record
 
 | Field | Value |
@@ -75,8 +83,8 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 ## Promotion gates
 
 - [x] Deploy a fresh coordinator with an unbound draw-1 slot, then deploy a replacement recurring pool against it.
-- Complete confidential deposits for at least two wallets.
-- Fund the disclosed testnet-sponsored encrypted prize reserve.
+- [x] Complete confidential deposits for at least two wallets.
+- [x] Fund the disclosed testnet-sponsored encrypted prize reserve.
 - Advance, checkpoint, decrypt the aggregate, draw, prepare claims, settle claims, and withdraw across two consecutive epochs.
 - Run the strict recurring lifecycle auditor successfully.
 - Verify source code and test public metadata/endpoints.

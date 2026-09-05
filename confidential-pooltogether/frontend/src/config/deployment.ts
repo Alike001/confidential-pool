@@ -7,10 +7,12 @@ export const deployment = {
   rngProvider: "0x2387Ac275b6ADa26959c587d93abFbd491A64D5A",
   rngCoordinator: "0xcb8bbD71B269E4a64965Cb86F044950f542B6133",
   deploymentTransaction:
-    "0x9b789a869d8be78bd815aa22e79f355c0b17277842512f9613e889216f105cb5",
-  deploymentBlock: 11636762,
-  firstEpochStart: 1788567223,
-  epochDuration: 1800,
+    "0x2ec1adbba3797aa7da645dc13276a423d52973db008b6c36651b6d2f36bd7c6e",
+  deploymentBlock: 11638643,
+  firstEpochStart: 1788590172,
+  epochDuration: 3600,
+  tokenDecimals: 6,
+  writesEnabled: false,
   explorerUrl: "https://sepolia.etherscan.io",
 } as const;
 

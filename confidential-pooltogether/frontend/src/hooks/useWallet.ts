@@ -1,4 +1,5 @@
 import { BrowserProvider } from "ethers";
+import type { EIP1193Provider } from "@zama-fhe/sdk/ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { deployment } from "../config/deployment";
 
@@ -9,15 +10,9 @@ type WalletState = {
   error?: string;
 };
 
-type EthereumProvider = {
-  request(args: { method: string; params?: unknown[] }): Promise<unknown>;
-  on?(event: string, listener: (...args: unknown[]) => void): void;
-  removeListener?(event: string, listener: (...args: unknown[]) => void): void;
-};
-
 declare global {
   interface Window {
-    ethereum?: EthereumProvider;
+    ethereum?: EIP1193Provider;
   }
 }
 
@@ -44,17 +39,20 @@ export function useWallet() {
   useEffect(() => {
     void sync();
     const changed = () => void sync();
-    window.ethereum?.on?.("accountsChanged", changed);
-    window.ethereum?.on?.("chainChanged", changed);
+    window.ethereum?.on("accountsChanged", changed);
+    window.ethereum?.on("chainChanged", changed);
     return () => {
-      window.ethereum?.removeListener?.("accountsChanged", changed);
-      window.ethereum?.removeListener?.("chainChanged", changed);
+      window.ethereum?.removeListener("accountsChanged", changed);
+      window.ethereum?.removeListener("chainChanged", changed);
     };
   }, [sync]);
 
   const connect = useCallback(async () => {
     if (!window.ethereum) {
-      setState({ status: "unsupported", error: "Install a browser wallet to continue." });
+      setState({
+        status: "unsupported",
+        error: "Install a browser wallet to continue.",
+      });
       return;
     }
     setState({ status: "connecting" });
@@ -62,7 +60,13 @@ export function useWallet() {
       await window.ethereum.request({ method: "eth_requestAccounts" });
       await sync();
     } catch (error) {
-      setState({ status: "error", error: error instanceof Error ? error.message : "Wallet connection was rejected." });
+      setState({
+        status: "error",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Wallet connection was rejected.",
+      });
     }
   }, [sync]);
 
@@ -78,7 +82,10 @@ export function useWallet() {
       setState((current) => ({
         ...current,
         status: "error",
-        error: error instanceof Error ? error.message : "Unable to switch to Sepolia.",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Unable to switch to Sepolia.",
       }));
     }
   }, [sync]);
@@ -91,6 +98,7 @@ export function useWallet() {
   return {
     ...state,
     provider,
+    ethereum: window.ethereum,
     isSepolia: state.chainId === deployment.chainId,
     connect,
     switchToSepolia,

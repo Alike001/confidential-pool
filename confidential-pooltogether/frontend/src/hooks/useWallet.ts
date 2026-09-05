@@ -37,8 +37,19 @@ export function useWallet() {
   }, []);
 
   useEffect(() => {
-    void sync();
-    const changed = () => void sync();
+    const safelySync = () => {
+      void sync().catch((error) => {
+        setState({
+          status: "error",
+          error:
+            error instanceof Error
+              ? error.message
+              : "Unable to read the browser wallet.",
+        });
+      });
+    };
+    safelySync();
+    const changed = () => safelySync();
     window.ethereum?.on("accountsChanged", changed);
     window.ethereum?.on("chainChanged", changed);
     return () => {

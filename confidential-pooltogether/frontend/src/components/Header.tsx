@@ -27,7 +27,7 @@ export function Header({ account, connected, connecting, isSepolia, onConnect, o
         <a href="#fairness" onClick={() => setMenuOpen(false)}>Fairness</a>
       </nav>
       <div className="header-actions">
-        <span className={isSepolia ? "network-status" : "network-status is-wrong"}>
+        <span className={!connected || isSepolia ? "network-status" : "network-status is-wrong"}>
           <span className="status-dot" /> {isSepolia || !connected ? "Sepolia" : "Wrong network"}
         </span>
         <button

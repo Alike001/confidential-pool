@@ -89,7 +89,7 @@ export function EvidenceSection({ snapshot }: { snapshot?: PoolSnapshot }) {
         <EvidenceRow label="Chainlink RNG adapter" detail="Public randomness provider" value={deployment.rngProvider} href={explorerAddress(deployment.rngProvider)} />
         <EvidenceRow label="Confidential token" detail="Sepolia cUSDTMock wrapper" value={deployment.payoutToken} href={explorerAddress(deployment.payoutToken)} />
         <EvidenceRow label="Deployment transaction" detail="Recurring candidate deployment" value={deployment.deploymentTransaction} href={explorerTransaction(deployment.deploymentTransaction)} />
-        <EvidenceRow label="Verified source" detail="Sourcify exact creation + runtime match" value={`Match ${deployment.sourceMatchId}`} href={deployment.sourceVerificationUrl} />
+        <EvidenceRow label="Verified source" detail="Pool + RNG provenance; exact Sourcify matches" value={`Pool match ${deployment.sourceMatchId}`} href={deployment.sourceVerificationUrl} />
       </div>
     </section>
   );

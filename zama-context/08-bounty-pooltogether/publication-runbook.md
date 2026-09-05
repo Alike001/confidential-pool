@@ -18,7 +18,9 @@ The local implementation branch already exists at:
 feature/confidential-pool -> f64413c
 ```
 
-Publication was approved on 2026-09-05. The `Alike001/fhevm` fork exists and its `feature/confidential-pool` branch is published. The `Alike001/confidential-pool` repository has been created; its `main` branch and Pages site are published by the remaining commands below.
+Publication was approved and completed on 2026-09-05. The `Alike001/fhevm` fork publishes the implementation on `feature/confidential-pool`. The `Alike001/confidential-pool` repository publishes the product, research, evidence, and frontend on `main`.
+
+The Pages workflow completed successfully in [run `33971940140`](https://github.com/Alike001/confidential-pool/actions/runs/33971940140). The public site returned HTTP 200, loaded its JavaScript bundle from the project subpath, rendered the approved responsive interface, and read live Sepolia draw `3` without a connected wallet.
 
 ## Pre-publish checks
 

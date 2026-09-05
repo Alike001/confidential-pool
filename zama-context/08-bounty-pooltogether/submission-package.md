@@ -115,6 +115,10 @@ Current results: 13 Foundry tests, 25 focused FHE tests, lifecycle TypeScript/li
 4. Owner-decrypted winner payout and confirmed claim state.
 5. Mobile layout showing the current draw and deposit workspace.
 
+## Public frontend verification
+
+The GitHub Pages deployment succeeded in [workflow run `33971940140`](https://github.com/Alike001/confidential-pool/actions/runs/33971940140). A clean headless-browser session loaded the production origin, rendered the approved desktop interface, and read current Sepolia draw `3`. Injected-wallet signing is intentionally a separate manual check because the clean browser has no wallet extension or user key.
+
 ## Known limitations
 
 - The Sepolia asset is `cUSDTMock`, not mainnet cUSDT.

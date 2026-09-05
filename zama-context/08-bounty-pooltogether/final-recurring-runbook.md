@@ -69,7 +69,7 @@ EPOCH_ACTION=finalize-aggregate EPOCH_ID="$TARGET_EPOCH" EPOCH_BROADCAST=true \
 npx hardhat run scripts/liveSepoliaRecurringEpoch.ts --network sepolia
 ```
 
-Expected epoch-1 aggregate: `1773332`. Expected encrypted user TWABs are `936666` for wallet A and `836666` for wallet B.
+Expected epoch-1 aggregate: `1773333`. Expected encrypted user TWABs are `936666` for wallet A and `836666` for wallet B. The aggregate is one unit above the sum of the individually floored user values because the total accumulator sums both time-weighted numerators before its single final division.
 
 ## 2. Request post-close randomness
 

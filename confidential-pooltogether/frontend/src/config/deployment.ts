@@ -12,7 +12,7 @@ export const deployment = {
   firstEpochStart: 1788607872,
   epochDuration: 3600,
   tokenDecimals: 6,
-  writesEnabled: false,
+  writesEnabled: true,
   publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
   sourceVerificationUrl:

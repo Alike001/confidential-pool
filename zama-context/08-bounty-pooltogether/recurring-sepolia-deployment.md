@@ -2,7 +2,7 @@
 
 ## Refund-safe final candidate
 
-The current release candidate is deployed, source-verified, frontend-bound, and undergoing its final two-wallet lifecycle. It is not promoted until the live claim, withdrawal, and strict-auditor gates below pass.
+The refund-safe recurring release is deployed, source-verified, frontend-bound, and live-validated across both test wallets. Both strict account audits returned `RECURRING_LIFECYCLE_COMPLETE: true`; frontend writes are enabled for these frozen addresses.
 
 | Field | Value |
 |---|---|
@@ -24,7 +24,29 @@ The coordinator's adapter, operator, provenance version `1`, and initially unbou
 
 Both wallets deposited `1000000` confidential units. Wallet A's deposit transaction `0x5aa3b9a6941f8621e5071527ec0818ee4b0bcaf41676f9479df92d7ff92e8ac2` mined in block `11640092`; wallet B's transaction `0x75a6c359e9eb8617b6c782c7918b68bce6d2c7ec637d13734ddcb59e4e768934` mined in block `11640121`. Owner-authorized decryption returned `1000000` for each position. The sponsored encrypted reserve was funded in transaction `0xdacd0811b7db1d2d9f296c7409ec4601bf94238ba5399b9a51266b15b93c0795` at block `11640147`; its plaintext was not emitted.
 
-From the public epoch boundary and deposit timestamps, the exact epoch-1 TWAB expectations are `936666` for wallet A, `836666` for wallet B, and `1773332` in aggregate. These are audit expectations; the individual values remain owner-decryptable ciphertext while only the KMS-proven aggregate is deliberately made public.
+From the public epoch boundary and deposit timestamps, the exact epoch-1 user TWABs are `936666` for wallet A and `836666` for wallet B. The KMS-proven aggregate is `1773333`: the contract sums both time-weighted numerators before one final division, so it differs by one unit from the sum of the two individually floored TWABs. The individual values remain owner-decryptable ciphertext while only the aggregate is deliberately made public.
+
+### Final lifecycle transcript
+
+| Step | Transaction | Block | Result |
+|---|---|---:|---|
+| Advance epoch 1 | `0xdd35356f4ada4d4cbe4a2e881e3220d7fcd49d3670f54649f4328f335dd961f0` | `11640369` | Epoch 1 total finalized; epoch 2 opened |
+| Finalize wallet A TWAB | `0xa8447a4d96f5d58d393a42c6aaeed5f8cb2fbc6135ac0e8452215863df7aa8dd` | `11640374` | Owner-decrypted audit value `936666` |
+| Finalize wallet B TWAB | `0x55e69deb2121a2790822a93343fe436a5e660415feb8a6719a1dee0b7d41d1af` | `11640377` | Owner-decrypted audit value `836666` |
+| Request aggregate decryption | `0xce7e9f08952b1214f96a51edd3df483f7a6317994c57c8d9c152d76a4feac073` | `11640381` | Aggregate handle authorized for public KMS decryption |
+| Finalize KMS aggregate | `0xda5ae528466cb8b3bcac6d47971f820ab7c3b8e307b0fc4b00d56641d5bd362b` | `11640387` | KMS proof accepted aggregate `1773333` |
+| Bind Chainlink request 8 | `0xce4ca6b13bbb7b6a8a0a298417d05fae56adbf0ddcf7609f59401a27d1f0cd46` | `11640395` | Post-close request bound atomically to draw 1 |
+| Recover real RNG overpayment refund | `0x732b31628e35395265e382537cb02504180f9d270eff540757d2f94dcf818574` | `11640399` | Recovered `132689124102709` wei; coordinator balance returned to zero |
+| Commit encrypted draw | `0xb0004a5ac4a07982c38753767213189ec9e0037c5ece7e8c00300b49ff62080d` | `11640417` | Encrypted `100000`-unit prize committed |
+| Open draw | `0x5fa313a0a60ead6c5d1c419b65c176aeefc4a132a0008289b668eab7581553d0` | `11640424` | Chainlink random word consumed onchain |
+| Wallet A prepare / settle | `0x3831aab01f236dba8f069261565ddb4baeb053c6d9efc6ddd0ef5a6a073483cf` / `0x23d6aa9bedba4921f859bb834f0f9f13935fa29f658d2c6efd1714c3236538e3` | `11640428` / `11640431` | Private payout `0` |
+| Wallet B prepare / settle | `0xb21fcbdcee6649753bfb3a0ed42bec85fc2cb35e365309b92498ead149552f64` / `0x0aa20f41ae58a7caebb08907e8be28becb2ea4722ae0afc9f12f14e09df944ed` | `11640434` / `11640437` | Private payout `100000` |
+| Wallet A principal withdrawal | `0xec2be666bc183e276d05cd8c796bdfe3ee75255cd1b62fea92273dababa96d85` | `11640643` | Principal `1000000 → 0`; wallet cUSDT `100000 → 1100000` |
+| Advance epoch 2 | `0x504c050f67a69077f23771be0e783f213bd5919753e3ffa0b3547d564788c9b7` | `11640662` | Required after the relayer delay crossed the next epoch boundary |
+| Finalize epoch-2 checkpoints | `0x19c31e0987d0ae64beb75e6b1a7ad5b770c63a25a97a871f6dba9beb10e798da` / `0xdb548aef339b158b40a583611549e060dc8d1f9a3cf1b605dc4a1f8ee0356aff` | `11640668` / `11640672` | Both users advanced sequentially into epoch 3 |
+| Wallet B principal withdrawal | `0x88589057933e24276de6585ae540c2feacc351b912c6122a33a79203d1dd22af` | `11640736` | Principal `1000000 → 0`; wallet cUSDT `100000 → 1100000` |
+
+The two epoch-1 audits reconstructed contract configuration, event counts and ordering, KMS aggregate proof, coordinator/provider provenance, draw values, confidential TWAB and payout values, zero remaining principal, and final confidential-token balances. Both completed with strict failure mode enabled and returned `true`.
 
 Sourcify reports exact creation and runtime matches for the final pool (match `47153193`) and coordinator (match `47153198`). The adapter retains exact match `47144875`:
 
@@ -162,8 +184,8 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 - [x] Prove the Sepolia-compatible winner arithmetic with two wallets and two consecutive encrypted claim rounds.
 - [x] Add and test operator-only recovery of coordinator-held provider refunds.
 - [x] Deploy the refund-safe coordinator with an unbound draw-1 slot, then deploy the final replacement pool against it.
-- [ ] Complete the bounded final deposit, reserve, KMS aggregate, RNG, draw, claim, and principal-withdrawal smoke transcript.
-- [ ] Run the strict recurring lifecycle auditor successfully against the final addresses.
+- [x] Complete the bounded final deposit, reserve, KMS aggregate, RNG, draw, claim, and principal-withdrawal smoke transcript.
+- [x] Run the strict recurring lifecycle auditor successfully against the final addresses.
 - [x] Verify the final pool and coordinator creation/runtime bytecode through Sourcify v2; retain the existing adapter match.
-- [ ] Rebind the approved frontend to the final pool and coordinator, complete browser-wallet QA, then enable writes. The rebind, production build, and disconnected desktop/mobile visual pass are complete; write-enabled wallet QA remains gated on the strict audit.
+- [x] Rebind the approved frontend to the final pool and coordinator, complete disconnected desktop/mobile interaction QA, and enable writes. A real injected-wallet signing pass remains part of hosted-release QA.
 - [ ] Package the evidence and submission materials.

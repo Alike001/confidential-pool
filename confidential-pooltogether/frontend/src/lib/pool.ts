@@ -6,10 +6,12 @@ export const poolAbi = [
   "function epochDuration() view returns (uint64)",
   "function nextEpochToFinalize(address account) view returns (uint64)",
   "function epochInfo(uint64 epochId) view returns (uint64 start,uint64 end,bool totalFinalized,bool aggregateDecryptionRequested,bool aggregateFinalized,uint128 aggregateSupply)",
-  "function drawInfo(uint64 epochId) view returns (uint128 aggregateSupply,uint128 tierOdds,uint128 vaultContributionFraction,uint256 randomNumber,uint32 rngRequestId,bool committed,bool opened)",
+  "function drawInfo(uint64 epochId) view returns (uint128 aggregateSupply,uint128 tierOdds,uint128 vaultContributionFraction,bool opened)",
   "function encryptedBalance(address account) view returns (bytes32)",
   "function encryptedUserTwab(uint64 epochId,address account) view returns (bytes32)",
   "function encryptedClaimablePrize(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bytes32)",
+  "function claimWeightPrepared(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bool)",
+  "function claimThresholdPrepared(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bool)",
   "function claimPrepared(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bool)",
   "function claimed(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bool)",
   "function encryptedYieldReserve() view returns (bytes32)",
@@ -26,6 +28,8 @@ export type ClaimEpochSnapshot = {
   drawOpened: boolean;
   encryptedTwabHandle: string;
   encryptedPayoutHandle: string;
+  claimWeightPrepared: boolean;
+  claimThresholdPrepared: boolean;
   claimPrepared: boolean;
   claimed: boolean;
 };
@@ -39,8 +43,6 @@ export type PoolSnapshot = {
   aggregateDecryptionRequested: boolean;
   aggregateFinalized: boolean;
   aggregateSupply: bigint;
-  rngRequestId: number;
-  drawCommitted: boolean;
   drawOpened: boolean;
   encryptedBalanceHandle?: string;
   encryptedTwabHandle?: string;
@@ -85,8 +87,6 @@ export async function readPoolSnapshot(
     aggregateDecryptionRequested: epoch.aggregateDecryptionRequested,
     aggregateFinalized: epoch.aggregateFinalized,
     aggregateSupply: epoch.aggregateSupply,
-    rngRequestId: Number(draw.rngRequestId),
-    drawCommitted: draw.committed,
     drawOpened: draw.opened,
     encryptedYieldReserveHandle: encryptedReserve,
     backingBalance,
@@ -113,11 +113,13 @@ export async function readPoolSnapshot(
 
     if (epochId > 1) {
       const claimEpochId = epochId - 1;
-      const [claimDraw, claimTwab, claimPayout, claimPrepared, claimClaimed] =
+      const [claimDraw, claimTwab, claimPayout, claimWeightPrepared, claimThresholdPrepared, claimPrepared, claimClaimed] =
         await Promise.all([
           pool.drawInfo(claimEpochId),
           pool.encryptedUserTwab(claimEpochId, account),
           pool.encryptedClaimablePrize(account, claimEpochId, 0, 0),
+          pool.claimWeightPrepared(account, claimEpochId, 0, 0),
+          pool.claimThresholdPrepared(account, claimEpochId, 0, 0),
           pool.claimPrepared(account, claimEpochId, 0, 0),
           pool.claimed(account, claimEpochId, 0, 0),
         ]);
@@ -126,6 +128,8 @@ export async function readPoolSnapshot(
         drawOpened: claimDraw.opened,
         encryptedTwabHandle: claimTwab,
         encryptedPayoutHandle: claimPayout,
+        claimWeightPrepared,
+        claimThresholdPrepared,
         claimPrepared,
         claimed: claimClaimed,
       };

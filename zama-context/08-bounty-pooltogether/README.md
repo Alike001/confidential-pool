@@ -36,13 +36,16 @@ This folder is the challenge-specific research database. It studies PoolTogether
 30. [`publication-runbook.md`](./publication-runbook.md)
 31. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
 32. [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md)
-33. [`experiments/`](./experiments/)
+33. [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md)
+34. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 
 Earlier cUSDTMock pools remain historical evidence for fixed and recurring FHE lifecycles, including multi-user winner/non-winner outcomes and complete principal recovery. They no longer define the submission target because their prize reserves were sponsored.
 
-The active release is pool `0xdE9A7DC790e6dE0304A046210044F38904309120` with app-specific Aave aLINK-backed confidential token `0x4734EC2CC7e18D4C39fccB97E16E77701819655F` and coordinator `0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC`. Its complete Sepolia run includes LINK supply, caLINK shield, encrypted `9 caLINK` deposit, Aave-generated encrypted yield, KMS-proven aggregate, Chainlink-backed encrypted draw, winner-only payout, and full principal withdrawal. The strict auditor returned `RECURRING_LIFECYCLE_COMPLETE: true`. Only final hosted-wallet QA, demo media, and form submission remain; the authoritative evidence record is [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
+The active submission candidate is pool `0x686227d54223cCF844a57C9D8bf95d1A5bE49B02` with app-specific Aave aLINK-backed confidential token `0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`. Winner samples now come from `FHE.randEuint64()` and remain encrypted with user TWABs, thresholds, winner bits, reserves, and payouts. The contracts are deployed; the fresh strict lifecycle audit is still in progress. The authoritative status record is [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md).
+
+The prior Aave/Chainlink deployment completed its own lifecycle and remains useful regression evidence, but it is historical rather than the submission target because the official form requires FHE randomness and no offchain RNG.
 
 ## Local source checkouts
 

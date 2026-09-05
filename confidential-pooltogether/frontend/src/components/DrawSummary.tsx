@@ -7,14 +7,14 @@ function getPhase(snapshot?: PoolSnapshot) {
   if (snapshot.chainTimestamp < snapshot.epochStart) return { label: "Scheduled", step: 0 };
   if (snapshot.chainTimestamp < snapshot.epochEnd) return { label: "Deposits open", step: 1 };
   if (!snapshot.aggregateFinalized) return { label: "Epoch closed", step: 2 };
-  if (!snapshot.drawCommitted || !snapshot.drawOpened) return { label: "Randomness ready", step: 3 };
+  if (!snapshot.drawOpened) return { label: "FHE draw ready", step: 3 };
   return { label: "Draw open", step: 4 };
 }
 
 export function DrawSummary({ snapshot, loading }: { snapshot?: PoolSnapshot; loading: boolean }) {
   const phase = getPhase(snapshot);
   const remaining = snapshot ? snapshot.epochEnd - snapshot.chainTimestamp : 0;
-  const labels = ["Deposits open", "Epoch closed", "Randomness ready", "Draw open", "Claim"];
+  const labels = ["Deposits open", "Epoch closed", "FHE draw ready", "Draw open", "Claim"];
   const reserveFunded = Boolean(snapshot?.encryptedYieldReserveHandle && !/^0x0+$/.test(snapshot.encryptedYieldReserveHandle));
 
   return (

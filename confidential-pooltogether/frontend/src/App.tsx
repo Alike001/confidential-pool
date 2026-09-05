@@ -54,8 +54,8 @@ export default function App() {
               <span>The draw stays honest.</span>
             </h1>
             <p>
-              Aave generates the yield. Zama computes winner eligibility over encrypted balances.
-              Chainlink makes every draw publicly verifiable.
+              Aave generates the yield. Zama generates encrypted randomness and computes winner
+              eligibility over encrypted balances. Every step is recorded onchain.
             </p>
             <div className="hero-actions">
               {connected && wallet.isSepolia ? (
@@ -118,7 +118,7 @@ export default function App() {
         <section className="protocol-strip" aria-label="Live protocol status">
           <div><span>01 / Backing</span><strong>{backing} aLINK</strong><small>Supplied through Aave</small></div>
           <div><span>02 / Privacy</span><strong>Zama FHE</strong><small>Balances stay ciphertext</small></div>
-          <div><span>03 / Randomness</span><strong>Chainlink VRF</strong><small>Bound to every epoch</small></div>
+          <div><span>03 / Randomness</span><strong>Zama FHE RNG</strong><small>Encrypted onchain</small></div>
         </section>
 
         <section className="pool-section" id="pool">

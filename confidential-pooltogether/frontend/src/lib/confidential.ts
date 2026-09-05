@@ -25,6 +25,8 @@ const aavePoolAbi = [
 const writablePoolAbi = [
   "function requestWithdrawal(bytes32 encryptedAmount,bytes inputProof)",
   "function finalizeUser(uint64 epochId,address account)",
+  "function prepareClaimWeight(uint64 epochId,uint8 tier,uint32 prizeIndex)",
+  "function prepareClaimThreshold(uint64 epochId,uint8 tier,uint32 prizeIndex)",
   "function prepareClaim(uint64 epochId,uint8 tier,uint32 prizeIndex)",
   "function claimPrize(uint64 epochId,uint8 tier,uint32 prizeIndex)",
 ] as const;
@@ -222,6 +224,36 @@ export async function preparePrivateClaim(
     await signerFor(ethereum),
   );
   const transaction = await pool.prepareClaim(epochId, 0, 0);
+  onSubmitted(transaction.hash);
+  return confirmed(transaction);
+}
+
+export async function preparePrivateClaimWeight(
+  ethereum: EIP1193Provider,
+  epochId: number,
+  onSubmitted: (hash: string) => void,
+): Promise<ConfidentialActionResult> {
+  const pool = new Contract(
+    deployment.pool,
+    writablePoolAbi,
+    await signerFor(ethereum),
+  );
+  const transaction = await pool.prepareClaimWeight(epochId, 0, 0);
+  onSubmitted(transaction.hash);
+  return confirmed(transaction);
+}
+
+export async function preparePrivateClaimThreshold(
+  ethereum: EIP1193Provider,
+  epochId: number,
+  onSubmitted: (hash: string) => void,
+): Promise<ConfidentialActionResult> {
+  const pool = new Contract(
+    deployment.pool,
+    writablePoolAbi,
+    await signerFor(ethereum),
+  );
+  const transaction = await pool.prepareClaimThreshold(epochId, 0, 0);
   onSubmitted(transaction.hash);
   return confirmed(transaction);
 }

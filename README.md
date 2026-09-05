@@ -2,9 +2,9 @@
 
 > Save privately. Win transparently.
 
-Confidential Pool is an Aave-backed prize-savings application on Ethereum Sepolia. Users shield an Aave yield position, deposit into a shared pool, build an encrypted time-weighted balance, enter periodic Chainlink VRF draws, privately learn their payout, and withdraw their principal.
+Confidential Pool is an Aave-backed prize-savings application on Ethereum Sepolia. Users shield an Aave yield position, deposit into a shared pool, build an encrypted time-weighted balance, enter periodic FHE-random draws, privately learn their payout, and withdraw their principal.
 
-The core privacy rule is simple: public infrastructure proves where the yield and randomness came from; Zama FHE protects each participant's financial position.
+The core privacy rule is simple: Aave proves where the yield came from, while Zama FHE keeps each participant's position, random sample, winner bit, and payout encrypted.
 
 ## Bounty fit
 
@@ -12,9 +12,9 @@ The core privacy rule is simple: public infrastructure proves where the yield an
 | --- | --- |
 | Shared deposits | Confidential `caLINK` transfers enter one recurring pool |
 | Generated yield | LINK is supplied to Aave V3; growth in the wrapper's aLINK backing is harvested |
-| Periodic draws | Permissionless one-hour epochs bind post-close Chainlink VRF requests |
+| Periodic draws | Permissionless rolling epochs followed by an operator-opened prize round |
 | Private positions | Deposit amounts, balances, user TWABs, winning zones, reserve values, and payouts are ciphertext |
-| Verifiable winner selection | Public VRF provenance and aggregate denominator feed an FHE winning-zone comparison |
+| Verifiable winner selection | `FHE.randEuint64()` and encrypted weighted comparisons execute through Zama's onchain FHE runtime |
 | Winner-only result | Zama ACL permissions allow only the participant to decrypt their payout handle |
 | Principal withdrawal | Users submit encrypted withdrawals during an open epoch and can redeem backing through a KMS-proven boundary |
 | Sepolia | Final Aave-backed contracts and frontend configuration target chain `11155111` |
@@ -36,24 +36,20 @@ Recurring Confidential Pool
     ├── encrypted principal balances and TWABs
     ├── encrypted Aave-yield prize reserve
     ├── KMS-proven aggregate denominator
-    └── FHE winner comparison and private payout
-                 ▲
-                 │ epoch-bound randomness
-      Coordinator ──► Chainlink VRF v2.5
+    └── encrypted threshold, FHE random sample,
+        winner comparison, and private payout
 ```
 
 ## Final Sepolia deployment
 
 | Component | Address |
 | --- | --- |
-| Recurring pool | [`0xdE9A7DC790e6dE0304A046210044F38904309120`](https://sepolia.etherscan.io/address/0xdE9A7DC790e6dE0304A046210044F38904309120) |
-| Confidential aLINK wrapper | [`0x4734EC2CC7e18D4C39fccB97E16E77701819655F`](https://sepolia.etherscan.io/address/0x4734EC2CC7e18D4C39fccB97E16E77701819655F) |
-| RNG coordinator | [`0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC`](https://sepolia.etherscan.io/address/0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC) |
-| Chainlink VRF adapter | [`0x2387Ac275b6ADa26959c587d93abFbd491A64D5A`](https://sepolia.etherscan.io/address/0x2387Ac275b6ADa26959c587d93abFbd491A64D5A) |
+| FHE-random recurring pool | [`0x686227d54223cCF844a57C9D8bf95d1A5bE49B02`](https://sepolia.etherscan.io/address/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02) |
+| Confidential aLINK wrapper | [`0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`](https://sepolia.etherscan.io/address/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd) |
 | Aave V3 Pool | [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951) |
 | Aave aLINK | [`0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`](https://sepolia.etherscan.io/address/0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24) |
 
-The final live run proves the complete LINK → Aave → caLINK setup, encrypted `9 caLINK` deposit, strategy-generated yield, KMS-proven aggregate, Chainlink-backed encrypted draw, winner-only payout decryption, and full principal withdrawal. The strict auditor returned `RECURRING_LIFECYCLE_COMPLETE: true`; see the [Aave-backed release record](./zama-context/08-bounty-pooltogether/aave-backed-sepolia-release.md).
+The contracts are deployed and configured. The strict end-to-end lifecycle audit for this FHE-random release is in progress; the prior Chainlink candidate remains documented as historical evidence and is not the submission target. See the [FHE-random release record](./zama-context/08-bounty-pooltogether/fhe-random-sepolia-release.md).
 
 ## Privacy boundary
 
@@ -62,20 +58,21 @@ Private in the pool:
 - deposit and withdrawal amounts;
 - current user balances;
 - per-user time-weighted balances and winning zones;
-- reserve value, winner bit, and payout amount.
+- reserve value, random sample, winning threshold, winner bit, and payout amount.
 
 Public by design:
 
 - account addresses, action timing, and transaction metadata;
 - shield and final redemption amounts at the public/confidential boundary;
 - aggregate Aave backing and harvested yield;
-- epoch configuration, KMS-proven aggregate denominator, VRF request, and random word.
+- epoch configuration and the KMS-proven aggregate denominator;
+- claim identity and the fact that each encrypted computation stage executed.
 
 This provides confidentiality, not anonymity. Small participant sets and repeated public actions can still support inference. See the [threat model](./zama-context/08-bounty-pooltogether/threat-model.md).
 
 ## Repository map
 
-- [`confidential-pooltogether/`](./confidential-pooltogether/) — Chainlink reference contracts, deployment utilities, and production React frontend.
+- [`confidential-pooltogether/`](./confidential-pooltogether/) — winner-math/RNG research contracts, deployment utilities, and production React frontend.
 - [`zama-context/`](./zama-context/) — reverse engineering, mathematical baseline, architecture decisions, threat model, runbooks, and submission evidence.
 - [`Alike001/fhevm`, branch `feature/confidential-pool`](https://github.com/Alike001/fhevm/tree/feature/confidential-pool) — encrypted pool, Aave-backed token, tests, and guarded Sepolia scripts.
 
@@ -88,7 +85,7 @@ cd /home/ali/Desktop/zama/confidential-pooltogether
 forge test
 
 cd /home/ali/Desktop/zama/zama-context/fhevm/library-solidity
-DOTENV_CONFIG_PATH=.env.example npx hardhat test --no-compile test/phase2/AaveYieldConfidentialToken.ts
+DOTENV_CONFIG_PATH=.env.example npx hardhat test 'test/phase2/*.ts'
 
 cd /home/ali/Desktop/zama/confidential-pooltogether/frontend
 npm run build
@@ -101,6 +98,6 @@ The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adve
 - Main repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
 - Frontend: <https://frontend-two-chi-54.vercel.app>
-- Pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xdE9A7DC790e6dE0304A046210044F38904309120?fields=all>
-- caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x4734EC2CC7e18D4C39fccB97E16E77701819655F?fields=all>
+- Pool source match: <https://sourcify.dev/server/v2/contract/11155111/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02?fields=all>
+- caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd?fields=all>
 - Submission package: [`zama-context/08-bounty-pooltogether/submission-package.md`](./zama-context/08-bounty-pooltogether/submission-package.md)

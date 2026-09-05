@@ -248,6 +248,8 @@ type PrivatePositionProps = {
     error?: string;
     transactionUrl?: string;
     finalize(epochId: number): Promise<unknown>;
+    prepareClaimWeight(epochId: number): Promise<unknown>;
+    prepareClaimThreshold(epochId: number): Promise<unknown>;
     prepareClaim(epochId: number): Promise<unknown>;
     claimPrize(epochId: number): Promise<unknown>;
   };
@@ -417,7 +419,35 @@ export function PrivatePositionCard({
           Finalize epoch #{pendingCheckpoint} checkpoint
         </button>
       ) : null}
-      {claimEpoch?.drawOpened && hasClaimTwab && !claimEpoch.claimPrepared ? (
+      {claimEpoch?.drawOpened && hasClaimTwab && !claimEpoch.claimWeightPrepared ? (
+        <button
+          className="button button-secondary private-decrypt-button"
+          type="button"
+          disabled={operationBusy}
+          onClick={() =>
+            void runPrivateAction(() =>
+              operation.prepareClaimWeight(claimEpoch.epochId),
+            )
+          }
+        >
+          Prepare epoch #{claimEpoch.epochId} encrypted weight
+        </button>
+      ) : null}
+      {claimEpoch?.claimWeightPrepared && !claimEpoch.claimThresholdPrepared ? (
+        <button
+          className="button button-secondary private-decrypt-button"
+          type="button"
+          disabled={operationBusy}
+          onClick={() =>
+            void runPrivateAction(() =>
+              operation.prepareClaimThreshold(claimEpoch.epochId),
+            )
+          }
+        >
+          Prepare epoch #{claimEpoch.epochId} random threshold
+        </button>
+      ) : null}
+      {claimEpoch?.claimThresholdPrepared && !claimEpoch.claimPrepared ? (
         <button
           className="button button-secondary private-decrypt-button"
           type="button"
@@ -428,7 +458,7 @@ export function PrivatePositionCard({
             )
           }
         >
-          Prepare epoch #{claimEpoch.epochId} claim
+          Run epoch #{claimEpoch.epochId} encrypted FHE draw
         </button>
       ) : null}
       {claimEpoch?.claimPrepared && !claimEpoch.claimed ? (

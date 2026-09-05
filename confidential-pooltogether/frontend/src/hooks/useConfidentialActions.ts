@@ -8,6 +8,8 @@ import {
   finalizeUserEpoch,
   prepareTestAavePosition,
   preparePrivateClaim,
+  preparePrivateClaimThreshold,
+  preparePrivateClaimWeight,
   settlePrivateClaim,
   withdrawConfidential,
   type ConfidentialActionResult,
@@ -129,7 +131,7 @@ export function useConfidentialActions({
   );
 
   const runPublicAction = useCallback(
-    async (kind: "finalize" | "prepare" | "claim", epochId: number) => {
+    async (kind: "finalize" | "prepare-weight" | "prepare-threshold" | "prepare" | "claim", epochId: number) => {
       if (!deployment.writesEnabled)
         throw new Error(
           "Writes remain locked until the strict recurring lifecycle audit passes.",
@@ -145,6 +147,10 @@ export function useConfidentialActions({
         const nextResult =
           kind === "finalize"
             ? await finalizeUserEpoch(ethereum, account, epochId, onSubmitted)
+            : kind === "prepare-weight"
+              ? await preparePrivateClaimWeight(ethereum, epochId, onSubmitted)
+              : kind === "prepare-threshold"
+                ? await preparePrivateClaimThreshold(ethereum, epochId, onSubmitted)
             : kind === "prepare"
               ? await preparePrivateClaim(ethereum, epochId, onSubmitted)
               : await settlePrivateClaim(ethereum, epochId, onSubmitted);
@@ -179,6 +185,8 @@ export function useConfidentialActions({
     setupProgress,
     decrypt,
     finalize: (epochId: number) => runPublicAction("finalize", epochId),
+    prepareClaimWeight: (epochId: number) => runPublicAction("prepare-weight", epochId),
+    prepareClaimThreshold: (epochId: number) => runPublicAction("prepare-threshold", epochId),
     prepareClaim: (epochId: number) => runPublicAction("prepare", epochId),
     claimPrize: (epochId: number) => runPublicAction("claim", epochId),
   };

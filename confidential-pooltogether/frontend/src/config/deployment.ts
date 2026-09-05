@@ -2,17 +2,15 @@ export const deployment = {
   chainId: 11155111,
   chainIdHex: "0xaa36a7",
   networkName: "Sepolia",
-  pool: "0xdE9A7DC790e6dE0304A046210044F38904309120",
-  payoutToken: "0x4734EC2CC7e18D4C39fccB97E16E77701819655F",
-  rngProvider: "0x2387Ac275b6ADa26959c587d93abFbd491A64D5A",
-  rngCoordinator: "0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC",
+  pool: "0x686227d54223cCF844a57C9D8bf95d1A5bE49B02",
+  payoutToken: "0x7885283CB34d02b81e671FEA7404C3c94f594Bdd",
   deploymentTransaction:
-    "0xdf86061ad99fea4cc7bc29a079dd47a7480ea9d3c40d8ca8be818761cf1b684a",
+    "0x3cf786343f299b4aa4271f3020830b4bf3369dee0822aa811e8c9518ce3df731",
   tokenDeploymentTransaction:
-    "0x020a0273ae5f12adf0353d5aa6f87ad2bbe6ad2ffd439e7ac50c3e11ac28de84",
-  deploymentBlock: 11641324,
-  firstEpochStart: 1788624420,
-  epochDuration: 3600,
+    "0x772241aa88bc5ac1ca9fdacb6170c4e926c067a9744a0e91b2c4ff62589e1f67",
+  deploymentBlock: 11641983,
+  firstEpochStart: 1788632400,
+  epochDuration: 600,
   tokenDecimals: 18,
   tokenSymbol: "caLINK",
   underlyingSymbol: "LINK",
@@ -24,6 +22,8 @@ export const deployment = {
   publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
   sourcifyUrl: "https://sourcify.dev/server/v2/contract",
+  fheRandomDocsUrl:
+    "https://docs.zama.org/protocol/solidity-guides/smart-contract/operations/random",
   sourceUrl:
     "https://github.com/Alike001/fhevm/tree/feature/confidential-pool/library-solidity/examples",
 } as const;

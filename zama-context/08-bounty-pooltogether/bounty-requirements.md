@@ -13,9 +13,10 @@ The requested product is a confidential PoolTogether-style prize-savings applica
 3. Yield is distributed through periodic prize draws.
 4. The user can withdraw their principal at any time, subject to the vault's actual liquidity rules.
 5. Deposits, balances, odds, and winnings should remain encrypted.
-6. The draw must remain verifiable onchain.
+6. Winner selection must execute onchain using FHE randomness and encrypted balances, without offchain RNG or plaintext balances.
+7. The draw must remain verifiable onchain.
 
-The official announcement calls for a production-oriented demonstration, not only an isolated encryption demo. The submission requirements include a working dApp, smart-contract and frontend code, a deployed website demo, a three-minute real-person video, and an X thread or article. Deployments should target Sepolia. The announced reward pool is 5,000 cUSDT for up to three winners.
+The official announcement calls for a production-oriented demonstration, not only an isolated encryption demo. The submission requirements include a working dApp, public smart-contract and frontend code, a deployed Sepolia website demo where judges can try every feature, a maximum three-minute real-person video at normal speed, and an X post tagging `@zama` with `#ZamaDeveloperProgram` and the project link. The video must show deposit, balance decryption, draw, claim, and withdrawal and explain fairness/privacy. The announced reward pool is 5,000 cUSDT for up to three winners.
 
 ## Layman interpretation
 

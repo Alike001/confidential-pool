@@ -31,6 +31,8 @@ No new RNG transaction was broadcast when the collision was discovered. The Foun
 
 The fresh coordinator was deployed in transaction `0x9ed8ad2cb77a0b180fd345f6e2c3a39554f5c2897da9f389c8a00b9347035010` at block `11638574`. Its adapter, operator, provenance version, and unbound first-draw slot were checked onchain before the pool deployment.
 
+The focused local recurring suites pass `11` tests, covering two-user private outcomes, consecutive epoch requests, keeper recovery, KMS-proven aggregate finalization, rollover withdrawals, winning and non-winning claims, and the complete gas/HCU envelope.
+
 Wallet B received `0.01` Sepolia ETH in transaction `0xd166ca03b90d6f56463f3fdbea2be648fe0aa36206b8554f1b2c706da073788a`. Its `1,000,000`-unit test-token setup used mint transaction `0xc8c271a7bb4ca148ce410d4663792321fc3f31f594bd48e254af5e53b3332490`, approval transaction `0x43b0c05d25b8157dc8df648f3461292b6e147de61f3cedaf3aae70ca377a30fc`, and wrap transaction `0x482e6aec3a0935c98e61200d8dcc1c54a9f2620636bea77cbd7c7176549adb6f`.
 
 An interrupted deployment command also mined unused pool `0xE14f3bFcd6d9E51e3F19310F7fD2F96A820c3065` in transaction `0xe56839d89a2a434e6da2b778e0d0507737593c232d895637ab052bf7be2d55d9`. It received no deposit or reserve funding and bound no RNG request; it is historical test evidence only.
@@ -42,6 +44,8 @@ An interrupted deployment command also mined unused pool `0xE14f3bFcd6d9E51e3F19
 | Wallet A encrypted deposit | 1 | `0xee46091da995fb8e667a3436ac3f49d6de3be20c5045b2c7afd431bd6e8e8b66` | `11638670` | Owner-authorized decryption returned `1000000` units |
 | Wallet B encrypted deposit | 1 | `0x1373f7d90ce7ab019e899b15ccd0ead6d0f9478946d712e33be8b0f77710b59a` | `11638684` | Owner-authorized decryption returned `1000000` units |
 | Sponsored encrypted prize reserve | 1 | `0x53c1b3e006a7e9c2fb33075a924785ba6e343df290807e716e498b8f393d70de` | `11638691` | Reserve changed from the zero handle to ciphertext `0x6da12f454f9e4bdbc2a36c4974b97a7ec0b6aa5eadff0000000000aa36a70500` without publishing its plaintext |
+
+Source verification remains open. The pinned Hardhat 2 verifier's Sourcify integration uses the legacy v1 API, which Sourcify disabled on July 7, 2026; two verification attempts therefore returned the service's HTML migration response instead of JSON. Etherscan verification is prepared and will activate when a local `ETHERSCAN_API_KEY` is configured.
 
 ## Superseded deployment record
 

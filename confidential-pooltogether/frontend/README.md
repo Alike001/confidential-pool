@@ -32,4 +32,4 @@ npm run build
 npm run preview
 ```
 
-The production project deploys `dist/` to Vercel at <https://confidential-pool-savings.vercel.app>. No deployer key or server-side secret is used by the browser application.
+The production project deploys the static `dist/` build to Cloudflare Workers at <https://solitary-rain-30c2.hammedoye10.workers.dev>. No deployer key or server-side secret is used by the browser application.

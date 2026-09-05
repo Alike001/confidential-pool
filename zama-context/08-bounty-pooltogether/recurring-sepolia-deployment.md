@@ -48,6 +48,12 @@ An interrupted deployment command also mined unused pool `0xE14f3bFcd6d9E51e3F19
 
 The expected epoch-1 TWAB baseline, fixed from the public epoch boundary and the two deposit timestamps, is `976666` for wallet A, `930000` for wallet B, and `1906666` in aggregate. These values are test expectations; user TWABs remain ciphertext until owner-authorized decryption, while only the aggregate is intended for KMS-proven public finalization.
 
+### Final-candidate metadata check
+
+Both encrypted deposits used `452` bytes of calldata; both encrypted reserve transactions used `484` bytes. At the pool-contract boundary, each deposit emitted exactly one `EncryptedDeposit` event with indexed account and epoch but empty data, and each reserve transfer emitted exactly one `EncryptedYieldFunded` event with no indexed application fields and empty data. No application event published a deposit, balance, reserve, TWAB, odds, or payout amount.
+
+This is confidentiality, not anonymity. Sender addresses, transaction timing, gas, ciphertext/proof calldata, the fact that a deposit or reserve action occurred, and later claimant/withdrawal identities remain public. The two deposit receipts also had different FHE-internal log counts and gas usage, so those metadata are not asserted to be amount-hiding proofs; privacy rests on encrypted values and amount-free application events, with the aggregate denominator intentionally disclosed only after KMS-proven finalization.
+
 Source verification remains open. The pinned Hardhat 2 verifier's Sourcify integration uses the legacy v1 API, which Sourcify disabled on July 7, 2026; two verification attempts therefore returned the service's HTML migration response instead of JSON. Etherscan verification is prepared and will activate when a local `ETHERSCAN_API_KEY` is configured.
 
 ## Superseded deployment record

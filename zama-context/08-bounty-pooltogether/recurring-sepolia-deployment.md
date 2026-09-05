@@ -2,11 +2,40 @@
 
 ## Release status
 
-This deployment proved encrypted deposit, sponsored reserve funding, recurring epoch advancement, private user-TWAB finalization, and KMS-proven aggregate finalization. It is not promotable as the final draw release: its reused coordinator already had draw ID `1` bound to request `4` from an older pool before this deployment's first epoch ended.
+The final lifecycle candidate is deployed at `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` against a fresh, timestamp-aware coordinator whose draw ID `1` was verified unbound before deployment. Promotion still depends on completing the two-wallet, two-epoch lifecycle, strict audit, source verification, and frontend write integration.
+
+The earlier recurring deployment proved encrypted deposit, sponsored reserve funding, recurring epoch advancement, private user-TWAB finalization, and KMS-proven aggregate finalization. It is not promotable as the final draw release: its reused coordinator already had draw ID `1` bound to request `4` from an older pool before that deployment's first epoch ended.
 
 No new RNG transaction was broadcast when the collision was discovered. The Foundry request simulation reverted at the read-only `draw-already-bound` preflight. Because the pool stores its coordinator immutably and requires `getDrawRequest(epochId)`, recovery requires a fresh coordinator and fresh recurring pool deployment. The token and Chainlink adapter remain reusable.
 
-## Deployment record
+## Final lifecycle candidate
+
+| Field | Value |
+|---|---|
+| Network | Ethereum Sepolia (`11155111`) |
+| Deployer / wallet A | `0xdE67A35B322e5A31e8215B5245CA4e48d7977F71` |
+| Wallet B | `0x46854AC6B18C384C9a0b0b3aB7bF27a6fCE6c16a` |
+| Recurring pool | `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` |
+| Confidential payout token | `0x4E7B06D78965594eB5EF5414c357ca21E1554491` |
+| RNG adapter/provider | `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A` |
+| Fresh RNG coordinator | `0xcb8bbD71B269E4a64965Cb86F044950f542B6133` |
+| RNG provenance version | `1` |
+| First epoch start | `1788590172` |
+| Epoch duration | `3600` seconds |
+| First epoch end | `1788593772` |
+| Deployment transaction | `0x2ec1adbba3797aa7da645dc13276a423d52973db008b6c36651b6d2f36bd7c6e` |
+| Deployment block | `11638643` |
+| Deployment nonce | `79` |
+| Gas estimate | `3822234` |
+| Broadcast gas limit | `4586680` |
+
+The fresh coordinator was deployed in transaction `0x9ed8ad2cb77a0b180fd345f6e2c3a39554f5c2897da9f389c8a00b9347035010` at block `11638574`. Its adapter, operator, provenance version, and unbound first-draw slot were checked onchain before the pool deployment.
+
+Wallet B received `0.01` Sepolia ETH in transaction `0xd166ca03b90d6f56463f3fdbea2be648fe0aa36206b8554f1b2c706da073788a`. Its `1,000,000`-unit test-token setup used mint transaction `0xc8c271a7bb4ca148ce410d4663792321fc3f31f594bd48e254af5e53b3332490`, approval transaction `0x43b0c05d25b8157dc8df648f3461292b6e147de61f3cedaf3aae70ca377a30fc`, and wrap transaction `0x482e6aec3a0935c98e61200d8dcc1c54a9f2620636bea77cbd7c7176549adb6f`.
+
+An interrupted deployment command also mined unused pool `0xE14f3bFcd6d9E51e3F19310F7fD2F96A820c3065` in transaction `0xe56839d89a2a434e6da2b778e0d0507737593c232d895637ab052bf7be2d55d9`. It received no deposit or reserve funding and bound no RNG request; it is historical test evidence only.
+
+## Superseded deployment record
 
 | Field | Value |
 |---|---|
@@ -45,7 +74,7 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 
 ## Promotion gates
 
-- Deploy a fresh coordinator with an unbound draw-1 slot, then deploy a replacement recurring pool against it.
+- [x] Deploy a fresh coordinator with an unbound draw-1 slot, then deploy a replacement recurring pool against it.
 - Complete confidential deposits for at least two wallets.
 - Fund the disclosed testnet-sponsored encrypted prize reserve.
 - Advance, checkpoint, decrypt the aggregate, draw, prepare claims, settle claims, and withdraw across two consecutive epochs.

@@ -32,8 +32,9 @@ This folder is the challenge-specific research database. It studies PoolTogether
 26. [`recurring-sepolia-deployment.md`](./recurring-sepolia-deployment.md)
 27. [`final-recurring-runbook.md`](./final-recurring-runbook.md)
 28. [`yield-boundary.md`](./yield-boundary.md)
-29. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
-30. [`experiments/`](./experiments/)
+29. [`submission-package.md`](./submission-package.md)
+30. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
+31. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 

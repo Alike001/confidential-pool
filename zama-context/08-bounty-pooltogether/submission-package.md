@@ -107,7 +107,7 @@ npm run test:reference
 forge test
 
 cd /home/ali/Desktop/zama/zama-context/fhevm/library-solidity
-DOTENV_CONFIG_PATH=.env.example npx hardhat test 'test/phase2/*.ts'
+DOTENV_CONFIG_PATH=.env.example npx hardhat test test/phase2/*.ts
 npx tsc --project scripts/tsconfig.json --noEmit
 
 cd /home/ali/Desktop/zama/confidential-pooltogether/frontend
@@ -115,7 +115,7 @@ npm install
 npm run build
 ```
 
-Current result: 12 reference-model tests, 13 Foundry tests, 48 FHE/Aave regression tests, script type checks, and the frontend production build pass.
+Current result: 12 reference-model tests, 13 Foundry tests, 49 FHE/Aave regression tests, script type checks, and the frontend production build pass.
 
 ## Demo outline
 

@@ -56,7 +56,7 @@ npm install
 npm run build
 ```
 
-Current results: 12 reference-model tests, 13 Foundry tests, 48 phase-2 FHE/Aave regression tests in the fork, and the frontend production build pass.
+Current results: 12 reference-model tests, 13 Foundry tests, 49 phase-2 FHE/Aave regression tests in the fork, and the frontend production build pass.
 
 ## Release posture
 

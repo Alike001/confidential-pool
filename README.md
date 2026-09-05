@@ -85,7 +85,7 @@ cd /home/ali/Desktop/zama/confidential-pooltogether
 forge test
 
 cd /home/ali/Desktop/zama/zama-context/fhevm/library-solidity
-DOTENV_CONFIG_PATH=.env.example npx hardhat test 'test/phase2/*.ts'
+DOTENV_CONFIG_PATH=.env.example npx hardhat test test/phase2/*.ts
 
 cd /home/ali/Desktop/zama/confidential-pooltogether/frontend
 npm run build

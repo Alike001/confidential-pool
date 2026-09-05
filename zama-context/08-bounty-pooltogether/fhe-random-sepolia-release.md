@@ -56,7 +56,7 @@ The release is promoted only after one sequence proves:
 
 ## Local verification snapshot
 
-- 48/48 phase-2 FHE/Aave tests pass.
+- 49/49 phase-2 FHE/Aave tests pass.
 - 13/13 Foundry RNG/transcript tests pass.
 - 12/12 JavaScript probability/TWAB model tests pass.
 - TypeScript deployment and live-operation scripts compile.

@@ -54,6 +54,10 @@ Both encrypted deposits used `452` bytes of calldata; both encrypted reserve tra
 
 This is confidentiality, not anonymity. Sender addresses, transaction timing, gas, ciphertext/proof calldata, the fact that a deposit or reserve action occurred, and later claimant/withdrawal identities remain public. The two deposit receipts also had different FHE-internal log counts and gas usage, so those metadata are not asserted to be amount-hiding proofs; privacy rests on encrypted values and amount-free application events, with the aggregate denominator intentionally disclosed only after KMS-proven finalization.
 
+### Frontend pre-activation QA
+
+The local production build passed TypeScript and Vite compilation. A disconnected-browser smoke test loaded live draw `1`, its open phase and countdown through the public read-only RPC fallback. A separate injected-provider test connected Wallet B as `0x4685…c16a`, confirmed Sepolia, loaded the same live draw, and showed an existing position only as encrypted placeholder text. No runtime alert appeared. Activating the deposit control while `writesEnabled=false` displayed the strict-audit lock and produced no transaction link. Real browser-wallet signing and Zama encryption/decryption remain the post-audit activation gate.
+
 Source verification remains open. The pinned Hardhat 2 verifier's Sourcify integration uses the legacy v1 API, which Sourcify disabled on July 7, 2026; two verification attempts therefore returned the service's HTML migration response instead of JSON. Etherscan verification is prepared and will activate when a local `ETHERSCAN_API_KEY` is configured.
 
 ## Superseded deployment record

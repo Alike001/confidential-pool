@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 is complete; Phases 2–4 produced a locally tested bounded design; and Phase 5's hardened fixed-epoch lifecycle is complete on Sepolia. Phase 6 has 14 focused fixed-epoch tests plus a strict live auditor that returned `HARDENED_LIFECYCLE_COMPLETE: true`. The recurring implementation now has a complete two-wallet/two-draw Sepolia claim transcript on compatibility pool `0xa12962cb07D7aaC4421B6101B32caB1Bc9D5FC47`, proving the replacement for unsupported live `FHE.mulDiv`. Local verification currently passes 21 focused FHE pool tests, 13 RNG/reference tests, and the isolated lifecycle TypeScript checks. The approved frontend is implemented with live reads, lazy Zama SDK encryption/decryption, and release-gated writes. A newly discovered coordinator refund trap is fixed and tested locally. Remaining production work is to deploy the refund-safe coordinator and replacement pool, execute a bounded final smoke lifecycle and strict audit, verify sources, rebind and QA the frontend, activate writes, and package the submission.
+Current phase map: Phase 1 is complete; Phases 2–4 produced a locally tested bounded design; and Phase 5's hardened fixed-epoch lifecycle is complete on Sepolia. Phase 6 has 14 focused fixed-epoch tests plus a strict live auditor that returned `HARDENED_LIFECYCLE_COMPLETE: true`. The recurring implementation has a complete two-wallet/two-draw Sepolia claim transcript on compatibility pool `0xa12962cb07D7aaC4421B6101B32caB1Bc9D5FC47`, proving the replacement for unsupported live `FHE.mulDiv`. Local verification now passes 25 focused FHE pool tests, 13 RNG/reference tests, and the isolated lifecycle TypeScript checks. Refund-safe coordinator `0xa90A46B27147C532Bb6844d49d285FEba9819074` and final candidate pool `0xE0d284649E955d03B02F3cf927D60271d41C52D1` are deployed with exact Sourcify creation/runtime matches. Both final-candidate wallets hold live encrypted deposits, the sponsored reserve is funded, and the approved frontend is rebound and builds successfully with writes still gated. Remaining production work is to complete the candidate's post-epoch draw, both claims and withdrawals, pass both strict user audits, activate and browser-test writes, and package the submission.
 
 ## Guiding rule
 
@@ -80,7 +80,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ### Phase 6 — Polish UX, testing, and verification
 
-Status: in progress.
+Status: contract verification is complete; final live lifecycle and write-enabled frontend QA are in progress.
 
 - wallet and encryption onboarding;
 - clear pending states for coprocessor/decryption work;
@@ -94,7 +94,7 @@ Progress: the first multi-user fairness/privacy regression, isolated claim-surfa
 
 ### Phase 7 — Deploy to Sepolia
 
-Status: core contracts and the frontend are implemented, and historical deployments have exact creation/runtime source matches on Sourcify. The compatibility-fixed pool has completed two live claim rounds. A refund-safe replacement deployment, final source matches, strict audit, frontend rebinding, and frontend activation remain.
+Status: core contracts and the frontend are implemented. The refund-safe final pool and coordinator are deployed and have exact creation/runtime source matches on Sourcify; the adapter's existing exact match remains valid. The frontend is rebound to the final addresses. Final lifecycle settlement, strict audits, write activation, and browser-wallet QA remain.
 
 - deploy only after local and testnet invariants pass;
 - verify contracts and record addresses/versions;
@@ -103,7 +103,7 @@ Status: core contracts and the frontend are implemented, and historical deployme
 
 ### Phase 8 — Submission
 
-Status: pending the recurring live audit, frontend write activation/browser QA, and final evidence pass.
+Status: pending the final candidate's strict live audits, frontend write activation/browser QA, and final evidence pass.
 
 - working website;
 - source repository;
@@ -116,14 +116,14 @@ Status: pending the recurring live audit, frontend write activation/browser QA, 
 
 The hardened Sepolia gate is complete. Pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` completed encrypted deposit, encrypted yield funding, a coordinator-bound post-epoch Chainlink request, encrypted draw, user TWAB finalization, winner-only claim, and full principal withdrawal. The strict auditor reconstructed the entire transcript and returned `HARDENED_LIFECYCLE_COMPLETE: true`.
 
-Frontend prototype discovery and reintegration are complete. Multi-user/repeated-draw, RNG-recovery, and gas/HCU vectors now pass for the recurring candidate documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). Deployment, retrying public-decryption keeper, draw/claim, and strict-auditor scripts are ready. The yield boundary is documented in [`yield-boundary.md`](./yield-boundary.md). The immediate gate is a fresh recurring Sepolia release before enabling production frontend writes.
+Frontend prototype discovery and reintegration are complete. Multi-user/repeated-draw, RNG-recovery, and gas/HCU vectors pass for the recurring implementation documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). Deployment, retrying public-decryption keeper, draw/claim, and strict-auditor scripts are ready. The yield boundary is documented in [`yield-boundary.md`](./yield-boundary.md). The fresh recurring Sepolia release now exists; the immediate gate is its final post-epoch transcript and strict audit before enabling frontend writes.
 
 ## Remaining delivery sequence
 
 1. **Inspect and approve the prototype — complete.** The live Replit prototype was inspected at desktop/intermediate/mobile widths, the hybrid product-first direction was approved, and every mock was classified in `.thoughts/prototype-reintegration/2026-09-04-confidential-pool.md`. The production route will include compact landing content around the live app rather than a separate marketing-site build.
 2. **Freeze the submission contract scope — candidate implemented, costed, and adversarially exercised locally.** The recurring candidate has a fixed cadence, one coordinator-bound RNG request per epoch/draw, draw-scoped encrypted TWABs, permissionless epoch advancement, encrypted withdrawals, a KMS-proven public denominator, and two-step claims. Eleven focused checks pass together. The strict auditor is implemented; freeze now depends on live validation.
 3. **Resolve yield honestly — complete for the bounded Sepolia MVP.** Use a testnet-sponsored encrypted prize reserve and disclose that deposited principal is not supplied to a live lending market. The production batched-adapter requirements are documented separately.
-4. **Harden the final ABI — local gate complete; live gate in progress.** Multi-wallet, repeated epochs/draws, non-winner behavior, keeper recovery, and HCU/gas checks pass locally. Complete the final two-wallet/two-epoch transcript and strict audits; keep the coordinator refund-recovery limitation disclosed.
+4. **Harden the final ABI — local gate complete; live gate in progress.** Multi-wallet, repeated epochs/draws, non-winner behavior, keeper recovery, and HCU/gas checks pass locally. The compatibility deployment already proved two consecutive live draws. Complete the refund-safe candidate's bounded two-wallet smoke transcript and strict audits.
 5. **Reintegrate and build the real frontend — implemented, activation pending.** The approved visual states now map to wallet/network onboarding, Zama input encryption, ERC-7984 transfers, live public draw evidence, owner decryption, checkpoints, claims, and withdrawals. Keep writes gated until the live strict audit and browser-wallet QA pass.
 6. **Create the final Sepolia release — deployed, validation pending.** The stable candidate address/config manifest is wired into the frontend. Complete its recurring transcript, verify source code, run browser-wallet QA, and then enable writes.
 7. **Package the submission.** Clean public repository, architecture/privacy documentation, known limitations, deployed website, reproducible test/run instructions, three-minute walkthrough, screenshots, evidence links, and submission/X copy.

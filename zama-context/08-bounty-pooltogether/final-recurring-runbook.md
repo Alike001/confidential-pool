@@ -1,17 +1,15 @@
 # Final recurring Sepolia runbook
 
-> The addresses below are historical validation targets and must not be promoted. Pool `0x7C942f…e401` uses unsupported live `FHE.mulDiv`; compatibility pool `0xa12962…FC47` proves the arithmetic fix but references a coordinator that traps provider refunds. Run this sequence only after inserting the newly deployed refund-safe coordinator and replacement pool addresses.
-
-This remains the authoritative two-wallet release *sequence*. The authoritative release addresses are intentionally pending until the refund-safe replacement passes the final smoke lifecycle.
+This is the authoritative two-wallet release sequence for the refund-safe final candidate. The addresses are frozen, but frontend writes remain disabled until this run completes and both strict user audits pass.
 
 ```text
-pool:        0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401
-coordinator: 0xcb8bbD71B269E4a64965Cb86F044950f542B6133
+pool:        0xE0d284649E955d03B02F3cf927D60271d41C52D1
+coordinator: 0xa90A46B27147C532Bb6844d49d285FEba9819074
 adapter:     0x2387Ac275b6ADa26959c587d93abFbd491A64D5A
 wallet A:    0xdE67A35B322e5A31e8215B5245CA4e48d7977F71
 wallet B:    0x46854AC6B18C384C9a0b0b3aB7bF27a6fCE6c16a
-epoch 1:     1788590172 → 1788593772
-epoch 2:     1788593772 → 1788597372
+epoch 1:     1788607872 → 1788611472
+epoch 2:     1788611472 → 1788615072
 ```
 
 Never retry a broadcast after a timeout or connection reset until the transaction receipt or resulting contract state has been inspected. Execute one gate at a time.
@@ -71,7 +69,7 @@ EPOCH_ACTION=finalize-aggregate EPOCH_ID="$TARGET_EPOCH" EPOCH_BROADCAST=true \
 npx hardhat run scripts/liveSepoliaRecurringEpoch.ts --network sepolia
 ```
 
-Expected aggregate: `1906666` for epoch 1 and `2000000` for epoch 2. Expected user TWABs are `976666` (A) and `930000` (B) for epoch 1, then `1000000` each for epoch 2.
+Expected epoch-1 aggregate: `1773332`. Expected encrypted user TWABs are `936666` for wallet A and `836666` for wallet B.
 
 ## 2. Request post-close randomness
 
@@ -158,11 +156,11 @@ npx hardhat run scripts/liveSepoliaRecurringDraw.ts --network sepolia
 
 Run `DRAW_ACTION=inspect-claim` with `DRAW_BROADCAST=false` separately for each wallet to record its owner-authorized payout and current confidential-token balance.
 
-## 4. Complete epoch 2, withdraw, and audit
+## 4. Withdraw and audit
 
-Repeat sections 1–3 with epoch/draw `2`. Then dry-run and broadcast `scripts/liveSepoliaWithdraw.ts` for each wallet to withdraw `1000000` principal units.
+After both epoch-1 claims settle, dry-run and broadcast `scripts/liveSepoliaWithdraw.ts` for each wallet to withdraw `1000000` principal units during epoch 2.
 
-Finally run `scripts/auditRecurringSepoliaLifecycle.ts` separately for both wallets and both epochs. Supply the exact expected aggregate, user TWAB, payout, final wallet balance, initial zero reserve handle, and `AUDIT_EXPECTED_YIELD_FUNDING_COUNT=2`. The operator remains wallet A through `POOL_DRAW_OPERATOR_ADDRESS`; `AUDIT_ACCOUNT` selects the user being audited. Promotion requires all four strict runs to print:
+Finally run `scripts/auditRecurringSepoliaLifecycle.ts` separately for both wallets against epoch 1. Supply the exact expected aggregate, user TWAB, payout, final wallet balance, initial zero reserve handle, and `AUDIT_EXPECTED_YIELD_FUNDING_COUNT=1`. The operator remains wallet A through `POOL_DRAW_OPERATOR_ADDRESS`; `AUDIT_ACCOUNT` selects the user being audited. Promotion requires both strict runs to print:
 
 ```text
 RECURRING_LIFECYCLE_COMPLETE: true

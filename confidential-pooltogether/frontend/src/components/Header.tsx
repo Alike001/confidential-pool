@@ -8,10 +8,11 @@ type Props = {
   connecting: boolean;
   isSepolia: boolean;
   onConnect(): void;
+  onDisconnect(): void;
   onSwitchNetwork(): void;
 };
 
-export function Header({ account, connected, connecting, isSepolia, onConnect, onSwitchNetwork }: Props) {
+export function Header({ account, connected, connecting, isSepolia, onConnect, onDisconnect, onSwitchNetwork }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const buttonLabel = connecting ? "Connecting…" : connected ? shorten(account ?? "", 6, 4) : "Connect wallet";
 
@@ -31,15 +32,22 @@ export function Header({ account, connected, connecting, isSepolia, onConnect, o
         <span className={!connected || isSepolia ? "network-status" : "network-status is-wrong"}>
           <span className="status-dot" /> {isSepolia || !connected ? "Sepolia" : "Wrong network"}
         </span>
-        <button
-          className="button button-primary wallet-button"
-          type="button"
-          onClick={connected && !isSepolia ? onSwitchNetwork : onConnect}
-          disabled={connecting || (connected && isSepolia)}
-        >
-          <WalletIcon />
-          {connected && !isSepolia ? "Switch network" : buttonLabel}
-        </button>
+        <div className="wallet-controls">
+          <button
+            className="button button-primary wallet-button"
+            type="button"
+            onClick={connected && !isSepolia ? onSwitchNetwork : onConnect}
+            disabled={connecting || (connected && isSepolia)}
+          >
+            <WalletIcon />
+            {connected && !isSepolia ? "Switch network" : buttonLabel}
+          </button>
+          {connected ? (
+            <button className="disconnect-button" type="button" onClick={onDisconnect}>
+              Disconnect
+            </button>
+          ) : null}
+        </div>
         <button className="menu-button" type="button" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
           <MenuIcon />
         </button>

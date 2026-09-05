@@ -97,7 +97,7 @@ The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adve
 
 - Main repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
-- Frontend: <https://frontend-two-chi-54.vercel.app>
+- Frontend: <https://confidential-pool-savings.vercel.app>
 - Final pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88?fields=all>
 - Final caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x78da50E954d2fC69C10688032c8c07D2ABC52750?fields=all>
 - Keeper runbook: [`zama-context/08-bounty-pooltogether/fhe-random-keeper-runbook.md`](./zama-context/08-bounty-pooltogether/fhe-random-keeper-runbook.md)

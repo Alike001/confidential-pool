@@ -102,7 +102,7 @@ This final live run used one participant, so it proves the production path but n
 
 ## Public release evidence
 
-- Frontend: <https://frontend-two-chi-54.vercel.app>
+- Frontend: <https://confidential-pool-savings.vercel.app>
 - Source repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
 - Pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xdE9A7DC790e6dE0304A046210044F38904309120?fields=all>

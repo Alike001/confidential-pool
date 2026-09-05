@@ -43,6 +43,7 @@ export default function App() {
         connecting={wallet.status === "connecting"}
         isSepolia={wallet.isSepolia}
         onConnect={() => void wallet.connect()}
+        onDisconnect={() => void wallet.disconnect()}
         onSwitchNetwork={() => void wallet.switchToSepolia()}
       />
       <main>

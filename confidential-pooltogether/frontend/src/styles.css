@@ -35,6 +35,9 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .button-primary { background: var(--yellow); }
 .button-secondary { background: var(--paper); }
 .wallet-button { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wallet-controls { display: flex; align-items: center; gap: 8px; }
+.disconnect-button { min-height: 32px; padding: 0 2px; border: 0; border-bottom: 1px solid var(--ink); background: transparent; color: var(--muted); font-size: 9px; font-weight: 800; cursor: pointer; }
+.disconnect-button:hover { color: var(--ink); }
 
 .hero-section { min-height: 590px; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(390px, .85fr); gap: clamp(48px, 7vw, 100px); align-items: center; padding: 82px 0 76px; }
 .hero-copy { min-width: 0; }
@@ -202,6 +205,9 @@ footer a { color: var(--muted); font-size: 10px; font-weight: 750; text-decorati
   .network-status { display: none; }
   .wallet-button { min-height: 40px; padding-inline: 12px; }
   .wallet-button svg { display: none; }
+  .wallet-controls { gap: 6px; }
+  .disconnect-button { font-size: 0; }
+  .disconnect-button::after { content: "Exit"; font-size: 9px; }
   .menu-button { display: grid; }
   .hero-section { min-height: 0; padding: 60px 0 74px; gap: 46px; }
   .hero-copy h1 { font-size: clamp(48px, 14vw, 68px); }

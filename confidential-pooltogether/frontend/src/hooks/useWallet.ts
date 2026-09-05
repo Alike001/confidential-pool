@@ -10,6 +10,8 @@ type WalletState = {
   error?: string;
 };
 
+const WALLET_SESSION_KEY = "confidential-pool:wallet-connected";
+
 declare global {
   interface Window {
     ethereum?: EIP1193Provider;
@@ -31,6 +33,10 @@ export function useWallet() {
       const account = Array.isArray(accounts) && typeof accounts[0] === "string"
         ? accounts[0]
         : undefined;
+      if (!account) {
+        connectionRequested.current = false;
+        window.localStorage.removeItem(WALLET_SESSION_KEY);
+      }
       setState((current) => ({
         ...current,
         account,
@@ -49,6 +55,32 @@ export function useWallet() {
 
     window.ethereum.on("accountsChanged", accountsChanged);
     window.ethereum.on("chainChanged", chainChanged);
+
+    const restoreConnection = async () => {
+      if (window.localStorage.getItem(WALLET_SESSION_KEY) !== "true") return;
+
+      try {
+        const accounts = await window.ethereum?.request({ method: "eth_accounts" }) as string[];
+        const account = accounts[0];
+        if (!account) {
+          window.localStorage.removeItem(WALLET_SESSION_KEY);
+          return;
+        }
+
+        const chainHex = await window.ethereum?.request({ method: "eth_chainId" }) as string;
+        connectionRequested.current = true;
+        setState({
+          account,
+          chainId: Number.parseInt(chainHex, 16),
+          status: "connected",
+        });
+      } catch {
+        connectionRequested.current = false;
+        window.localStorage.removeItem(WALLET_SESSION_KEY);
+      }
+    };
+
+    void restoreConnection();
     return () => {
       window.ethereum?.removeListener("accountsChanged", accountsChanged);
       window.ethereum?.removeListener("chainChanged", chainChanged);
@@ -74,6 +106,7 @@ export function useWallet() {
       }) as string;
       const account = accounts[0];
       connectionRequested.current = Boolean(account);
+      if (account) window.localStorage.setItem(WALLET_SESSION_KEY, "true");
       setState({
         account,
         chainId: Number.parseInt(chainHex, 16),
@@ -89,6 +122,26 @@ export function useWallet() {
             : "Wallet connection was rejected.",
       });
     }
+  }, []);
+
+  const disconnect = useCallback(async () => {
+    connectionRequested.current = false;
+    window.localStorage.removeItem(WALLET_SESSION_KEY);
+
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_revokePermissions",
+          params: [{ eth_accounts: {} }],
+        });
+      } catch {
+        // Some injected wallets do not implement permission revocation. Clearing
+        // the local session still disconnects this application until the user
+        // explicitly connects again.
+      }
+    }
+
+    setState({ status: "disconnected" });
   }, []);
 
   const switchToSepolia = useCallback(async () => {
@@ -127,6 +180,7 @@ export function useWallet() {
     ethereum: window.ethereum,
     isSepolia: state.chainId === deployment.chainId,
     connect,
+    disconnect,
     switchToSepolia,
   };
 }

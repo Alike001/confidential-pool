@@ -4,13 +4,31 @@
 
 Pool `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` successfully proved two encrypted deposits, exact two-user TWAB aggregation, KMS-proven public denominator finalization, post-close Chainlink request provenance, and draw opening. It is now superseded: live claim preparation traced to an immediate revert at Sepolia's executor because the deployed executor implementation does not contain selector `0x94fdeb20` for the pinned library's `fheMulDiv(bytes32,bytes32,bytes32,bytes1)` wrapper. No claim-preparation transaction was broadcast.
 
-The compatibility fix replaces `FHE.mulDiv` with `euint128` scalar multiplication and plaintext division—operations already proven live by the same pool's TWAB path. All 11 focused recurring tests pass after the fix with unchanged `4,043,032` maximum HCU depth. A fresh coordinator and replacement pool are required before promotion.
+The compatibility fix replaces `FHE.mulDiv` with `euint128` scalar multiplication and plaintext division—operations already proven live by the same pool's TWAB path. Compatibility pool `0xa12962cb07D7aaC4421B6101B32caB1Bc9D5FC47` proved this path across two live draws. It is also superseded for release purposes: coordinator `0x4BA4F83C1A59559AE338E63A79cDEDC73e3B700e` correctly bound fresh requests but retained `257614275451786` wei of adapter refunds without a recovery function. Operator-only refund recovery is now implemented and covered by the Foundry suite, so a fresh coordinator and replacement pool are required before promotion.
+
+## Compatibility-fixed two-draw evidence
+
+| Field | Value |
+|---|---|
+| Pool | `0xa12962cb07D7aaC4421B6101B32caB1Bc9D5FC47` |
+| Coordinator | `0x4BA4F83C1A59559AE338E63A79cDEDC73e3B700e` |
+| Deployment transaction | `0x6c91222fc9ec6be3a2a4d95412cbb91a72fc42348be6ff184b58a73d08c80f74` |
+| Deployment block | `11639493` |
+| Epoch duration | `600` seconds (test-only) |
+| Encrypted deposits | `1000000` units per wallet |
+| Sponsored encrypted reserve | `500000` units |
+
+Epoch 1 used deposit timestamps `1788600732` and `1788600972` against boundary `1788600576 → 1788601176`. The independently calculated TWABs were `740000` and `340000`; KMS accepted exactly `1080000` in transaction `0x83cd53a45e8f338b7e82cf40b0cd5a728f4d5df809f7f33fcbc61b2aff5f731b`. Post-close Chainlink request `6` was bound in transaction `0xce55e22e9f63f0136d6bc53dc1f5385a02810c01c694ed74269852ab39958b0d`. Draw commit and opening transactions were `0xa9d25bd6462cfe14d04bb9842740296c1ea8e2e5b5c3d5cf70649d0a482379fa` and `0x39d344c6ecda804474731d6b02f8a932b48af18230cf97109d094fd2c1973074`. Wallet A privately decrypted `100000`; wallet B privately decrypted `0`.
+
+Epoch 2 carried both full balances and KMS accepted exactly `2000000` in transaction `0x7011960c881d377d4dd5a02f03924f1a345b5affe03f6fcbe61855bb058d6a42`. Post-close Chainlink request `7` was bound in transaction `0x7b498a0c699a461339d66b44c3365fb1c012b8baddb10cc8ffa82d6757ea337f`. Draw commit and opening transactions were `0x232534ced6c54b9ac68cc165ecd226f24c4b05966c19a7be370f1fea6f27a7de` and `0x1c2a675648f10bc40ff02ba7503ba4eeaa8c5e8a1a8eabf5969743cfb17d7a5a`. Both wallets privately decrypted `0`. Across both draws, preparation and settlement remained non-reverting for winners and non-winners, and public state exposed ciphertext handles rather than payout values.
+
+The 600-second windows deliberately accelerated testing but were shorter than the complete relayer/Chainlink/manual validation loop. The resulting sequential catch-up checkpoints behaved correctly. Production configuration must use substantially longer epochs and an automated keeper.
 
 The earlier recurring deployment proved encrypted deposit, sponsored reserve funding, recurring epoch advancement, private user-TWAB finalization, and KMS-proven aggregate finalization. It is not promotable as the final draw release: its reused coordinator already had draw ID `1` bound to request `4` from an older pool before that deployment's first epoch ended.
 
 No new RNG transaction was broadcast when the collision was discovered. The Foundry request simulation reverted at the read-only `draw-already-bound` preflight. Because the pool stores its coordinator immutably and requires `getDrawRequest(epochId)`, recovery requires a fresh coordinator and fresh recurring pool deployment. The token and Chainlink adapter remain reusable.
 
-## Final lifecycle candidate
+## Superseded pre-compatibility candidate
 
 | Field | Value |
 |---|---|
@@ -64,7 +82,7 @@ Source verification is complete through Sourcify's current v2 API. All three con
 
 | Contract | Verification job | Match ID | Public record |
 |---|---|---:|---|
-| Final recurring pool | `b5919d3b-a5b0-4bcf-b6be-0f84f5f73b95` | `47144784` | [Sourcify lookup](https://sourcify.dev/server/v2/contract/11155111/0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401?fields=all) |
+| Superseded recurring pool | `b5919d3b-a5b0-4bcf-b6be-0f84f5f73b95` | `47144784` | [Sourcify lookup](https://sourcify.dev/server/v2/contract/11155111/0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401?fields=all) |
 | Fresh RNG coordinator | `b0171578-6e8a-421d-8a38-33128d6f49ff` | `47144811` | [Sourcify lookup](https://sourcify.dev/server/v2/contract/11155111/0xcb8bbD71B269E4a64965Cb86F044950f542B6133?fields=all) |
 | Chainlink VRF adapter | `1939ab72-f610-4d23-aa3a-17eb9ad5cccb` | `47144875` | [Sourcify lookup](https://sourcify.dev/server/v2/contract/11155111/0x2387Ac275b6ADa26959c587d93abFbd491A64D5A?fields=all) |
 
@@ -109,12 +127,11 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 
 ## Promotion gates
 
-- [x] Deploy a fresh coordinator with an unbound draw-1 slot, then deploy a replacement recurring pool against it.
-- [x] Complete confidential deposits for at least two wallets.
-- [x] Fund the disclosed testnet-sponsored encrypted prize reserve.
-- Advance, checkpoint, decrypt the aggregate, draw, prepare claims, settle claims, and withdraw across two consecutive epochs.
-- Run the strict recurring lifecycle auditor successfully.
-- [x] Verify the final pool, coordinator, and RNG adapter creation/runtime bytecode against their exact sources through Sourcify v2, and test the public lookup endpoints.
-- [x] Integrate the approved frontend, current Zama browser SDK, live read-only pool state, and gated write actions against this pool.
-- Complete browser-wallet QA, then enable frontend writes after the strict lifecycle audit passes.
-- Package the evidence and submission materials.
+- [x] Prove the Sepolia-compatible winner arithmetic with two wallets and two consecutive encrypted claim rounds.
+- [x] Add and test operator-only recovery of coordinator-held provider refunds.
+- [ ] Deploy the refund-safe coordinator with an unbound draw-1 slot, then deploy the final replacement pool against it.
+- [ ] Complete the bounded final deposit, reserve, KMS aggregate, RNG, draw, claim, and principal-withdrawal smoke transcript.
+- [ ] Run the strict recurring lifecycle auditor successfully against the final addresses.
+- [ ] Verify the final pool and coordinator creation/runtime bytecode through Sourcify v2; retain the existing adapter match.
+- [ ] Rebind the approved frontend to the final pool and coordinator, complete browser-wallet QA, then enable writes.
+- [ ] Package the evidence and submission materials.

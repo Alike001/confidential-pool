@@ -4,7 +4,7 @@
 
 Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
 
-Current phase map: Phase 1 is complete; Phases 2–4 produced a locally tested bounded design; and Phase 5's hardened fixed-epoch lifecycle is complete on Sepolia. Phase 6 has 14 focused fixed-epoch tests plus a strict live auditor that returned `HARDENED_LIFECYCLE_COMPLETE: true`. The recurring candidate implements permissionless rolling epochs, draw-scoped TWABs, sequential checkpoints, KMS-proven public aggregate denominators, and depth-safe two-step claims; 11 focused checks pass together. The approved frontend is implemented with live reads, lazy Zama SDK encryption/decryption, and release-gated writes. Final pool `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` now holds two independently encrypted `1000000`-unit deposits and a `500000`-unit sponsored encrypted reserve. Remaining production work is the two-wallet/two-epoch live transcript, strict audits, browser-wallet QA, source verification, write activation, and submission packaging.
+Current phase map: Phase 1 is complete; Phases 2–4 produced a locally tested bounded design; and Phase 5's hardened fixed-epoch lifecycle is complete on Sepolia. Phase 6 has 14 focused fixed-epoch tests plus a strict live auditor that returned `HARDENED_LIFECYCLE_COMPLETE: true`. The recurring implementation now has a complete two-wallet/two-draw Sepolia claim transcript on compatibility pool `0xa12962cb07D7aaC4421B6101B32caB1Bc9D5FC47`, proving the replacement for unsupported live `FHE.mulDiv`. Local verification currently passes 21 focused FHE pool tests, 13 RNG/reference tests, and the isolated lifecycle TypeScript checks. The approved frontend is implemented with live reads, lazy Zama SDK encryption/decryption, and release-gated writes. A newly discovered coordinator refund trap is fixed and tested locally. Remaining production work is to deploy the refund-safe coordinator and replacement pool, execute a bounded final smoke lifecycle and strict audit, verify sources, rebind and QA the frontend, activate writes, and package the submission.
 
 ## Guiding rule
 
@@ -94,7 +94,7 @@ Progress: the first multi-user fairness/privacy regression, isolated claim-surfa
 
 ### Phase 7 — Deploy to Sepolia
 
-Status: core contracts are deployed, the final pool has exact creation/runtime source matches on Sourcify, and frontend configuration/operator packaging are present; the recurring live transcript and frontend activation remain.
+Status: core contracts and the frontend are implemented, and historical deployments have exact creation/runtime source matches on Sourcify. The compatibility-fixed pool has completed two live claim rounds. A refund-safe replacement deployment, final source matches, strict audit, frontend rebinding, and frontend activation remain.
 
 - deploy only after local and testnet invariants pass;
 - verify contracts and record addresses/versions;

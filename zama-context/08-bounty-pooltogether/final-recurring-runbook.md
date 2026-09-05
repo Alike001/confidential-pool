@@ -1,6 +1,8 @@
 # Final recurring Sepolia runbook
 
-This is the authoritative two-wallet release sequence.
+> The addresses below are historical validation targets and must not be promoted. Pool `0x7C942f…e401` uses unsupported live `FHE.mulDiv`; compatibility pool `0xa12962…FC47` proves the arithmetic fix but references a coordinator that traps provider refunds. Run this sequence only after inserting the newly deployed refund-safe coordinator and replacement pool addresses.
+
+This remains the authoritative two-wallet release *sequence*. The authoritative release addresses are intentionally pending until the refund-safe replacement passes the final smoke lifecycle.
 
 ```text
 pool:        0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401

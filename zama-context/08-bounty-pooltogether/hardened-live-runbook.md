@@ -1,6 +1,6 @@
 # Hardened Sepolia lifecycle runbook
 
-> Historical fixed-epoch evidence only. Do not use these commands for the final recurring release. The active release is pool `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401`; follow [`final-recurring-runbook.md`](./final-recurring-runbook.md).
+> Historical fixed-epoch evidence only. Do not use these commands for the final recurring release. No recurring address is currently promoted; follow [`final-recurring-runbook.md`](./final-recurring-runbook.md) after the refund-safe replacement addresses are recorded there.
 
 This runbook is only for the provenance-version-1 deployment:
 

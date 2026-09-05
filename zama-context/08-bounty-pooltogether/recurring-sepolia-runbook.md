@@ -1,8 +1,10 @@
 # Recurring Sepolia Runbook
 
+> Historical deployment guide. Pool `0x31ceb5d5de22e28d2D985e594665524ca61f5628` is superseded and must not receive new lifecycle transactions. Follow [`final-recurring-runbook.md`](./final-recurring-runbook.md) for the active two-wallet release candidate.
+
 ## Status
 
-The recurring candidate was deployed to Sepolia at `0x31ceb5d5de22e28d2D985e594665524ca61f5628` in block `11636762`. Its first epoch starts at Unix timestamp `1788567223` and each epoch lasts `1800` seconds. The live two-wallet/two-epoch lifecycle and strict audit are still pending, so keep the hardened fixed-epoch deployment as historical evidence until those gates pass.
+This document records the first recurring deployment at `0x31ceb5d5de22e28d2D985e594665524ca61f5628` in block `11636762`. It proved recurring epoch and aggregate-finalization mechanics but reused a coordinator draw slot, so it is historical evidence only.
 
 The complete public deployment record is in [`recurring-sepolia-deployment.md`](./recurring-sepolia-deployment.md).
 

@@ -126,8 +126,8 @@ Current results: 13 Foundry tests, 25 focused FHE tests, lifecycle TypeScript/li
 
 ## Links to fill before sending
 
-- Public product/research repository: `TODO`
-- Public FHE implementation fork/branch: `TODO`
-- Public frontend: `TODO`
+- Public product/research repository: <https://github.com/Alike001/confidential-pool>
+- Public FHE implementation fork/branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
+- Public frontend: <https://alike001.github.io/confidential-pool/>
 - Demo video: `TODO`
 - Zama submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>

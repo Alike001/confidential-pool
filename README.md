@@ -21,7 +21,7 @@ Final pool: [`0xE0d284649E955d03B02F3cf927D60271d41C52D1`](https://sepolia.ether
 
 - [`confidential-pooltogether/`](./confidential-pooltogether/) — reference contracts, Chainlink RNG integration, deployment scripts, and React frontend.
 - [`zama-context/`](./zama-context/) — bottom-up Zama and PoolTogether research, architecture decisions, threat model, live evidence, and submission package.
-- `zama-context/fhevm/` — local Zama FHEVM implementation checkout. It is intentionally excluded from this Git history and is published from the dedicated `feature/confidential-pool` branch of the project fork.
+- `zama-context/fhevm/` — local Zama FHEVM implementation checkout. It is intentionally excluded from this Git history; the implementation is published on the [`feature/confidential-pool` branch](https://github.com/Alike001/fhevm/tree/feature/confidential-pool) of the project fork.
 
 Start with the [submission package](./zama-context/08-bounty-pooltogether/submission-package.md), then read the [final recurring runbook](./zama-context/08-bounty-pooltogether/final-recurring-runbook.md) and [deployment evidence](./zama-context/08-bounty-pooltogether/recurring-sepolia-deployment.md).
 

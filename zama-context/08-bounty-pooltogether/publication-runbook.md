@@ -18,7 +18,7 @@ The local implementation branch already exists at:
 feature/confidential-pool -> f64413c
 ```
 
-No GitHub repository has been created and no branch has been pushed yet.
+Publication was approved on 2026-09-05. The `Alike001/fhevm` fork exists and its `feature/confidential-pool` branch is published. The `Alike001/confidential-pool` repository has been created; its `main` branch and Pages site are published by the remaining commands below.
 
 ## Pre-publish checks
 

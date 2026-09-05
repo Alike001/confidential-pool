@@ -62,7 +62,7 @@ gh repo fork zama-ai/fhevm --clone=false --remote --remote-name submission
 git push -u submission feature/confidential-pool
 ```
 
-2. Create and push the main product repository:
+2. Create the main product repository without pushing yet:
 
 ```sh
 cd /home/ali/Desktop/zama
@@ -70,15 +70,23 @@ gh repo create Alike001/confidential-pool \
   --public \
   --description "Private prize savings with Zama FHEVM and verifiable Chainlink draws" \
   --source . \
-  --remote origin \
-  --push
+  --remote origin
 ```
 
-3. Add the two public URLs to `submission-package.md`, commit, and push the documentation update.
+3. Enable the GitHub Actions Pages source, then push `main`. The included workflow builds the nested frontend with the `/confidential-pool/` Vite base path.
 
-4. Publish the frontend, run an injected-wallet deposit/decrypt/claim smoke test from the hosted origin, then freeze the demo URL.
+```sh
+cd /home/ali/Desktop/zama
+gh api --method POST repos/Alike001/confidential-pool/pages \
+  -f build_type=workflow
+git push -u origin main
+```
 
-5. Record a short demo, add the video URL, and submit through the Zama Season 4 form.
+4. Add the two public repository URLs to `submission-package.md`, commit, and push the documentation update.
+
+5. Wait for the Pages workflow, then run an injected-wallet deposit/decrypt/claim smoke test from `https://alike001.github.io/confidential-pool/` and freeze that demo URL.
+
+6. Record a short demo, add the video URL, and submit through the Zama Season 4 form.
 
 ## Secret boundary
 

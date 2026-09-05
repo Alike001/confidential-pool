@@ -32,6 +32,7 @@ contract RngRequestCoordinator {
         uint256 requestedAtBlock,
         uint256 requestedAtTimestamp
     );
+    event RngRefundWithdrawn(address indexed recipient, uint256 amount);
 
     constructor(IRequestableRng rng_) {
         require(address(rng_) != address(0), "rng-zero");
@@ -60,6 +61,18 @@ contract RngRequestCoordinator {
 
     function getDrawRequest(uint64 drawId) external view returns (DrawRequest memory) {
         return _drawRequests[drawId];
+    }
+
+    /// @notice Recovers provider overpayment refunds received by this coordinator.
+    function withdrawRefund(address payable recipient) external {
+        require(msg.sender == operator, "not-operator");
+        require(recipient != address(0), "recipient-zero");
+        uint256 amount = address(this).balance;
+        require(amount != 0, "refund-zero");
+
+        (bool success, ) = recipient.call{value: amount}("");
+        require(success, "refund-withdraw-failed");
+        emit RngRefundWithdrawn(recipient, amount);
     }
 
     /// @dev Allows the provider adapter to refund an overpayment after a request.

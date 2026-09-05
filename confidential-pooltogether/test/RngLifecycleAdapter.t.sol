@@ -142,6 +142,8 @@ contract MockOfficialChainlinkVrfWrapper is IVRFV2PlusWrapper {
 }
 
 contract RngLifecycleAdapterTest {
+    receive() external payable {}
+
     function testBindsAndPermissionlesslyFinalizesCompletedRequest() public {
         MockRng rng = new MockRng();
         RngLifecycleAdapter adapter = new RngLifecycleAdapter(rng);
@@ -315,5 +317,26 @@ contract RngLifecycleAdapterTest {
         wrapper.fulfill(adapter, wrapper.lastRequestId(), randomWords);
         require(adapter.isRequestComplete(requestId), "request not completed");
         require(adapter.randomNumber(requestId) == randomWords[0], "wrong random word");
+    }
+
+    function testCoordinatorOperatorCanRecoverProviderRefund() public {
+        MockOfficialChainlinkVrfWrapper wrapper = new MockOfficialChainlinkVrfWrapper();
+        ChainlinkVrfRngAdapter adapter = new ChainlinkVrfRngAdapter(
+            address(wrapper),
+            100_000,
+            3,
+            1,
+            20,
+            hex""
+        );
+        RngRequestCoordinator coordinator = new RngRequestCoordinator(adapter);
+
+        uint256 operatorBalanceBefore = address(this).balance;
+        coordinator.requestDraw{value: 3}(1);
+        require(address(coordinator).balance == 2, "refund not retained");
+
+        coordinator.withdrawRefund(payable(address(this)));
+        require(address(coordinator).balance == 0, "refund not withdrawn");
+        require(address(this).balance == operatorBalanceBefore - 1, "refund not conserved");
     }
 }

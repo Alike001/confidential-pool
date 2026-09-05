@@ -1,5 +1,37 @@
 # Recurring Confidential PoolTogether Sepolia Deployment
 
+## Refund-safe final candidate
+
+The current release candidate is deployed, source-verified, frontend-bound, and undergoing its final two-wallet lifecycle. It is not promoted until the live claim, withdrawal, and strict-auditor gates below pass.
+
+| Field | Value |
+|---|---|
+| Network | Ethereum Sepolia (`11155111`) |
+| Deployer / wallet A | `0xdE67A35B322e5A31e8215B5245CA4e48d7977F71` |
+| Wallet B | `0x46854AC6B18C384C9a0b0b3aB7bF27a6fCE6c16a` |
+| Recurring pool | `0xE0d284649E955d03B02F3cf927D60271d41C52D1` |
+| Confidential payout token | `0x4E7B06D78965594eB5EF5414c357ca21E1554491` |
+| RNG adapter/provider | `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A` |
+| Refund-safe RNG coordinator | `0xa90A46B27147C532Bb6844d49d285FEba9819074` |
+| First epoch | `1788607872` → `1788611472` |
+| Epoch duration | `3600` seconds |
+| Coordinator deployment transaction | `0xa200688859ef2f8de7734746dbd95acc6205bc0e66969659a99952ab4e452a4a` |
+| Coordinator deployment block | `11640061` |
+| Pool deployment transaction | `0x4c42e99536e1d1be439a033a891d1648dc9731d8f8974c0c67d18ffc8cfd85d9` |
+| Pool deployment block | `11640070` |
+
+The coordinator's adapter, operator, provenance version `1`, and initially unbound draw-1 slot were checked onchain. Refund recovery was also exercised live: a one-wei probe was deposited in transaction `0x065120e339641e0ddc713d31324ecb18da8137fd6efa2a9cd63e5a623bea3afe`, the operator recovered it in transaction `0xcd7da6eacd67c7a4fbeb67b42bb2457d3334f8c84a17d48c19336c982fd50a7c`, the coordinator balance returned to zero, and a non-operator call reverted with `not-operator`.
+
+Both wallets deposited `1000000` confidential units. Wallet A's deposit transaction `0x5aa3b9a6941f8621e5071527ec0818ee4b0bcaf41676f9479df92d7ff92e8ac2` mined in block `11640092`; wallet B's transaction `0x75a6c359e9eb8617b6c782c7918b68bce6d2c7ec637d13734ddcb59e4e768934` mined in block `11640121`. Owner-authorized decryption returned `1000000` for each position. The sponsored encrypted reserve was funded in transaction `0xdacd0811b7db1d2d9f296c7409ec4601bf94238ba5399b9a51266b15b93c0795` at block `11640147`; its plaintext was not emitted.
+
+From the public epoch boundary and deposit timestamps, the exact epoch-1 TWAB expectations are `936666` for wallet A, `836666` for wallet B, and `1773332` in aggregate. These are audit expectations; the individual values remain owner-decryptable ciphertext while only the KMS-proven aggregate is deliberately made public.
+
+Sourcify reports exact creation and runtime matches for the final pool (match `47153193`) and coordinator (match `47153198`). The adapter retains exact match `47144875`:
+
+- [final pool source record](https://sourcify.dev/server/v2/contract/11155111/0xE0d284649E955d03B02F3cf927D60271d41C52D1?fields=all)
+- [refund-safe coordinator source record](https://sourcify.dev/server/v2/contract/11155111/0xa90A46B27147C532Bb6844d49d285FEba9819074?fields=all)
+- [Chainlink adapter source record](https://sourcify.dev/server/v2/contract/11155111/0x2387Ac275b6ADa26959c587d93abFbd491A64D5A?fields=all)
+
 ## Release status
 
 Pool `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` successfully proved two encrypted deposits, exact two-user TWAB aggregation, KMS-proven public denominator finalization, post-close Chainlink request provenance, and draw opening. It is now superseded: live claim preparation traced to an immediate revert at Sepolia's executor because the deployed executor implementation does not contain selector `0x94fdeb20` for the pinned library's `fheMulDiv(bytes32,bytes32,bytes32,bytes1)` wrapper. No claim-preparation transaction was broadcast.
@@ -129,9 +161,9 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 
 - [x] Prove the Sepolia-compatible winner arithmetic with two wallets and two consecutive encrypted claim rounds.
 - [x] Add and test operator-only recovery of coordinator-held provider refunds.
-- [ ] Deploy the refund-safe coordinator with an unbound draw-1 slot, then deploy the final replacement pool against it.
+- [x] Deploy the refund-safe coordinator with an unbound draw-1 slot, then deploy the final replacement pool against it.
 - [ ] Complete the bounded final deposit, reserve, KMS aggregate, RNG, draw, claim, and principal-withdrawal smoke transcript.
 - [ ] Run the strict recurring lifecycle auditor successfully against the final addresses.
-- [ ] Verify the final pool and coordinator creation/runtime bytecode through Sourcify v2; retain the existing adapter match.
-- [ ] Rebind the approved frontend to the final pool and coordinator, complete browser-wallet QA, then enable writes.
+- [x] Verify the final pool and coordinator creation/runtime bytecode through Sourcify v2; retain the existing adapter match.
+- [ ] Rebind the approved frontend to the final pool and coordinator, complete browser-wallet QA, then enable writes. The rebind, production build, and disconnected desktop/mobile visual pass are complete; write-enabled wallet QA remains gated on the strict audit.
 - [ ] Package the evidence and submission materials.

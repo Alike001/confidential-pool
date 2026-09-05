@@ -4,7 +4,7 @@
 
 Phase 2 research produced a bounded build direction. The final implementation uses a public KMS-proven draw denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It intentionally does not attempt full-width private denominator division or a complete V5 port.
 
-Phases 1–6 are complete locally for the bounded submission. The official form's explicit “FHE randomness, no offchain RNG” requirement caused one final architecture correction: the active Sepolia candidate is pool `0x686227d54223cCF844a57C9D8bf95d1A5bE49B02` with Aave aLINK-backed confidential token `0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`. It uses `FHE.randEuint64()` and encrypted thresholds instead of Chainlink. Deployment and Sourcify verification are complete; the fresh live lifecycle, strict audit, hosted wallet QA, and submission media remain.
+Phases 1–6 are complete locally for the bounded submission. The official form's explicit “FHE randomness, no offchain RNG” requirement caused one final architecture correction. The first FHE-random pair is source-verified staging evidence; review then added an explicit one-tier prize-slot guard at commit `8addf2a` to prevent arbitrary extra attempts. A fresh immutable wrapper/pool pair, live lifecycle, strict audit, hosted wallet QA, and submission media remain.
 
 ## Guiding rule
 
@@ -94,7 +94,7 @@ Progress: multi-user fairness/privacy, equalized claim surfaces, encrypted-rando
 
 ### Phase 7 — Deploy to Sepolia
 
-Status: contracts deployed, Sourcify creation/runtime matches confirmed, and frontend configuration updated. End-to-end transactions, strict audit, and final hosted deployment remain.
+Status: staging pair deployed and source-matched. The guarded final pair, end-to-end transactions, strict audit, and write-enabled hosted deployment remain.
 
 - deploy only after local and testnet invariants pass;
 - verify contracts and record addresses/versions;

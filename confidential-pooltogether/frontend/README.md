@@ -1,6 +1,6 @@
 # Confidential Pool frontend
 
-Production-oriented React/Vite frontend for the audited recurring Sepolia release.
+Production-oriented React/Vite frontend for the pre-audit recurring Sepolia release.
 
 ## Current slice
 
@@ -8,10 +8,10 @@ Production-oriented React/Vite frontend for the audited recurring Sepolia releas
 - real injected-wallet connection and Sepolia switching;
 - real pool epoch/draw/encrypted-handle reads;
 - lazily loaded Zama SDK encryption and owner-authorized decryption;
-- implemented encrypted deposit, withdrawal, recurring checkpoint, and two-step claim actions;
+- implemented encrypted deposit, withdrawal, recurring checkpoint, and HCU-safe four-transaction claim actions;
 - real deployment and Etherscan evidence;
 - responsive desktop/mobile layout;
-- encrypted writes enabled against the exact-match final Sepolia pool after both strict recurring live audits passed.
+- encrypted writes are temporarily disabled while the prize-slot guard is promoted from the source-matched staging deployment to the final Sepolia pair.
 
 No private key belongs in this directory. Copy `.env.example` to `.env.local` only if a browser-safe read-only Sepolia RPC is needed.
 
@@ -32,4 +32,4 @@ npm run build
 npm run preview
 ```
 
-The repository workflow builds this directory with the `/confidential-pool/` base path and deploys `dist/` to GitHub Pages. No deployer key or server-side secret is used by the browser application.
+The production project deploys `dist/` to Vercel at <https://frontend-two-chi-54.vercel.app>. No deployer key or server-side secret is used by the browser application.

@@ -75,10 +75,12 @@ Public:
 
 The product provides confidentiality, not anonymity. The public aggregate can leak information in a very small participant set, and repeated public actions can support inference. Winner and non-winner settlement deliberately use the same non-reverting call shape and matched application-event structure.
 
-## Final Sepolia deployment
+## Sepolia staging deployment
 
-- Pool: [`0x686227d54223cCF844a57C9D8bf95d1A5bE49B02`](https://sepolia.etherscan.io/address/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02)
-- caLINK wrapper: [`0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`](https://sepolia.etherscan.io/address/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd)
+- Source-verified staging pool: [`0x686227d54223cCF844a57C9D8bf95d1A5bE49B02`](https://sepolia.etherscan.io/address/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02)
+- Staging caLINK wrapper: [`0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`](https://sepolia.etherscan.io/address/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd)
+
+These are not the form-submission addresses. A guarded final pair is pending deployment and strict lifecycle validation.
 - Aave V3 Pool: [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951)
 - LINK: `0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5`
 - aLINK: `0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`

@@ -40,16 +40,16 @@ Recurring Confidential Pool
         winner comparison, and private payout
 ```
 
-## Final Sepolia deployment
+## FHE-random Sepolia staging deployment
 
 | Component | Address |
 | --- | --- |
-| FHE-random recurring pool | [`0x686227d54223cCF844a57C9D8bf95d1A5bE49B02`](https://sepolia.etherscan.io/address/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02) |
-| Confidential aLINK wrapper | [`0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`](https://sepolia.etherscan.io/address/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd) |
+| Staging FHE-random pool | [`0x686227d54223cCF844a57C9D8bf95d1A5bE49B02`](https://sepolia.etherscan.io/address/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02) |
+| Staging confidential aLINK wrapper | [`0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`](https://sepolia.etherscan.io/address/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd) |
 | Aave V3 Pool | [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951) |
 | Aave aLINK | [`0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`](https://sepolia.etherscan.io/address/0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24) |
 
-The contracts are deployed and configured. The strict end-to-end lifecycle audit for this FHE-random release is in progress; the prior Chainlink candidate remains documented as historical evidence and is not the submission target. See the [FHE-random release record](./zama-context/08-bounty-pooltogether/fhe-random-sepolia-release.md).
+This pair proved deployment and exact source verification, then review found that the one-tier MVP needed an explicit `(tier 0, prizeIndex 0)` guard. The guard is implemented and tested at FHE fork commit `8addf2a`; a fresh pair and strict lifecycle are pending testnet gas funding. Frontend writes remain disabled until that promotion is complete. See the [FHE-random release record](./zama-context/08-bounty-pooltogether/fhe-random-sepolia-release.md).
 
 ## Privacy boundary
 
@@ -98,6 +98,6 @@ The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adve
 - Main repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
 - Frontend: <https://frontend-two-chi-54.vercel.app>
-- Pool source match: <https://sourcify.dev/server/v2/contract/11155111/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02?fields=all>
-- caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd?fields=all>
+- Staging pool source match: <https://sourcify.dev/server/v2/contract/11155111/0x686227d54223cCF844a57C9D8bf95d1A5bE49B02?fields=all>
+- Staging caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x7885283CB34d02b81e671FEA7404C3c94f594Bdd?fields=all>
 - Submission package: [`zama-context/08-bounty-pooltogether/submission-package.md`](./zama-context/08-bounty-pooltogether/submission-package.md)

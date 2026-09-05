@@ -2,11 +2,13 @@
 
 ## Status
 
-The final-contract candidate is deployed and configured on Ethereum Sepolia. Its strict end-to-end lifecycle is still being executed; this file must not say the release is complete until `auditFheRandomAaveSepoliaLifecycle.ts` returns `FHE_RANDOM_AAVE_LIFECYCLE_COMPLETE: true`.
+The first FHE-random pair is deployed and source-verified on Ethereum Sepolia, but it is now classified as staging. Review found that the one-tier MVP needed an explicit guard limiting claims to `(tier 0, prizeIndex 0)`; without it, arbitrary indices could create extra independent attempts. The guard is implemented and tested at fork commit `8addf2a`. A fresh wrapper/pool pair is required because wrapper pool configuration is intentionally immutable.
+
+This file must not say the final release is complete until the guarded pair is deployed and `auditFheRandomAaveSepoliaLifecycle.ts` returns `FHE_RANDOM_AAVE_LIFECYCLE_COMPLETE: true`.
 
 This release supersedes the earlier Chainlink candidate as the submission target because the official bounty wording requires winner selection with FHE randomness and no offchain RNG. The older deployments remain historical engineering evidence.
 
-## Contracts
+## Superseded staging contracts
 
 | Component | Address | Deployment evidence |
 | --- | --- | --- |
@@ -16,7 +18,7 @@ This release supersedes the earlier Chainlink candidate as the submission target
 | Aave V3 Pool | `0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951` | external Sepolia dependency |
 | Aave aLINK | `0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24` | yield-bearing backing asset |
 
-The first epoch starts at Unix timestamp `1788632400`, lasts `600` seconds, and recurs permissionlessly.
+The staging first epoch starts at Unix timestamp `1788632400`, lasts `600` seconds, and recurs permissionlessly. No bounty lifecycle funds should be deposited into this pair.
 
 ## Winner-selection design
 

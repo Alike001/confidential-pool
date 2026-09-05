@@ -43,7 +43,7 @@ This folder is the challenge-specific research database. It studies PoolTogether
 
 Earlier cUSDTMock pools remain historical evidence for fixed and recurring FHE lifecycles, including multi-user winner/non-winner outcomes and complete principal recovery. They no longer define the submission target because their prize reserves were sponsored.
 
-The active submission candidate is pool `0x686227d54223cCF844a57C9D8bf95d1A5bE49B02` with app-specific Aave aLINK-backed confidential token `0x7885283CB34d02b81e671FEA7404C3c94f594Bdd`. Winner samples now come from `FHE.randEuint64()` and remain encrypted with user TWABs, thresholds, winner bits, reserves, and payouts. The contracts are deployed; the fresh strict lifecycle audit is still in progress. The authoritative status record is [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md).
+The submission implementation now uses `FHE.randEuint64()` with encrypted user TWABs, thresholds, winner bits, reserves, and payouts. Pool `0x686227d54223cCF844a57C9D8bf95d1A5bE49B02` and token `0x7885283CB34d02b81e671FEA7404C3c94f594Bdd` are source-verified staging deployments only. Review added an explicit one-tier prize-slot guard at fork commit `8addf2a`; a fresh guarded pair and strict lifecycle are pending testnet gas funding. The authoritative status record is [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md).
 
 The prior Aave/Chainlink deployment completed its own lifecycle and remains useful regression evidence, but it is historical rather than the submission target because the official form requires FHE randomness and no offchain RNG.
 

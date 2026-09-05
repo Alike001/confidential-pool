@@ -18,7 +18,7 @@ export const deployment = {
   aaveUnderlying: "0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5",
   aaveAToken: "0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24",
   aaveFaucet: "0xC959483DBa39aa9E78757139af0e9a2EDEb3f42D",
-  writesEnabled: true,
+  writesEnabled: false,
   publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
   sourcifyUrl: "https://sourcify.dev/server/v2/contract",

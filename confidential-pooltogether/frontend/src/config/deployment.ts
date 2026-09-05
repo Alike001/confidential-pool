@@ -15,6 +15,9 @@ export const deployment = {
   writesEnabled: false,
   publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
+  sourceVerificationUrl:
+    "https://sourcify.dev/server/v2/contract/11155111/0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401?fields=all",
+  sourceMatchId: "47144784",
 } as const;
 
 export function explorerAddress(address: string) {

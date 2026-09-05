@@ -94,7 +94,7 @@ Progress: the first multi-user fairness/privacy regression, isolated claim-surfa
 
 ### Phase 7 — Deploy to Sepolia
 
-Status: core contracts and full lifecycle are deployed and proven; source verification, frontend configuration, and repeatable operator/deployment packaging remain.
+Status: core contracts are deployed, the final pool has exact creation/runtime source matches on Sourcify, and frontend configuration/operator packaging are present; the recurring live transcript and frontend activation remain.
 
 - deploy only after local and testnet invariants pass;
 - verify contracts and record addresses/versions;

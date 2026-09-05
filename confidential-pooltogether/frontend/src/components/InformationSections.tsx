@@ -68,7 +68,7 @@ function EvidenceRow({ label, detail, value, href }: { label: string; detail: st
     <div className="evidence-row">
       <div className="evidence-icon"><LockIcon /></div>
       <div className="evidence-copy"><strong>{label}</strong><span>{detail}</span></div>
-      <a href={href} target="_blank" rel="noreferrer" aria-label={`Open ${label} on Etherscan`}>{shorten(value, 8, 6)} <ArrowIcon /></a>
+      <a href={href} target="_blank" rel="noreferrer" aria-label={`Open ${label} evidence`}>{shorten(value, 8, 6)} <ArrowIcon /></a>
       <button type="button" onClick={() => void copy()} aria-label={`Copy ${label}`}><CopyIcon /></button>
     </div>
   );
@@ -89,6 +89,7 @@ export function EvidenceSection({ snapshot }: { snapshot?: PoolSnapshot }) {
         <EvidenceRow label="Chainlink RNG adapter" detail="Public randomness provider" value={deployment.rngProvider} href={explorerAddress(deployment.rngProvider)} />
         <EvidenceRow label="Confidential token" detail="Sepolia cUSDTMock wrapper" value={deployment.payoutToken} href={explorerAddress(deployment.payoutToken)} />
         <EvidenceRow label="Deployment transaction" detail="Recurring candidate deployment" value={deployment.deploymentTransaction} href={explorerTransaction(deployment.deploymentTransaction)} />
+        <EvidenceRow label="Verified source" detail="Sourcify exact creation + runtime match" value={`Match ${deployment.sourceMatchId}`} href={deployment.sourceVerificationUrl} />
       </div>
     </section>
   );

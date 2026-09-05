@@ -58,7 +58,7 @@ This is confidentiality, not anonymity. Sender addresses, transaction timing, ga
 
 The local production build passed TypeScript and Vite compilation. A disconnected-browser smoke test loaded live draw `1`, its open phase and countdown through the public read-only RPC fallback. A separate injected-provider test connected Wallet B as `0x4685…c16a`, confirmed Sepolia, loaded the same live draw, and showed an existing position only as encrypted placeholder text. No runtime alert appeared. Activating the deposit control while `writesEnabled=false` displayed the strict-audit lock and produced no transaction link. Real browser-wallet signing and Zama encryption/decryption remain the post-audit activation gate.
 
-Source verification remains open. The pinned Hardhat 2 verifier's Sourcify integration uses the legacy v1 API, which Sourcify disabled on July 7, 2026; two verification attempts therefore returned the service's HTML migration response instead of JSON. Etherscan verification is prepared and will activate when a local `ETHERSCAN_API_KEY` is configured.
+Source verification is complete through Sourcify's current v2 API. Verification job `b5919d3b-a5b0-4bcf-b6be-0f84f5f73b95` compiled the exact Hardhat Standard JSON Input with Solidity `0.8.24+commit.e11b9ed9` and reported exact creation and runtime matches at `2026-09-05T07:18:18Z` (`matchId 47144784`). The public record is `https://sourcify.dev/server/v2/contract/11155111/0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401?fields=all`. Sourcify's optional Etherscan relay hit its shared daily submission limit; RouteScan and Blockscout relay jobs were also created. This does not change the successful Sourcify match.
 
 ## Superseded deployment record
 
@@ -104,7 +104,7 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 - [x] Fund the disclosed testnet-sponsored encrypted prize reserve.
 - Advance, checkpoint, decrypt the aggregate, draw, prepare claims, settle claims, and withdraw across two consecutive epochs.
 - Run the strict recurring lifecycle auditor successfully.
-- Verify source code and test public metadata/endpoints.
+- [x] Verify the final pool's creation and runtime bytecode against its exact source through Sourcify v2, and test the public lookup endpoint.
 - [x] Integrate the approved frontend, current Zama browser SDK, live read-only pool state, and gated write actions against this pool.
 - Complete browser-wallet QA, then enable frontend writes after the strict lifecycle audit passes.
 - Package the evidence and submission materials.

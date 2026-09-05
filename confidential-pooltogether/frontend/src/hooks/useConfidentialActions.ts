@@ -45,13 +45,16 @@ export function useConfidentialActions({
         );
       if (!ethereum || !account) throw new Error("Connect a wallet first.");
       if (!isSepolia) throw new Error("Switch your wallet to Sepolia first.");
-      const amount = parseUnits(amountText, deployment.tokenDecimals);
-      if (amount <= 0n) throw new Error("Enter an amount greater than zero.");
-
       setError(undefined);
       setResult(undefined);
-      setStage("encrypting");
       try {
+        const normalizedAmount = amountText.trim();
+        if (!/^\d+(?:\.\d{1,6})?$/.test(normalizedAmount)) {
+          throw new Error("Enter a valid amount with no more than 6 decimal places.");
+        }
+        const amount = parseUnits(normalizedAmount, deployment.tokenDecimals);
+        if (amount <= 0n) throw new Error("Enter an amount greater than zero.");
+        setStage("encrypting");
         const action =
           kind === "deposit" ? depositConfidential : withdrawConfidential;
         setStage("wallet");

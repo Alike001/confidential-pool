@@ -5,8 +5,8 @@ import { readPoolSnapshot, type PoolSnapshot } from "../lib/pool";
 
 export function usePoolSnapshot(walletProvider?: Provider, account?: string) {
   const fallbackProvider = useMemo(() => {
-    const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL?.trim();
-    return rpcUrl ? new JsonRpcProvider(rpcUrl, deployment.chainId) : undefined;
+    const rpcUrl = import.meta.env.VITE_SEPOLIA_RPC_URL?.trim() || deployment.publicRpcUrl;
+    return new JsonRpcProvider(rpcUrl, deployment.chainId);
   }, []);
   const provider = walletProvider ?? fallbackProvider;
   const [snapshot, setSnapshot] = useState<PoolSnapshot>();

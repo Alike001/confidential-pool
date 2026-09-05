@@ -13,6 +13,7 @@ export const deployment = {
   epochDuration: 3600,
   tokenDecimals: 6,
   writesEnabled: false,
+  publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
 } as const;
 

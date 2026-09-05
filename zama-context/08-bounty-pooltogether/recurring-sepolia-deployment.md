@@ -2,7 +2,7 @@
 
 ## Release status
 
-The final lifecycle candidate is deployed at `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` against a fresh, timestamp-aware coordinator whose draw ID `1` was verified unbound before deployment. Promotion still depends on completing the two-wallet, two-epoch lifecycle, strict audit, source verification, and frontend write integration.
+The final lifecycle candidate is deployed at `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` against a fresh, timestamp-aware coordinator whose draw ID `1` was verified unbound before deployment. Promotion still depends on completing the two-wallet, two-epoch lifecycle, strict audit, source verification, browser-wallet QA, and enabling the already-integrated frontend writes.
 
 The earlier recurring deployment proved encrypted deposit, sponsored reserve funding, recurring epoch advancement, private user-TWAB finalization, and KMS-proven aggregate finalization. It is not promotable as the final draw release: its reused coordinator already had draw ID `1` bound to request `4` from an older pool before that deployment's first epoch ended.
 
@@ -44,6 +44,9 @@ An interrupted deployment command also mined unused pool `0xE14f3bFcd6d9E51e3F19
 | Wallet A encrypted deposit | 1 | `0xee46091da995fb8e667a3436ac3f49d6de3be20c5045b2c7afd431bd6e8e8b66` | `11638670` | Owner-authorized decryption returned `1000000` units |
 | Wallet B encrypted deposit | 1 | `0x1373f7d90ce7ab019e899b15ccd0ead6d0f9478946d712e33be8b0f77710b59a` | `11638684` | Owner-authorized decryption returned `1000000` units |
 | Sponsored encrypted prize reserve | 1 | `0x53c1b3e006a7e9c2fb33075a924785ba6e343df290807e716e498b8f393d70de` | `11638691` | Reserve changed from the zero handle to ciphertext `0x6da12f454f9e4bdbc2a36c4974b97a7ec0b6aa5eadff0000000000aa36a70500` without publishing its plaintext |
+| Sponsored encrypted prize-reserve top-up | 1 | `0x24a718583c3b84d2c5d5f6b7421e7faf5593e051d99d169bbbe0c6a08f84e837` | `11638789` | Added `400000` known test units, bringing sponsored funding to `500000`; the public reserve remained ciphertext `0x9f349e644077f0bcfd7d62e38d3186cf04116f28e9ff0000000000aa36a70500` |
+
+The expected epoch-1 TWAB baseline, fixed from the public epoch boundary and the two deposit timestamps, is `976666` for wallet A, `930000` for wallet B, and `1906666` in aggregate. These values are test expectations; user TWABs remain ciphertext until owner-authorized decryption, while only the aggregate is intended for KMS-proven public finalization.
 
 Source verification remains open. The pinned Hardhat 2 verifier's Sourcify integration uses the legacy v1 API, which Sourcify disabled on July 7, 2026; two verification attempts therefore returned the service's HTML migration response instead of JSON. Etherscan verification is prepared and will activate when a local `ETHERSCAN_API_KEY` is configured.
 
@@ -92,5 +95,6 @@ The public encrypted-reserve handle after funding was `0xb9c5bfde740c5fb608b0c09
 - Advance, checkpoint, decrypt the aggregate, draw, prepare claims, settle claims, and withdraw across two consecutive epochs.
 - Run the strict recurring lifecycle auditor successfully.
 - Verify source code and test public metadata/endpoints.
-- Integrate and test the approved frontend against this pool.
+- [x] Integrate the approved frontend, current Zama browser SDK, live read-only pool state, and gated write actions against this pool.
+- Complete browser-wallet QA, then enable frontend writes after the strict lifecycle audit passes.
 - Package the evidence and submission materials.

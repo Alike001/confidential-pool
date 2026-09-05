@@ -2,7 +2,9 @@
 
 ## Release status
 
-The final lifecycle candidate is deployed at `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` against a fresh, timestamp-aware coordinator whose draw ID `1` was verified unbound before deployment. Promotion still depends on completing the two-wallet, two-epoch lifecycle, strict audit, source verification, browser-wallet QA, and enabling the already-integrated frontend writes.
+Pool `0x7C942fe70E1C7EA0cC2d1d37fad1018200C3e401` successfully proved two encrypted deposits, exact two-user TWAB aggregation, KMS-proven public denominator finalization, post-close Chainlink request provenance, and draw opening. It is now superseded: live claim preparation traced to an immediate revert at Sepolia's executor because the deployed executor implementation does not contain selector `0x94fdeb20` for the pinned library's `fheMulDiv(bytes32,bytes32,bytes32,bytes1)` wrapper. No claim-preparation transaction was broadcast.
+
+The compatibility fix replaces `FHE.mulDiv` with `euint128` scalar multiplication and plaintext division—operations already proven live by the same pool's TWAB path. All 11 focused recurring tests pass after the fix with unchanged `4,043,032` maximum HCU depth. A fresh coordinator and replacement pool are required before promotion.
 
 The earlier recurring deployment proved encrypted deposit, sponsored reserve funding, recurring epoch advancement, private user-TWAB finalization, and KMS-proven aggregate finalization. It is not promotable as the final draw release: its reused coordinator already had draw ID `1` bound to request `4` from an older pool before that deployment's first epoch ended.
 

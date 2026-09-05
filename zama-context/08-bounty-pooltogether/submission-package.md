@@ -157,6 +157,6 @@ The system is pre-audit software and is not described as audited. The possible O
 
 - Product/research repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
-- Public frontend: `TODO: replace with final Vercel production URL`
+- Public frontend: <https://frontend-two-chi-54.vercel.app>
 - Demo video: `TODO`
 - Submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>

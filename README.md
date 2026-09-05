@@ -100,5 +100,5 @@ The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adve
 
 - Main repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
-- Frontend: Vercel production URL will replace the historical GitHub Pages URL after final hosted-wallet QA.
+- Frontend: <https://frontend-two-chi-54.vercel.app>
 - Submission package: [`zama-context/08-bounty-pooltogether/submission-package.md`](./zama-context/08-bounty-pooltogether/submission-package.md)

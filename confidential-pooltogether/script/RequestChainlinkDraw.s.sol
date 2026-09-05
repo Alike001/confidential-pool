@@ -11,7 +11,17 @@ interface Vm {
 }
 
 interface IConfidentialPoolRngConfig {
-    function epochEnd() external view returns (uint64);
+    function epochInfo(uint64 epochId)
+        external
+        view
+        returns (
+            uint64 start,
+            uint64 end,
+            bool totalFinalized,
+            bool aggregateDecryptionRequested,
+            bool aggregateFinalized,
+            uint128 aggregateSupply
+        );
     function drawOperator() external view returns (address);
     function rngCoordinator() external view returns (address);
     function rngProvider() external view returns (address);
@@ -40,7 +50,9 @@ contract RequestChainlinkDraw {
         require(funding != 0, "funding-zero");
 
         IConfidentialPoolRngConfig pool = IConfidentialPoolRngConfig(poolAddress);
-        require(block.timestamp >= pool.epochEnd(), "epoch-still-open");
+        (uint64 epochStart, uint64 epochEnd,,,,) = pool.epochInfo(drawId);
+        require(epochStart != 0, "epoch-not-found");
+        require(block.timestamp >= epochEnd, "epoch-still-open");
         require(pool.drawOperator() == expectedOperator, "pool-operator-mismatch");
         require(pool.rngCoordinator() == coordinatorAddress, "wrong-coordinator");
         require(pool.rngProvider() == expectedAdapter, "pool-adapter-mismatch");

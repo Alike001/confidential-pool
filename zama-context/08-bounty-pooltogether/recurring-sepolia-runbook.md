@@ -10,7 +10,7 @@ All commands below include the required directory. Store real RPC and wallet val
 
 ## 1. Configure
 
-Use `scripts/recurring-sepolia.env.example` as the variable checklist. Set `POOL_FIRST_EPOCH_START` to a future Unix timestamp and `POOL_EPOCH_DURATION` to the recurring cadence in seconds.
+Use `scripts/recurring-sepolia.env.example` as the variable checklist. Set `POOL_FIRST_EPOCH_START` to a future Unix timestamp and `POOL_EPOCH_DURATION` to the recurring cadence in seconds. The coordinator must be fresh for this pool: draw ID `1` must be unbound. The deployment script now rejects reused coordinators before estimating or broadcasting a pool deployment.
 
 ## 2. Dry-run deployment
 

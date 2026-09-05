@@ -1,4 +1,5 @@
 import { Contract, type Provider } from "ethers";
+import { deployment } from "../config/deployment";
 
 export const poolAbi = [
   "function currentEpochId() view returns (uint64)",
@@ -11,6 +12,13 @@ export const poolAbi = [
   "function encryptedClaimablePrize(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bytes32)",
   "function claimPrepared(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bool)",
   "function claimed(address account,uint64 epochId,uint8 tier,uint32 prizeIndex) view returns (bool)",
+  "function encryptedYieldReserve() view returns (bytes32)",
+] as const;
+
+const yieldTokenAbi = [
+  "function backingBalance() view returns (uint256)",
+  "function issuedBacking() view returns (uint256)",
+  "function harvestableYield() view returns (uint256)",
 ] as const;
 
 export type ClaimEpochSnapshot = {
@@ -41,6 +49,10 @@ export type PoolSnapshot = {
   claimed?: boolean;
   nextEpochToFinalize?: number;
   claimEpoch?: ClaimEpochSnapshot;
+  encryptedYieldReserveHandle: string;
+  backingBalance: bigint;
+  issuedBacking: bigint;
+  harvestableYield: bigint;
 };
 
 export async function readPoolSnapshot(
@@ -49,12 +61,18 @@ export async function readPoolSnapshot(
   account?: string,
 ): Promise<PoolSnapshot> {
   const pool = new Contract(poolAddress, poolAbi, provider);
+  const yieldToken = new Contract(deployment.payoutToken, yieldTokenAbi, provider);
   const epochId = Number(await pool.currentEpochId());
-  const [epoch, draw, latestBlock] = await Promise.all([
-    pool.epochInfo(epochId),
-    pool.drawInfo(epochId),
-    provider.getBlock("latest"),
-  ]);
+  const [epoch, draw, latestBlock, encryptedReserve, backingBalance, issuedBacking, harvestableYield] =
+    await Promise.all([
+      pool.epochInfo(epochId),
+      pool.drawInfo(epochId),
+      provider.getBlock("latest"),
+      pool.encryptedYieldReserve(),
+      yieldToken.backingBalance(),
+      yieldToken.issuedBacking(),
+      yieldToken.harvestableYield(),
+    ]);
 
   if (!latestBlock) throw new Error("Latest Sepolia block is unavailable.");
 
@@ -70,6 +88,10 @@ export async function readPoolSnapshot(
     rngRequestId: Number(draw.rngRequestId),
     drawCommitted: draw.committed,
     drawOpened: draw.opened,
+    encryptedYieldReserveHandle: encryptedReserve,
+    backingBalance,
+    issuedBacking,
+    harvestableYield,
   };
 
   if (account) {

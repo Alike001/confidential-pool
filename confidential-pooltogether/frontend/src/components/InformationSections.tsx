@@ -5,15 +5,16 @@ import { ArrowIcon, CopyIcon, LockIcon } from "./Icons";
 
 export function HowItWorks() {
   const steps = [
-    ["01", "Deposit", "Your cUSDTMock amount and position are encrypted before entering the pool."],
-    ["02", "Draw", "A public epoch closes. Verifiable randomness is bound to that draw onchain."],
-    ["03", "Claim", "Your encrypted eligibility is computed without exposing any participant's position."],
+    ["01", "Shield", "Aave aLINK is wrapped into caLINK. This acquisition boundary is public and one-time."],
+    ["02", "Deposit", "Your caLINK amount enters the shared pool as ciphertext and begins building a private TWAB."],
+    ["03", "Draw", "Aave's generated yield funds the prize while Chainlink randomness is bound to the epoch."],
+    ["04", "Claim", "Zama evaluates your winning zone over encrypted balances; only you can decrypt the payout."],
   ];
   return (
     <section className="how-section grid-paper" id="how-it-works">
       <div className="section-intro">
-        <span className="section-label">A legible machine</span>
-        <h2>Private inputs.<br />Public checkpoints.</h2>
+        <span className="section-label">How value moves</span>
+        <h2>Yield in.<br />Secrets intact.</h2>
       </div>
       <div className="step-list">
         {steps.map(([number, title, copy]) => (
@@ -34,13 +35,14 @@ export function PrivacyBoundary() {
       <div className="section-intro">
         <span className="section-label">Privacy boundary</span>
         <h2>The split is the feature.</h2>
-        <p>Everything needed to audit a draw is public. Everything that identifies your position stays encrypted.</p>
+        <p>The public side proves where yield and randomness came from. The private side protects your financial position.</p>
       </div>
       <div className="privacy-table">
         <div className="public-column">
           <h3>Public</h3>
           <ul>
             <li>Draw ID and epoch timing</li>
+            <li>Aave shield amount and aggregate yield</li>
             <li>Randomness provenance</li>
             <li>Aggregate TWAB after KMS proof</li>
             <li>Lifecycle transactions and claimant identity</li>
@@ -49,7 +51,7 @@ export function PrivacyBoundary() {
         <div>
           <h3><LockIcon /> Private</h3>
           <ul>
-            <li>Your deposit amount and balance</li>
+            <li>Your pool deposit amount and balance</li>
             <li>Your time-weighted balance</li>
             <li>Your winning zone and payout</li>
             <li>Every other participant's position</li>
@@ -80,16 +82,18 @@ export function EvidenceSection({ snapshot }: { snapshot?: PoolSnapshot }) {
       <div className="section-intro">
         <span className="section-label">Fairness record</span>
         <h2>Evidence, not promises.</h2>
-        <p>Zama computes eligibility over encrypted user values. Chainlink supplies public randomness that is bound to the epoch through the coordinator.</p>
+        <p>Aave produces the yield, Zama computes eligibility over encrypted user values, and Chainlink supplies randomness bound to the epoch.</p>
       </div>
       <div className="evidence-table">
-        <div className="evidence-title"><strong>Public draw evidence</strong><span>Sepolia release candidate</span></div>
+        <div className="evidence-title"><strong>Public protocol evidence</strong><span>Live on Sepolia</span></div>
         <EvidenceRow label="Recurring pool" detail={`Epoch ${snapshot?.epochId ?? "—"} · block ${deployment.deploymentBlock}`} value={deployment.pool} href={explorerAddress(deployment.pool)} />
+        <EvidenceRow label="Aave yield market" detail="Uncapped Sepolia LINK reserve" value={deployment.aavePool} href={explorerAddress(deployment.aavePool)} />
+        <EvidenceRow label="Interest-bearing backing" detail="Aave Sepolia aLINK" value={deployment.aaveAToken} href={explorerAddress(deployment.aaveAToken)} />
         <EvidenceRow label="RNG coordinator" detail="Binds epoch IDs to provider requests" value={deployment.rngCoordinator} href={explorerAddress(deployment.rngCoordinator)} />
         <EvidenceRow label="Chainlink RNG adapter" detail="Public randomness provider" value={deployment.rngProvider} href={explorerAddress(deployment.rngProvider)} />
-        <EvidenceRow label="Confidential token" detail="Sepolia cUSDTMock wrapper" value={deployment.payoutToken} href={explorerAddress(deployment.payoutToken)} />
+        <EvidenceRow label="Confidential token" detail="aLINK-backed caLINK wrapper" value={deployment.payoutToken} href={explorerAddress(deployment.payoutToken)} />
         <EvidenceRow label="Deployment transaction" detail="Recurring candidate deployment" value={deployment.deploymentTransaction} href={explorerTransaction(deployment.deploymentTransaction)} />
-        <EvidenceRow label="Verified source" detail="Pool + RNG provenance; exact Sourcify matches" value={`Pool match ${deployment.sourceMatchId}`} href={deployment.sourceVerificationUrl} />
+        <EvidenceRow label="Application source" detail="FHE pool, yield wrapper, tests, and scripts" value="feature/confidential-pool" href={deployment.sourceUrl} />
       </div>
     </section>
   );

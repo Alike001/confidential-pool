@@ -22,6 +22,7 @@ export function Header({ account, connected, connecting, isSepolia, onConnect, o
         <span>Confidential Pool</span>
       </a>
       <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="Primary navigation">
+        <a href="#pool" onClick={() => setMenuOpen(false)}>Pool</a>
         <a href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</a>
         <a href="#privacy" onClick={() => setMenuOpen(false)}>Privacy</a>
         <a href="#fairness" onClick={() => setMenuOpen(false)}>Fairness</a>

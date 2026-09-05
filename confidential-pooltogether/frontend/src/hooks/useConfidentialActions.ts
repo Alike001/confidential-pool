@@ -6,10 +6,12 @@ import {
   decryptPoolPosition,
   depositConfidential,
   finalizeUserEpoch,
+  prepareTestAavePosition,
   preparePrivateClaim,
   settlePrivateClaim,
   withdrawConfidential,
   type ConfidentialActionResult,
+  type SetupProgress,
 } from "../lib/confidential";
 
 export type OperationStage =
@@ -36,6 +38,24 @@ export function useConfidentialActions({
   const [stage, setStage] = useState<OperationStage>("idle");
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<ConfidentialActionResult>();
+  const [setupProgress, setSetupProgress] = useState<SetupProgress>();
+
+  const parseAmount = useCallback((amountText: string) => {
+    const normalizedAmount = amountText.trim();
+    const decimals = deployment.tokenDecimals;
+    const pattern = new RegExp(`^\\d+(?:\\.\\d{1,${decimals}})?$`);
+    if (!pattern.test(normalizedAmount)) {
+      throw new Error(
+        `Enter a valid amount with no more than ${decimals} decimal places.`,
+      );
+    }
+    const amount = parseUnits(normalizedAmount, decimals);
+    if (amount <= 0n) throw new Error("Enter an amount greater than zero.");
+    if (amount > (1n << 64n) - 1n) {
+      throw new Error("This amount exceeds the encrypted token limit.");
+    }
+    return amount;
+  }, []);
 
   const run = useCallback(
     async (kind: "deposit" | "withdraw", amountText: string) => {
@@ -48,12 +68,7 @@ export function useConfidentialActions({
       setError(undefined);
       setResult(undefined);
       try {
-        const normalizedAmount = amountText.trim();
-        if (!/^\d+(?:\.\d{1,6})?$/.test(normalizedAmount)) {
-          throw new Error("Enter a valid amount with no more than 6 decimal places.");
-        }
-        const amount = parseUnits(normalizedAmount, deployment.tokenDecimals);
-        if (amount <= 0n) throw new Error("Enter an amount greater than zero.");
+        const amount = parseAmount(amountText);
         setStage("encrypting");
         const action =
           kind === "deposit" ? depositConfidential : withdrawConfidential;
@@ -71,7 +86,37 @@ export function useConfidentialActions({
         throw reason;
       }
     },
-    [account, ethereum, isSepolia, refresh],
+    [account, ethereum, isSepolia, parseAmount, refresh],
+  );
+
+  const setupAave = useCallback(
+    async (amountText: string) => {
+      if (!ethereum || !account) throw new Error("Connect a wallet first.");
+      if (!isSepolia) throw new Error("Switch your wallet to Sepolia first.");
+      setError(undefined);
+      setResult(undefined);
+      setSetupProgress(undefined);
+      try {
+        const amount = parseAmount(amountText);
+        setStage("wallet");
+        const nextResult = await prepareTestAavePosition(
+          ethereum,
+          account,
+          amount,
+          setSetupProgress,
+          () => setStage("submitted"),
+        );
+        setResult(nextResult);
+        setStage("confirmed");
+        await refresh();
+        return nextResult;
+      } catch (reason) {
+        setError(messageFor(reason));
+        setStage("error");
+        throw reason;
+      }
+    },
+    [account, ethereum, isSepolia, parseAmount, refresh],
   );
 
   const decrypt = useCallback(
@@ -127,8 +172,11 @@ export function useConfidentialActions({
       setStage("idle");
       setError(undefined);
       setResult(undefined);
+      setSetupProgress(undefined);
     },
     run,
+    setupAave,
+    setupProgress,
     decrypt,
     finalize: (epochId: number) => runPublicAction("finalize", epochId),
     prepareClaim: (epochId: number) => runPublicAction("prepare", epochId),

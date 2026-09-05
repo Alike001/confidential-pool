@@ -1,49 +1,63 @@
-# Confidential PoolTogether build workspace
+# Confidential Pool implementation workspace
 
-This is the implementation workspace for the bounded bounty design. It is intentionally separate from `zama-context/fhevm`, which remains a pinned research checkout.
+This workspace contains the public randomness reference contracts, mathematical models, deployment utilities, and React product for the Zama Season 4 confidential PoolTogether bounty.
 
-## Current slice
+## Current release
 
-- `src/reference/pool-model.mjs` — plaintext economic and V5 winner-selection reference model.
-- `src/reference/twab-epoch.mjs` — fixed draw-epoch average-balance reference model for the confidential adaptation.
-- `src/reference/DrawTranscript.sol` — public V5-style user-specific entropy and unbiased reduction helpers.
-- `src/interfaces/IConfidentialPrizePool.sol` — FHEVM-version-neutral contract boundary.
-- `src/interfaces/IRng.sol` — PoolTogether V5-compatible randomness-provider boundary.
-- `src/reference/RngLifecycleAdapter.sol` — tested request-binding/finalization seam for an `IRng` provider.
-- `src/reference/RngRequestCoordinator.sol` — versioned atomic request-and-draw-binding proof that records both the request block and timestamp.
-- `script/DeployRngCoordinator.s.sol` — deploys the timestamp-aware coordinator against an existing adapter.
-- `src/reference/ChainlinkVrfRngAdapter.sol` — pinned Chainlink VRF v2.5 native-payment adapter proof.
-- `src/reference/ChainlinkVrfRngAdapterReference.sol` — minimal ABI callback proof retained for comparison.
+The submission target is the Aave-backed Sepolia release:
+
+- recurring confidential pool: `0xdE9A7DC790e6dE0304A046210044F38904309120`;
+- confidential aLINK wrapper: `0x4734EC2CC7e18D4C39fccB97E16E77701819655F`;
+- epoch-bound RNG coordinator: `0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC`;
+- Chainlink VRF adapter: `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A`.
+
+LINK is supplied to Aave V3, then aLINK is shielded as confidential `caLINK`. Aave backing growth is measured against issued confidential liabilities, and only the surplus can be minted into the pool's encrypted prize reserve. This replaces the earlier sponsored cUSDTMock reserve while preserving the already-proven recurring draw and private-settlement machinery.
+
+See the complete [Aave-backed release record](../zama-context/08-bounty-pooltogether/aave-backed-sepolia-release.md).
+
+## Workspace map
+
+- `frontend/` — responsive React/Vite application with live Sepolia reads, injected-wallet onboarding, Zama SDK encryption/decryption, Aave test-asset setup, confidential deposits/withdrawals, checkpoints, and private claims.
+- `src/reference/pool-model.mjs` — plaintext economic and winner-selection model.
+- `src/reference/twab-epoch.mjs` — fixed draw-epoch average-balance model.
+- `src/reference/DrawTranscript.sol` — user-specific entropy and unbiased reduction helpers.
+- `src/reference/RngRequestCoordinator.sol` — atomic request/draw binding with block and timestamp provenance.
+- `src/reference/ChainlinkVrfRngAdapter.sol` — Chainlink VRF v2.5 native-payment adapter.
+- `src/interfaces/` — version-neutral confidential pool, token, and RNG boundaries.
 - `src/vendor/chainlink/` — minimal Solidity subset pinned from Chainlink contracts tag `contracts-v1.5.0`.
-- `script/` — explicit deploy and request scripts for the Sepolia RNG smoke test.
-- `src/interfaces/IConfidentialToken.sol` — version-neutral ERC-7984 settlement boundary.
-- `src/config/sepolia.mjs` — single source of truth for the verified Sepolia cUSDTMock and Chainlink VRF v2.5 targets.
-- `zama-context/fhevm/library-solidity/scripts/liveSepoliaDeposit.ts` — guarded Sepolia mock-USDT setup, encrypted deposit, and user-decryption probe.
-- `test/DrawTranscript.t.sol` — Foundry checks for transcript determinism and reduction bounds.
-- `test/reference/pool-model.test.mjs` — invariant and boundary tests.
-- `test/reference/twab-epoch.test.mjs` — mid-period deposit/withdrawal vectors for the epoch model.
+- `script/` — guarded coordinator/adapter deployment and request scripts.
+- `test/` — Foundry and JavaScript reference-model tests.
 
-The reference model uses the exact fixed-point winning-zone formula and V5 rejection/modulo semantics. Its random input is supplied as an already-derived user-specific value; hashing the draw transcript into that value belongs in the Solidity implementation layer. The reference workspace now also has a tested V5-compatible RNG request lifecycle adapter, while the FHEVM research checkout has a separate encrypted fixed-epoch accumulator that matches the plaintext TWAB vectors.
+The FHE application contracts are developed against Zama's actual Solidity harness in the project fork at [`Alike001/fhevm`, branch `feature/confidential-pool`](https://github.com/Alike001/fhevm/tree/feature/confidential-pool):
 
-The interface deliberately exposes no plaintext amount events. Its `aggregateSupply` field is public by design for the first bounded path and must be described as aggregate metadata, not private accounting.
+- `library-solidity/examples/ConfidentialPoolTogether.sol`;
+- `library-solidity/examples/ConfidentialPoolEpochAccounting.sol`;
+- `library-solidity/examples/AaveYieldConfidentialToken.sol`;
+- `library-solidity/test/phase2/`;
+- `library-solidity/scripts/`.
 
-The next production adapter must call the transcript helper (or reproduce its exact semantics) when constructing a claim. The current product-shaped slice derives the reduced value from the draw transcript; the lower-level candidate-A harness still accepts a reduced value directly for isolated cost measurement only.
+The official `zama-ai/fhevm` repository was not modified. The fork is a development/test dependency, not a bounty requirement.
 
-The current asset decision is documented in `zama-context/08-bounty-pooltogether/asset-settlement.md`: use ERC-7984's handle-only confidential transfer for an encrypted payout. The official registry currently lists Sepolia `cUSDTMock` at `0x4E7B06D78965594eB5EF5414c357ca21E1554491`; this is testnet evidence, not a production cUSDT confirmation.
+## Privacy and verification boundary
 
-The local FHEVM slice now includes an ERC-7984-shaped payout-token mock and verifies the pool-to-token ACL handoff. It records an encrypted draw prize, encrypted yield reserve, and fixed draw-epoch TWAB, so claims no longer use a current-balance stand-in or supply an arbitrary prize at claim time. Draw opening supports both operator commit/reveal and a provider-backed `IRng` path; the provider path is exercised with a local mock, not a production Sepolia oracle. The reference workspace now also compiles the pinned Chainlink consumer base and tests native payment plus callback mapping, but it remains a test proof until live provider behavior, entropy provenance, real yield integration, full V5 compatibility, and live transfer behavior are checked.
+Inside the pool, user balances, deposit and withdrawal amounts, per-user TWABs, winning zones, reserve values, and payouts remain encrypted. Public data includes shield/redemption boundary amounts, Aave aggregate backing/yield, epoch timing, the KMS-proven aggregate denominator, Chainlink provenance, random words, account addresses, and action metadata.
 
-The Sepolia `cUSDTMock` target is verified for the bounded prototype. Earlier deployments established the fixed-epoch lifecycle and two consecutive recurring draws. The refund-safe final release is pool `0xE0d284649E955d03B02F3cf927D60271d41C52D1` with coordinator `0xa90A46B27147C532Bb6844d49d285FEba9819074`. Its complete two-wallet lifecycle passed both strict audits: exact KMS aggregate `1773333`, Chainlink request `8`, private payouts of `0` and `100000`, full principal recovery for both wallets, and live recovery of the coordinator's provider overpayment refund. Pool, coordinator, and adapter have exact Sourcify creation/runtime matches.
-
-The production-oriented React frontend is in [`frontend/`](./frontend). It implements live Sepolia reads, injected-wallet onboarding, lazy Zama browser-SDK encryption and owner decryption, encrypted deposits and withdrawals, recurring checkpoints, and two-step private claims. It is bound to the verified final addresses, encrypted writes are enabled, the production build passes, and disconnected desktop/mobile interaction QA is complete. Hosted injected-wallet signing remains a release-packaging check.
+Winner and non-winner claims use the same non-reverting public call shape. Only the participant receives ACL permission to decrypt the resulting payout handle.
 
 ## Checks
 
-```text
+```sh
+cd /home/ali/Desktop/zama/confidential-pooltogether
 npm run test:reference
-forge build
+forge test
+
+cd /home/ali/Desktop/zama/confidential-pooltogether/frontend
+npm install
+npm run build
 ```
 
-The provider smoke-test commands are documented in [`script/README.md`](./script/README.md). They require an externally supplied Sepolia RPC URL, deployer key, and funded test wallet.
+Current results: 12 reference-model tests, 13 Foundry tests, 30 combined FHE/Aave regression tests in the fork, and the frontend production build pass.
 
-The MVP uses a sponsored encrypted prize reserve rather than a live yield adapter and does not claim full PoolTogether V5 compatibility. The FHEVM checkout under `zama-context/fhevm` contains the separately tracked encrypted implementation, tests, deployment scripts, and strict auditors. The active operator procedure is [`final-recurring-runbook.md`](../zama-context/08-bounty-pooltogether/final-recurring-runbook.md).
+## Release posture
+
+This is a production-oriented demonstration, not audited production software. The Aave wrapper uses OpenZeppelin `SafeERC20` and `ReentrancyGuard`, immutable/one-time configuration, exact backing accounting, KMS-proof verification for public redemption, and adversarial tests. Full PoolTogether V5 tiering and liquidation auctions are intentionally outside the smallest correct confidential adaptation.

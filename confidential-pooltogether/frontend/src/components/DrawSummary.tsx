@@ -1,5 +1,6 @@
 import type { PoolSnapshot } from "../lib/pool";
 import { formatCountdown } from "../lib/format";
+import { deployment } from "../config/deployment";
 
 function getPhase(snapshot?: PoolSnapshot) {
   if (!snapshot) return { label: "Loading chain", step: 0 };
@@ -14,6 +15,7 @@ export function DrawSummary({ snapshot, loading }: { snapshot?: PoolSnapshot; lo
   const phase = getPhase(snapshot);
   const remaining = snapshot ? snapshot.epochEnd - snapshot.chainTimestamp : 0;
   const labels = ["Deposits open", "Epoch closed", "Randomness ready", "Draw open", "Claim"];
+  const reserveFunded = Boolean(snapshot?.encryptedYieldReserveHandle && !/^0x0+$/.test(snapshot.encryptedYieldReserveHandle));
 
   return (
     <section className="draw-card" aria-label="Current draw">
@@ -26,8 +28,8 @@ export function DrawSummary({ snapshot, loading }: { snapshot?: PoolSnapshot; lo
       </div>
       <div className="draw-metrics">
         <div>
-          <span>Prize</span>
-          <strong>Encrypted <small>cUSDTMock</small></strong>
+          <span>Prize reserve</span>
+          <strong>{reserveFunded ? "Encrypted + funded" : "Accruing"} <small>{deployment.tokenSymbol}</small></strong>
         </div>
         <div>
           <span>Epoch closes</span>

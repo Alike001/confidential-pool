@@ -2,22 +2,29 @@ export const deployment = {
   chainId: 11155111,
   chainIdHex: "0xaa36a7",
   networkName: "Sepolia",
-  pool: "0xE0d284649E955d03B02F3cf927D60271d41C52D1",
-  payoutToken: "0x4E7B06D78965594eB5EF5414c357ca21E1554491",
+  pool: "0xdE9A7DC790e6dE0304A046210044F38904309120",
+  payoutToken: "0x4734EC2CC7e18D4C39fccB97E16E77701819655F",
   rngProvider: "0x2387Ac275b6ADa26959c587d93abFbd491A64D5A",
-  rngCoordinator: "0xa90A46B27147C532Bb6844d49d285FEba9819074",
+  rngCoordinator: "0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC",
   deploymentTransaction:
-    "0x4c42e99536e1d1be439a033a891d1648dc9731d8f8974c0c67d18ffc8cfd85d9",
-  deploymentBlock: 11640070,
-  firstEpochStart: 1788607872,
+    "0xdf86061ad99fea4cc7bc29a079dd47a7480ea9d3c40d8ca8be818761cf1b684a",
+  tokenDeploymentTransaction:
+    "0x020a0273ae5f12adf0353d5aa6f87ad2bbe6ad2ffd439e7ac50c3e11ac28de84",
+  deploymentBlock: 11641324,
+  firstEpochStart: 1788624420,
   epochDuration: 3600,
-  tokenDecimals: 6,
+  tokenDecimals: 18,
+  tokenSymbol: "caLINK",
+  underlyingSymbol: "LINK",
+  aavePool: "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
+  aaveUnderlying: "0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5",
+  aaveAToken: "0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24",
+  aaveFaucet: "0xC959483DBa39aa9E78757139af0e9a2EDEb3f42D",
   writesEnabled: true,
   publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
-  sourceVerificationUrl:
-    "https://sourcify.dev/server/v2/contract/11155111/0xE0d284649E955d03B02F3cf927D60271d41C52D1?fields=all",
-  sourceMatchId: "47153193",
+  sourceUrl:
+    "https://github.com/Alike001/fhevm/tree/feature/confidential-pool/library-solidity/examples",
 } as const;
 
 export function explorerAddress(address: string) {

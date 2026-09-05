@@ -6,6 +6,20 @@ type Hex = `0x${string}`;
 
 const tokenAbi = [
   "function confidentialTransferAndCall(address to,bytes32 encryptedAmount,bytes inputProof,bytes data) returns (bytes32)",
+  "function wrap(address to,uint256 amount) returns (bytes32)",
+] as const;
+
+const erc20Abi = [
+  "function balanceOf(address account) view returns (uint256)",
+  "function approve(address spender,uint256 amount) returns (bool)",
+] as const;
+
+const faucetAbi = [
+  "function mint(address token,address to,uint256 amount)",
+] as const;
+
+const aavePoolAbi = [
+  "function supply(address asset,uint256 amount,address onBehalfOf,uint16 referralCode)",
 ] as const;
 
 const writablePoolAbi = [
@@ -18,6 +32,12 @@ const writablePoolAbi = [
 export type ConfidentialActionResult = {
   transactionHash: string;
   blockNumber: number;
+};
+
+export type SetupProgress = {
+  step: number;
+  total: number;
+  label: string;
 };
 
 async function createSdk(ethereum: EIP1193Provider) {
@@ -83,6 +103,67 @@ export async function depositConfidential(
   } finally {
     sdk.dispose();
   }
+}
+
+export async function prepareTestAavePosition(
+  ethereum: EIP1193Provider,
+  account: string,
+  amount: bigint,
+  onProgress: (progress: SetupProgress) => void,
+  onSubmitted: (hash: string) => void,
+): Promise<ConfidentialActionResult> {
+  const signer = await signerFor(ethereum);
+  const faucet = new Contract(deployment.aaveFaucet, faucetAbi, signer);
+  const underlying = new Contract(deployment.aaveUnderlying, erc20Abi, signer);
+  const aavePool = new Contract(deployment.aavePool, aavePoolAbi, signer);
+  const aToken = new Contract(deployment.aaveAToken, erc20Abi, signer);
+  const confidentialToken = new Contract(deployment.payoutToken, tokenAbi, signer);
+
+  async function execute(
+    step: number,
+    label: string,
+    transactionPromise: Promise<{
+      hash: string;
+      wait(): Promise<{ status: number | null; blockNumber: number } | null>;
+    }>,
+  ) {
+    onProgress({ step, total: 5, label });
+    const transaction = await transactionPromise;
+    onSubmitted(transaction.hash);
+    return confirmed(transaction);
+  }
+
+  await execute(
+    1,
+    `Minting test ${deployment.underlyingSymbol}`,
+    faucet.mint(deployment.aaveUnderlying, account, amount),
+  );
+  await execute(
+    2,
+    "Approving the Aave pool",
+    underlying.approve(deployment.aavePool, amount),
+  );
+  await execute(
+    3,
+    "Supplying to Aave",
+    aavePool.supply(deployment.aaveUnderlying, amount, account, 0),
+  );
+  // Aave's scaled-balance rounding can make the freshly minted aToken balance a
+  // few wei smaller than the supplied amount. Shield the exact available amount
+  // so first-time setup cannot fail at the final transferFrom.
+  const aTokenBalance = BigInt(await aToken.balanceOf(account));
+  const shieldAmount = aTokenBalance < amount ? aTokenBalance : amount;
+  if (shieldAmount === 0n) throw new Error("Aave returned no aToken balance to shield.");
+  await execute(
+    4,
+    "Approving the confidential wrapper",
+    aToken.approve(deployment.payoutToken, shieldAmount),
+  );
+  return execute(
+    5,
+    `Shielding as ${deployment.tokenSymbol}`,
+    confidentialToken.wrap(account, shieldAmount),
+  );
 }
 
 export async function withdrawConfidential(

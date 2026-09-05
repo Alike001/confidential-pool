@@ -35,13 +35,14 @@ This folder is the challenge-specific research database. It studies PoolTogether
 29. [`submission-package.md`](./submission-package.md)
 30. [`publication-runbook.md`](./publication-runbook.md)
 31. [`../../confidential-pooltogether/README.md`](../../confidential-pooltogether/README.md)
-32. [`experiments/`](./experiments/)
+32. [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md)
+33. [`experiments/`](./experiments/)
 
 ## Current decision boundary
 
-The earlier pool at `0xa4f2c74Fe1325e218AC9cEDc176DA7C4e175f3a2` completed the first bounded Sepolia loop and remains historical evidence. The focused fixed-epoch suite has 14 passing tests, including weighted two-user outcomes, RNG request-replay rejection, and coordinator-enforced post-epoch provenance. Hardened coordinator `0xabc4d6ca46A91cFF083cD0086B81337adC7ed6cA` and pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` then completed the full encrypted deposit → yield → post-epoch Chainlink request → draw → winner-only claim → principal withdrawal lifecycle. The strict auditor returned `HARDENED_LIFECYCLE_COMPLETE: true`.
+Earlier cUSDTMock pools remain historical evidence for fixed and recurring FHE lifecycles, including multi-user winner/non-winner outcomes and complete principal recovery. They no longer define the submission target because their prize reserves were sponsored.
 
-The final recurring release adds permissionless rolling epochs, draw-scoped encrypted TWABs, sequential user checkpoints, KMS-proven public aggregate denominators, and a two-step claim below the HCU-depth cap. Pool `0xE0d284649E955d03B02F3cf927D60271d41C52D1` and refund-safe coordinator `0xa90A46B27147C532Bb6844d49d285FEba9819074` have exact Sourcify matches. Their final two-wallet smoke run produced KMS aggregate `1773333`, bound Chainlink request `8`, private payouts `0` and `100000`, full principal recovery, and a zero coordinator balance after recovering the real provider overpayment refund. Both strict account audits returned `RECURRING_LIFECYCLE_COMPLETE: true`. The source repositories and GitHub Pages frontend are public, and hosted read-only Sepolia rendering is verified. Hosted injected-wallet signing, video recording, and form submission remain.
+The active release is pool `0xdE9A7DC790e6dE0304A046210044F38904309120` with app-specific Aave aLINK-backed confidential token `0x4734EC2CC7e18D4C39fccB97E16E77701819655F` and coordinator `0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC`. Its live LINK supply, caLINK shield, encrypted `9 caLINK` deposit, and Aave-generated encrypted yield harvest are complete. Draw, private claim, principal withdrawal, final hosted-wallet QA, video, and form submission remain. The authoritative evidence record is [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
 
 ## Local source checkouts
 

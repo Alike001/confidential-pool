@@ -16,8 +16,10 @@ type Props = {
     error?: string;
     result?: { blockNumber: number };
     transactionUrl?: string;
+    setupProgress?: { step: number; total: number; label: string };
     reset(): void;
     run(kind: "deposit" | "withdraw", amount: string): Promise<unknown>;
+    setupAave(amount: string): Promise<unknown>;
   };
 };
 
@@ -69,6 +71,20 @@ export function PositionWorkspace({
     }
   }
 
+  async function handleSetup() {
+    if (!connected) return onConnect();
+    if (!isSepolia) return onSwitchNetwork();
+    setNotice(undefined);
+    try {
+      await operation.setupAave("1");
+      setNotice(
+        `1 ${deployment.tokenSymbol} is ready. You can now make a confidential deposit.`,
+      );
+    } catch {
+      // The hook keeps the failed setup state visible.
+    }
+  }
+
   function selectTab(nextTab: "deposit" | "withdraw") {
     setTab(nextTab);
     setNotice(undefined);
@@ -105,6 +121,28 @@ export function PositionWorkspace({
         </button>
       </div>
       <div className="position-body">
+        {tab === "deposit" ? (
+          <div className="setup-rail">
+            <div>
+              <span className="setup-kicker">First time on Sepolia?</span>
+              <strong>Prepare 1 {deployment.tokenSymbol}</strong>
+              <small>
+                Test {deployment.underlyingSymbol} → Aave yield position → confidential wrapper.
+                This setup boundary is public; your pool deposit is encrypted.
+              </small>
+            </div>
+            <button
+              className="text-button"
+              type="button"
+              disabled={busy}
+              onClick={() => void handleSetup()}
+            >
+              {operation.setupProgress
+                ? `${operation.setupProgress.step}/${operation.setupProgress.total} ${operation.setupProgress.label}`
+                : "Prepare asset"}
+            </button>
+          </div>
+        ) : null}
         <label className="amount-label" htmlFor="position-amount">
           <span>Amount to {tab}</span>
           <span>Balance ••••••</span>
@@ -117,7 +155,7 @@ export function PositionWorkspace({
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
           />
-          <strong>cUSDTMock</strong>
+          <strong>{deployment.tokenSymbol}</strong>
         </div>
         <div className="amount-helper">
           <span>
@@ -126,7 +164,7 @@ export function PositionWorkspace({
               : "Principal remains withdrawable during an open epoch."}
           </span>
           <button type="button" onClick={() => setAmount("1")}>
-            Use 1 cUSDTMock
+            Use 1 {deployment.tokenSymbol}
           </button>
         </div>
         {notice ? (
@@ -326,9 +364,9 @@ export function PrivatePositionCard({
           <strong>
             {decryptedBalance === undefined
               ? hasEncryptedPosition
-                ? "•••••• cUSDTMock"
+                ? `•••••• ${deployment.tokenSymbol}`
                 : "No encrypted position"
-              : `${formatUnits(decryptedBalance, deployment.tokenDecimals)} cUSDTMock`}
+              : `${formatUnits(decryptedBalance, deployment.tokenDecimals)} ${deployment.tokenSymbol}`}
           </strong>
         </div>
         <div>
@@ -345,7 +383,7 @@ export function PrivatePositionCard({
           <span>Prize result</span>
           <strong>
             {decryptedPrize !== undefined
-              ? `${formatUnits(decryptedPrize, deployment.tokenDecimals)} cUSDTMock`
+              ? `${formatUnits(decryptedPrize, deployment.tokenDecimals)} ${deployment.tokenSymbol}`
               : claimEpoch?.drawOpened
                 ? "Encrypted result ready"
                 : "Pending draw"}

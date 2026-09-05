@@ -6,132 +6,157 @@ Confidential Pool
 
 ## One-line summary
 
-Save privately. Win transparently: a Sepolia prize-savings pool where deposits, time-weighted balances, eligibility, and payouts stay encrypted while the draw remains publicly verifiable.
+Save privately. Win transparently: an Aave-backed Sepolia prize pool where deposits, time-weighted balances, winner eligibility, and payouts stay encrypted while every draw remains publicly verifiable.
 
 ## Problem
 
-Prize-savings protocols make participation verifiable, but ordinary public ledgers also reveal every user's deposits, withdrawals, balances, and financial position. That transparency can expose savings behavior and allow observers to reconstruct a participant's odds.
+Ordinary prize-savings protocols expose each participant's deposits, withdrawals, balance history, odds, and winnings. Public verification should not require publishing a person's financial position.
 
 ## Solution
 
-Confidential Pool adapts the essential PoolTogether loop to Zama FHEVM. Users deposit confidential cUSDTMock, build an encrypted time-weighted average balance (TWAB), participate in a Chainlink-backed draw, privately settle a winner or non-winner payout through the same public transaction shape, and withdraw principal. The protocol deliberately reveals only the epoch-wide aggregate denominator needed for public draw verification.
+Confidential Pool combines Aave V3 yield, Zama FHE, and Chainlink VRF:
 
-## What works today
+- users supply test LINK to Aave and shield the aLINK position as confidential `caLINK`;
+- encrypted `caLINK` deposits build private recurring-epoch TWABs;
+- Aave backing growth above issued principal is harvested into an encrypted prize reserve;
+- post-epoch Chainlink randomness is bound onchain to the draw;
+- Zama evaluates each user's winning zone over encrypted values;
+- only the participant can decrypt the payout;
+- encrypted principal withdrawals remain available during open epochs.
 
-- confidential ERC-7984 deposits and withdrawals;
-- recurring one-hour epochs with encrypted user and total TWAB accumulators;
-- sequential user checkpoints across epoch boundaries;
-- KMS-proven public aggregate-supply finalization;
-- post-close Chainlink VRF request binding with block and timestamp provenance;
-- encrypted winner-zone evaluation using Sepolia-supported FHE operations;
-- identical non-reverting prepare/settle claim flow for winners and non-winners;
-- owner-only decryption of user TWAB, position, and payout;
-- operator-only recovery of Chainlink overpayment refunds;
-- responsive React frontend with live Sepolia reads and encrypted writes.
+## Requirement coverage
+
+| Zama bounty requirement | Evidence |
+| --- | --- |
+| Shared asset pool | One recurring pool holds encrypted caLINK positions |
+| Generated yield | Live aLINK backing growth is measured and harvested; principal is excluded |
+| Periodic prize draws | One-hour rolling epochs with coordinator-bound Chainlink VRF |
+| Principal withdrawable | Encrypted withdrawal path plus KMS-proven backing redemption |
+| Deposits and balances encrypted | FHE handles, amount-free pool events, wallet-authorized decryption |
+| Winnings encrypted | Encrypted reserve, candidate payout, settlement, and user-only ACL |
+| Verifiable winner selection | Public draw transcript and denominator feed the encrypted comparison |
+| Sepolia | All final target contracts are deployed on chain `11155111` |
 
 ## Architecture
 
 ```text
-React/Vite frontend
-        |
-        | Zama SDK input encryption / owner decryption
-        v
-RecurringConfidentialPoolTogether
-        |-- encrypted principal and TWAB state
-        |-- KMS-proven public aggregate denominator
-        |-- encrypted winner comparison and payout
-        |
-        +--> cUSDTMock (ERC-7984 confidential settlement)
-        |
-        +--> RngRequestCoordinator
-                    |
-                    +--> ChainlinkVrfRngAdapter --> Chainlink VRF v2.5
+React / Vite
+    │ Zama SDK encryption and user-authorized decryption
+    ▼
+ConfidentialPoolTogether
+    ├── encrypted principal, balances, TWABs, reserve, and payouts
+    ├── KMS-proven public aggregate denominator
+    ├── encrypted winning-zone comparison
+    └── recurring epoch state machine
+           ▲                         ▲
+           │ encrypted caLINK        │ epoch-bound random word
+           │                         │
+AaveYieldConfidentialToken     RngRequestCoordinator
+    │ one-for-one aLINK backing      │
+    │ surplus-only harvest            └── ChainlinkVrfRngAdapter
+    ▼                                        │
+Aave V3 LINK reserve                      Chainlink VRF v2.5
 ```
 
-## Fairness and privacy model
+## Privacy model
 
-The epoch boundary, tier configuration, aggregate TWAB, Chainlink request provenance, random word, draw opening, and claim identities are public. Individual deposits, balances, TWABs, winning bits, reserve amount, and payouts are encrypted. Each user's draw randomness is derived from the public draw transcript and user identity, then compared with that user's encrypted winning zone. Winner and non-winner claims use the same public calls and do not branch by reverting.
+Private:
 
-The system provides confidentiality, not anonymity. Wallet addresses, transaction timing, calldata size, gas, and action type remain observable. The aggregate denominator is intentionally public and can leak more in very small anonymity sets; the UI and threat model disclose this limitation.
+- in-pool deposits and withdrawals;
+- user balances and time-weighted balances;
+- winning zones, reserve values, and payout amounts;
+- other participants' financial positions.
 
-## Final Sepolia release
+Public:
 
-- Pool: `0xE0d284649E955d03B02F3cf927D60271d41C52D1`
-- Refund-safe RNG coordinator: `0xa90A46B27147C532Bb6844d49d285FEba9819074`
-- Chainlink VRF adapter: `0x2387Ac275b6ADa26959c587d93abFbd491A64D5A`
-- Confidential token: `0x4E7B06D78965594eB5EF5414c357ca21E1554491`
-- Network: Ethereum Sepolia (`11155111`)
-- Pool Sourcify exact match: [record](https://sourcify.dev/server/v2/contract/11155111/0xE0d284649E955d03B02F3cf927D60271d41C52D1?fields=all)
-- Coordinator Sourcify exact match: [record](https://sourcify.dev/server/v2/contract/11155111/0xa90A46B27147C532Bb6844d49d285FEba9819074?fields=all)
-- Adapter Sourcify exact match: [record](https://sourcify.dev/server/v2/contract/11155111/0x2387Ac275b6ADa26959c587d93abFbd491A64D5A?fields=all)
+- wallet identity, transaction timing, gas, and action type;
+- shield and final redemption values at the public/confidential boundary;
+- aggregate Aave backing and generated yield;
+- epoch timing, aggregate TWAB after KMS proof, VRF provenance, random word, and claim identity.
+
+The product provides confidentiality, not anonymity. The public aggregate can leak information in a very small participant set, and repeated public actions can support inference. Winner and non-winner settlement deliberately use the same non-reverting call shape and matched application-event structure.
+
+## Final Sepolia deployment
+
+- Pool: [`0xdE9A7DC790e6dE0304A046210044F38904309120`](https://sepolia.etherscan.io/address/0xdE9A7DC790e6dE0304A046210044F38904309120)
+- caLINK wrapper: [`0x4734EC2CC7e18D4C39fccB97E16E77701819655F`](https://sepolia.etherscan.io/address/0x4734EC2CC7e18D4C39fccB97E16E77701819655F)
+- RNG coordinator: [`0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC`](https://sepolia.etherscan.io/address/0xd39ee872B5cb97d7A6576862549DEBF7AE753CeC)
+- Chainlink VRF adapter: [`0x2387Ac275b6ADa26959c587d93abFbd491A64D5A`](https://sepolia.etherscan.io/address/0x2387Ac275b6ADa26959c587d93abFbd491A64D5A)
+- Aave V3 Pool: [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951)
+- LINK: `0xf8Fb3713D459D7C1018BD0A49D19b4C44290EBE5`
+- aLINK: `0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`
 
 ## Verified live evidence
 
-The final two-wallet epoch produced encrypted user TWABs that privately decrypted to `936666` and `836666`. Zama KMS proved the public aggregate `1773333`; the one-unit difference from the sum of individually floored values is caused by dividing the summed total accumulator only once. Chainlink request `8` was made after epoch close and atomically bound to draw `1`. Wallet A privately decrypted payout `0`; wallet B privately decrypted payout `100000`. Both wallets withdrew their full `1000000` principal and ended with zero pool principal. Both strict account audits returned:
+Completed on the final release:
 
-```text
-RECURRING_LIFECYCLE_COMPLETE: true
-```
+- LINK → Aave → aLINK → caLINK setup;
+- encrypted `9 caLINK` deposit, privately verified as `9000000000000000000` units;
+- two strategy-yield harvests with exact post-block backing invariants;
+- encrypted reserve handle changed without publishing its plaintext;
+- final verified harvest transaction: [`0x71e50941…c72dcf`](https://sepolia.etherscan.io/tx/0x71e50941a7192f69969f79e6eadeb8ab4cb664b8805c0772134ad2ac35c72dcf).
 
-The exact transaction-by-transaction transcript is in [`recurring-sepolia-deployment.md`](./recurring-sepolia-deployment.md).
+The final draw/claim/withdrawal transcript is tracked in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md) and must be complete before submission.
+
+Historical releases separately proved two-user weighted outcomes, recurring epochs, KMS aggregate verification, post-close VRF provenance, private winner/non-winner payouts, full principal recovery, and strict lifecycle audits. They are regression evidence, not the final generated-yield deployment.
 
 ## Local verification
 
 ```sh
 cd /home/ali/Desktop/zama/confidential-pooltogether
+npm run test:reference
 forge test
 
 cd /home/ali/Desktop/zama/zama-context/fhevm/library-solidity
-DOTENV_CONFIG_PATH=.env.example npx hardhat test --network hardhat \
+DOTENV_CONFIG_PATH=.env.example npx hardhat test --no-compile \
+  test/phase2/AaveYieldConfidentialToken.ts \
   test/phase2/ConfidentialPoolTogether.ts \
   test/phase2/ConfidentialPoolTogether.adversarial.ts \
   test/phase2/ConfidentialPoolTogether.HCU.ts \
   test/phase2/ConfidentialPoolTogetherSlice.ts
-npm run check:lifecycle-scripts
+npx tsc --project scripts/tsconfig.json --noEmit
 
 cd /home/ali/Desktop/zama/confidential-pooltogether/frontend
 npm install
 npm run build
-npm run preview
 ```
 
-Current results: 13 Foundry tests, 25 focused FHE tests, lifecycle TypeScript/lint checks, and the frontend production build pass.
+Current result: 12 reference-model tests, 13 Foundry tests, 30 FHE/Aave regression tests, script type/lint checks, and the frontend production build pass.
 
-## Three-minute demo outline
+## Demo outline
 
-1. **0:00–0:20 — Problem:** Public prize savings reveal every participant's position and odds.
-2. **0:20–0:40 — Product:** Open Confidential Pool, connect Sepolia, and show the live epoch/draw card.
-3. **0:40–1:10 — Private savings:** Deposit cUSDTMock and show that the application event publishes no plaintext amount.
-4. **1:10–1:35 — Verifiable draw:** Show the KMS-proven aggregate, coordinator-bound Chainlink request, and source-verification links.
-5. **1:35–2:05 — Private outcome:** Show the same prepare/settle flow for both users, then owner-decrypt the winner's `100000` payout and the non-winner's zero.
-6. **2:05–2:30 — Principal safety:** Withdraw the full principal and show the authorized before/after decryptions.
-7. **2:30–3:00 — Architecture and limits:** Explain the FHE boundary, public metadata, sponsored reserve, and path to a batched real-yield adapter.
+1. **Problem:** public prize savings expose personal financial positions.
+2. **Yield source:** show the Aave Pool, aLINK backing, issued liabilities, and live surplus harvest transaction.
+3. **Private deposit:** prepare test caLINK, deposit through Zama SDK, and show the amount-free application event.
+4. **Verifiable draw:** show epoch close, KMS aggregate proof, coordinator binding, and Chainlink VRF request.
+5. **Private outcome:** prepare and settle the claim, then decrypt the payout only with the participant wallet.
+6. **Principal safety:** withdraw the encrypted principal and verify the participant's pool principal becomes zero.
+7. **Boundary:** explain what remains public, what remains encrypted, and why the custom wrapper is not presented as canonical Zama infrastructure.
 
-## Screenshot shot list
+## Production-oriented posture
 
-1. Landing/app hero with “Save privately. Win transparently.” and live Sepolia draw.
-2. Connected private-position card showing encrypted placeholders before owner decryption.
-3. Public draw evidence card with pool, coordinator, request, and Sourcify links.
-4. Owner-decrypted winner payout and confirmed claim state.
-5. Mobile layout showing the current draw and deposit workspace.
+- OpenZeppelin `SafeERC20` and `ReentrancyGuard` protect token/external-call boundaries.
+- Pool configuration is one-time; yield minting is limited to measured backing surplus and the configured pool.
+- KMS proofs authenticate public aggregate and redemption results.
+- Draw requests are post-close, atomically coordinator-bound, replay-protected, and permissionlessly finalizable.
+- Tests cover underfunding, over-withdrawal, bad KMS proofs, duplicate claims, RNG replay, delayed RNG recovery, two-user privacy, HCU depth, and backing conservation.
+- The frontend includes mobile/desktop layouts, clear transaction stages, network guards, live evidence links, and explicit privacy disclosures.
 
-## Public frontend verification
-
-The GitHub Pages deployment succeeded in [workflow run `33971940140`](https://github.com/Alike001/confidential-pool/actions/runs/33971940140). A clean headless-browser session loaded the production origin, rendered the approved desktop interface, and read current Sepolia draw `3`. Injected-wallet signing is intentionally a separate manual check because the clean browser has no wallet extension or user key.
+The system is pre-audit software and is not described as audited. The possible OpenZeppelin audit offered to an exceptional bounty submission would be the next professional assurance step.
 
 ## Known limitations
 
-- The Sepolia asset is `cUSDTMock`, not mainnet cUSDT.
-- The encrypted prize reserve is sponsored testnet funding; deposited principal is not supplied to a live lending strategy, so this release must not claim production yield generation.
-- The bounded release has one tier and one prize index rather than full PoolTogether V5 tiering and liquidation auctions.
-- Epoch advancement, user checkpointing, aggregate decryption, RNG requesting, and draw opening need automated keeper operations for an unattended deployment.
-- The aggregate denominator and action metadata are public; small anonymity sets can leak information through inference.
-- Hosted injected-wallet signing QA remains before the public demo URL is frozen.
+- The caLINK wrapper is application-specific and is not registered as a canonical Zama wrapper.
+- Shielding and public redemption reveal amounts at those boundaries.
+- The first release uses one prize tier/index rather than all PoolTogether V5 tiers and liquidation auctions.
+- Keeper automation is not yet deployed; epoch advancement, KMS aggregate finalization, RNG request, and draw opening are permissionless/operator runbook actions.
+- Aave, Chainlink, Zama relayer/KMS, and Sepolia availability are external dependencies.
+- The large Zama browser cryptography bundles are lazy-loaded only when a confidential action requires them, but remain substantial downloads.
 
-## Links to fill before sending
+## Links
 
-- Public product/research repository: <https://github.com/Alike001/confidential-pool>
-- Public FHE implementation fork/branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
-- Public frontend: <https://alike001.github.io/confidential-pool/>
+- Product/research repository: <https://github.com/Alike001/confidential-pool>
+- FHE implementation branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
+- Public frontend: `TODO: replace with final Vercel production URL`
 - Demo video: `TODO`
-- Zama submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>
+- Submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>

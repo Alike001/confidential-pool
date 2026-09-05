@@ -58,7 +58,7 @@
 | React/Vite production build | Pass |
 | Strict Sepolia lifecycle auditor | `FHE_RANDOM_AAVE_LIFECYCLE_COMPLETE: true` |
 | Sourcify creation/runtime match | Pass for final pool and caLINK wrapper |
-| Vercel production deployment | Ready; deployment `dpl_vSVGzax1k7Ctmj43zGkUQunHPQyo` |
+| Vercel production deployment | Ready; deployment `dpl_AFnjj8w26MVuL8LGwFAMQAL73GN9`; wallet-consent regression passed |
 
 ## Deviations From Plan
 

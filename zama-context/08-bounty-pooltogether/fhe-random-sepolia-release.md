@@ -113,4 +113,4 @@ Both records report matching creation and runtime bytecode. Sourcify also forwar
 
 ## Hosted release
 
-The write-enabled production frontend is live at <https://frontend-two-chi-54.vercel.app>. Vercel deployment `dpl_vSVGzax1k7Ctmj43zGkUQunHPQyo` completed successfully, the canonical URL returned HTTP `200`, and its deployed JavaScript contained the final guarded pool address. Desktop `1440×1100` and mobile `390×844` visual smoke checks passed. Injected-wallet signing remains a manual browser QA step.
+The write-enabled production frontend is live at <https://frontend-two-chi-54.vercel.app>. Vercel deployment `dpl_AFnjj8w26MVuL8LGwFAMQAL73GN9` completed successfully, the canonical URL returned HTTP `200`, and its deployed JavaScript contained the final guarded pool address. Desktop `1440×1100` and mobile `390×844` visual smoke checks passed. A mock EIP-1193 interaction test confirmed zero wallet RPC calls before the Connect click and `eth_requestAccounts` only after the click. Real injected-wallet signing remains a manual browser QA step.

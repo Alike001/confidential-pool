@@ -96,7 +96,7 @@ Completed on the final release:
 - encrypted reserve handle changed without publishing its plaintext;
 - final verified harvest transaction: [`0x71e50941…c72dcf`](https://sepolia.etherscan.io/tx/0x71e50941a7192f69969f79e6eadeb8ab4cb664b8805c0772134ad2ac35c72dcf).
 
-The final draw/claim/withdrawal transcript is tracked in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md) and must be complete before submission.
+The final draw, winner-only claim, full principal withdrawal, and strict-audit transcript is complete in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md). The strict auditor returned `RECURRING_LIFECYCLE_COMPLETE: true`.
 
 Historical releases separately proved two-user weighted outcomes, recurring epochs, KMS aggregate verification, post-close VRF provenance, private winner/non-winner payouts, full principal recovery, and strict lifecycle audits. They are regression evidence, not the final generated-yield deployment.
 

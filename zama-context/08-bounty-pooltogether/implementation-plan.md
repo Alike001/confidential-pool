@@ -2,9 +2,9 @@
 
 ## Current status
 
-Phase 2 research has produced a bounded build direction. The practical resolution is documented in [`phase-2-practical-resolution.md`](./phase-2-practical-resolution.md), and the executable phased plan is [`2026-09-03-confidential-pooltogether.md`](../../.thoughts/plans/2026-09-03-confidential-pooltogether.md). The local implementation uses a public draw-scoped aggregate denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It does not attempt full-width private denominator division or a complete V5 port. The local slice also separates encrypted principal from an encrypted yield reserve and stores an encrypted prize per draw.
+Phase 2 research produced a bounded build direction. The final implementation uses a public KMS-proven draw denominator, encrypted user-specific eligibility, encrypted payout accounting, and a non-reverting claim surface. It intentionally does not attempt full-width private denominator division or a complete V5 port.
 
-Current phase map: Phases 1–5 are complete for the bounded design. Local verification passes 25 focused FHE pool tests, 13 RNG/reference tests, and the lifecycle TypeScript checks. Refund-safe coordinator `0xa90A46B27147C532Bb6844d49d285FEba9819074` and final pool `0xE0d284649E955d03B02F3cf927D60271d41C52D1` are deployed with exact Sourcify creation/runtime matches. Their final two-wallet lifecycle passed both strict audits with KMS aggregate `1773333`, private payouts `0` and `100000`, full principal recovery, and live RNG-refund recovery. The frontend is rebound, write-enabled, builds successfully, and passes disconnected desktop/mobile interaction QA. Remaining delivery work is hosted injected-wallet signing QA, public repository/website publication, and submission packaging.
+Phases 1–7 are complete for the bounded submission. The active Sepolia release is pool `0xdE9A7DC790e6dE0304A046210044F38904309120` with app-specific Aave aLINK-backed confidential token `0x4734EC2CC7e18D4C39fccB97E16E77701819655F`. It completed real Aave-yield harvesting, an encrypted draw, winner-only payout decryption, and full principal withdrawal; the strict auditor returned `RECURRING_LIFECYCLE_COMPLETE: true`. The repository and responsive Vercel frontend are public, and both application contracts have Sourcify creation/runtime bytecode matches. Remaining delivery work is hosted injected-wallet QA, demo media, and the external submission form.
 
 ## Guiding rule
 
@@ -25,7 +25,7 @@ Primary outputs: `pooltogether-current-architecture.md` and `prize-mechanism.md`
 
 ### Phase 2 — Reverse-engineer Zama primitives needed for the draw
 
-Status: primitive experiments and epoch-integrated accounting are complete locally. Four Chainlink VRF requests have been fulfilled live, including request `4` through the hardened timestamp-aware coordinator. Current-SDK encryption/decryption, confidential transfers, deposit accounting, encrypted reserve funding, winner-only payout access, and post-epoch withdrawal are live-proven on the hardened deployment.
+Status: complete for the bounded design. Current-SDK encryption/decryption, confidential transfers, epoch TWAB accounting, KMS aggregate proof, Chainlink-bound randomness, encrypted reserve funding, winner-only payout access, and withdrawal are locally and live-proven.
 
 Next implementation/research pass:
 
@@ -38,11 +38,11 @@ Next implementation/research pass:
 
 Primary output: `encrypted-winner-selection.md`, with updates to the existing `01`–`04` Zama notes.
 
-The current implementation evidence is recorded in [`phase-2-encrypted-slice.md`](./phase-2-encrypted-slice.md) and [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md). The slice includes confidential asset settlement, encrypted prize-reserve accounting, a fixed-epoch TWAB adaptation, coordinator-bound Chainlink randomness, and a provider-backed finalization path. It is not yet production-ready because the full V5 ring buffer and tier system are intentionally out of scope, the yield source is controlled rather than strategy-generated, the Sepolia asset is `cUSDTMock`, and the production frontend and broader adversarial validation are unfinished.
+Historical feasibility evidence is recorded in [`phase-2-encrypted-slice.md`](./phase-2-encrypted-slice.md) and [`fhevm-sepolia-deployment.md`](./fhevm-sepolia-deployment.md). The authoritative generated-yield release is [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
 
 ### Phase 3 — Design the confidential PoolTogether architecture
 
-Status: bounded candidate design integrated and proven through one complete Sepolia lifecycle. Fixed-epoch TWAB accounting, realistic-scale public-denominator winner composition, provider-backed finalization, ERC-7984 settlement, encrypted claim, and post-epoch withdrawal pass locally and live. A two-user weighted winner/non-winner path and repeated draws using distinct RNG requests pass locally. Real yield integration, broader multi-user behavior, full V5 scope, and production hardening remain open.
+Status: bounded architecture selected and complete. Fixed-epoch TWAB accounting, public-denominator FHE winner composition, Chainlink-backed finalization, confidential settlement, Aave-generated yield, encrypted claims, and withdrawals pass locally and live. Two-user weighted outcomes and repeated draws pass the regression suite; the final live candidate proves the complete one-user production path.
 
 - choose the confidentiality boundary for deposits, weights, winner status, and prize amounts;
 - choose one asset and one vault model for the first slice;
@@ -80,7 +80,7 @@ Only after this works should we add multiple tiers, multi-vault accounting, perm
 
 ### Phase 6 — Polish UX, testing, and verification
 
-Status: contract verification, final live lifecycle, and disconnected write-enabled frontend QA are complete. Hosted injected-wallet signing remains.
+Status: source verification, final live lifecycle, responsive frontend implementation, and disconnected hosted QA are complete. One manual hosted injected-wallet signing pass remains before form submission.
 
 - wallet and encryption onboarding;
 - clear pending states for coprocessor/decryption work;
@@ -90,11 +90,11 @@ Status: contract verification, final live lifecycle, and disconnected write-enab
 - failure and retry handling;
 - frontend explanation of what is and is not public.
 
-Progress: the first multi-user fairness/privacy regression, isolated claim-surface comparison, repeated-draw RNG-replay regression, and onchain request-provenance regression are complete. From identical pre-claim state, the latest local winner and non-winner paths have the same calldata, application log shapes, and `676599` gas. Each provider request can be committed to at most one draw. The pool requires a coordinator record whose draw ID, request ID, provider request block, and timestamp agree, and whose timestamp is at or after epoch close. Transaction recovery is implemented for uncertain broadcasts and already-claimed payout inspection. One complete hardened live timing/relayer path now passes the strict auditor. Broader metadata/adversarial review, multi-wallet live testing, contract/API cleanup, and frontend work remain.
+Progress: multi-user fairness/privacy, equalized claim surfaces, RNG replay rejection, post-close provenance, uncertain-broadcast recovery, Aave backing conservation, adversarial behavior, and HCU/gas checks pass. The active release completed its full live lifecycle and strict audit. Remaining production assurance is a professional audit and broader live multi-participant operation, not a missing bounty flow.
 
 ### Phase 7 — Deploy to Sepolia
 
-Status: complete for the bounded release. The refund-safe final pool and coordinator are deployed and exactly source-matched; the adapter's existing exact match remains valid. Both strict live account audits pass, and frontend writes target the frozen addresses.
+Status: complete for the bounded release. The Aave-backed pool, caLINK wrapper, coordinator, and adapter are deployed; both application contracts have Sourcify creation/runtime matches; the strict release audit passes; and frontend writes target the frozen addresses.
 
 - deploy only after local and testnet invariants pass;
 - verify contracts and record addresses/versions;
@@ -103,7 +103,7 @@ Status: complete for the bounded release. The refund-safe final pool and coordin
 
 ### Phase 8 — Submission
 
-Status: packaging in progress. Remaining items are public repository and website publication, hosted injected-wallet QA, walkthrough media, and submission/X copy.
+Status: packaging in progress. Repository and website publication are complete. Remaining items are hosted injected-wallet QA, walkthrough media, final submission copy review, and the external form/X post.
 
 - working website;
 - source repository;
@@ -114,30 +114,27 @@ Status: packaging in progress. Remaining items are public repository and website
 
 ## Immediate next gate
 
-The hardened Sepolia gate is complete. Pool `0xF99747C771c09909f6Ad56F43D742c7757ECD9E0` completed encrypted deposit, encrypted yield funding, a coordinator-bound post-epoch Chainlink request, encrypted draw, user TWAB finalization, winner-only claim, and full principal withdrawal. The strict auditor reconstructed the entire transcript and returned `HARDENED_LIFECYCLE_COMPLETE: true`.
-
-Frontend prototype discovery and reintegration are complete. Multi-user/repeated-draw, RNG-recovery, gas/HCU, final Sepolia settlement, and strict-auditor gates pass for the recurring implementation documented in [`rolling-epochs-final-abi.md`](./rolling-epochs-final-abi.md). The yield boundary is documented in [`yield-boundary.md`](./yield-boundary.md). The immediate gate is now publication and submission packaging, with the sponsored-reserve limitation kept explicit.
+The implementation gate is complete. The only remaining release gate is submission QA: manually exercise the hosted wallet connection and one safe confidential read/write interaction, record the walkthrough, review the final claims against the documented privacy boundary, and submit.
 
 ## Remaining delivery sequence
 
 1. **Inspect and approve the prototype — complete.** The live Replit prototype was inspected at desktop/intermediate/mobile widths, the hybrid product-first direction was approved, and every mock was classified in `.thoughts/prototype-reintegration/2026-09-04-confidential-pool.md`. The production route will include compact landing content around the live app rather than a separate marketing-site build.
 2. **Freeze the submission contract scope — complete.** The recurring release has a fixed cadence, one coordinator-bound RNG request per epoch/draw, draw-scoped encrypted TWABs, permissionless epoch advancement, encrypted withdrawals, a KMS-proven public denominator, and two-step claims. Local and strict live validation pass.
-3. **Resolve yield honestly — complete for the bounded Sepolia MVP.** Use a testnet-sponsored encrypted prize reserve and disclose that deposited principal is not supplied to a live lending market. The production batched-adapter requirements are documented separately.
+3. **Resolve yield honestly — complete.** LINK is supplied to Aave, transferable aLINK backs caLINK one-for-one, and only measured backing surplus can be harvested into the encrypted prize reserve. Public shield/redemption boundaries and the app-specific wrapper are disclosed.
 4. **Harden the final ABI — complete for the bounded release.** Multi-wallet, repeated epochs/draws, non-winner behavior, keeper recovery, refund recovery, and HCU/gas checks pass locally and on Sepolia.
-5. **Reintegrate and build the real frontend — complete locally.** The approved visual states map to wallet/network onboarding, Zama input encryption, ERC-7984 transfers, live public draw evidence, owner decryption, checkpoints, claims, and withdrawals. Writes are enabled after both strict audits; hosted injected-wallet QA remains.
+5. **Reintegrate and build the real frontend — complete.** The production Vite frontend maps wallet/network onboarding, Aave setup, Zama input encryption, confidential deposits and withdrawals, live draw evidence, owner decryption, checkpoints, and claims. It is deployed on Vercel; hosted injected-wallet QA remains.
 6. **Create the final Sepolia release — complete.** The stable release addresses are source-verified, live-audited, and wired into the frontend.
-7. **Package the submission.** Clean public repository, architecture/privacy documentation, known limitations, deployed website, reproducible test/run instructions, three-minute walkthrough, screenshots, evidence links, and submission/X copy.
+7. **Package and submit — in progress.** The clean public repository, architecture/privacy documentation, known limitations, deployed website, reproducible tests, and evidence links are ready. The walkthrough video, final manual wallet QA, form submission, and optional X post remain.
 
-Do not call the submission production-ready until the frontend exercises the proven live path, the yield source is integrated or bounded explicitly, deployed source/configuration is verifiable, metadata leakage is reviewed, and every deliberate departure from full V5 is disclosed.
+Do not call the contracts audited or claim anonymity. The final materials must keep the app-specific wrapper, public boundary amounts, public aggregate denominator, external protocol dependencies, one-tier scope, and manual keeper operations explicit.
 
 ## Decision gates
 
-The original Phase 2 → Phase 3 gate and bounded Phase 5 live gate are satisfied. The remaining production gate is:
+The research, architecture, implementation, and live Sepolia gates are satisfied. Submission readiness now requires:
 
-- keep the sponsored-reserve limitation visible and do not imply live lending yield;
-- validate live multi-wallet probability and metadata leakage;
-- validate the new strict auditor and complete recurring Sepolia lifecycle;
-- build and test the production frontend and deployment operations;
-- decide which V5 compatibility features are required for the bounty submission.
+- one hosted injected-wallet QA pass;
+- a concise demo video that shows generated yield, encrypted participation, verifiable randomness, private payout, and principal recovery;
+- a final link/claim review;
+- submission through the Zama form and optional X announcement.
 
-Do not call the submission production-oriented until the live frontend path, yield disclosure/integration decision, contract verification, and remaining privacy/adversarial checks are complete and the bounded departures from V5 are stated honestly.
+The project is production-oriented pre-audit software, not production-audited software.

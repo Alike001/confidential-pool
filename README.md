@@ -53,7 +53,7 @@ Recurring Confidential Pool
 | Aave V3 Pool | [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951) |
 | Aave aLINK | [`0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`](https://sepolia.etherscan.io/address/0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24) |
 
-The current live run has already proven the LINK → Aave → caLINK setup, an encrypted `9 caLINK` deposit, and strategy-generated yield entering only the encrypted prize reserve. The final epoch draw and principal-withdrawal evidence is being appended to the [Aave-backed release record](./zama-context/08-bounty-pooltogether/aave-backed-sepolia-release.md).
+The final live run proves the complete LINK → Aave → caLINK setup, encrypted `9 caLINK` deposit, strategy-generated yield, KMS-proven aggregate, Chainlink-backed encrypted draw, winner-only payout decryption, and full principal withdrawal. The strict auditor returned `RECURRING_LIFECYCLE_COMPLETE: true`; see the [Aave-backed release record](./zama-context/08-bounty-pooltogether/aave-backed-sepolia-release.md).
 
 ## Privacy boundary
 
@@ -101,4 +101,6 @@ The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adve
 - Main repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
 - Frontend: <https://frontend-two-chi-54.vercel.app>
+- Pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xdE9A7DC790e6dE0304A046210044F38904309120?fields=all>
+- caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x4734EC2CC7e18D4C39fccB97E16E77701819655F?fields=all>
 - Submission package: [`zama-context/08-bounty-pooltogether/submission-package.md`](./zama-context/08-bounty-pooltogether/submission-package.md)

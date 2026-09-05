@@ -1,4 +1,4 @@
-import { deployment, explorerAddress, explorerTransaction } from "../config/deployment";
+import { deployment, explorerAddress, explorerTransaction, sourcifyContract } from "../config/deployment";
 import { shorten } from "../lib/format";
 import type { PoolSnapshot } from "../lib/pool";
 import { ArrowIcon, CopyIcon, LockIcon } from "./Icons";
@@ -92,6 +92,8 @@ export function EvidenceSection({ snapshot }: { snapshot?: PoolSnapshot }) {
         <EvidenceRow label="RNG coordinator" detail="Binds epoch IDs to provider requests" value={deployment.rngCoordinator} href={explorerAddress(deployment.rngCoordinator)} />
         <EvidenceRow label="Chainlink RNG adapter" detail="Public randomness provider" value={deployment.rngProvider} href={explorerAddress(deployment.rngProvider)} />
         <EvidenceRow label="Confidential token" detail="aLINK-backed caLINK wrapper" value={deployment.payoutToken} href={explorerAddress(deployment.payoutToken)} />
+        <EvidenceRow label="Pool source match" detail="Creation and runtime bytecode matched by Sourcify" value={deployment.pool} href={sourcifyContract(deployment.pool)} />
+        <EvidenceRow label="caLINK source match" detail="Creation and runtime bytecode matched by Sourcify" value={deployment.payoutToken} href={sourcifyContract(deployment.payoutToken)} />
         <EvidenceRow label="Deployment transaction" detail="Recurring candidate deployment" value={deployment.deploymentTransaction} href={explorerTransaction(deployment.deploymentTransaction)} />
         <EvidenceRow label="Application source" detail="FHE pool, yield wrapper, tests, and scripts" value="feature/confidential-pool" href={deployment.sourceUrl} />
       </div>

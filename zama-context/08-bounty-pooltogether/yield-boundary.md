@@ -1,5 +1,7 @@
 # Yield boundary
 
+> Historical decision record, superseded by the Aave-backed release in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md). The final candidate uses actual Aave aLINK backing growth as prize yield; this document explains why the earlier cUSDTMock prototype used sponsored funding.
+
 ## Decision
 
 The Sepolia submission will use a **testnet-sponsored encrypted prize reserve**. It will not claim that the deployed cUSDT principal is earning live lending yield.

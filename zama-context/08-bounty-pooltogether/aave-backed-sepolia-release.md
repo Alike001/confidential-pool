@@ -73,17 +73,42 @@ new yield at that block:    0
 
 The onchain harvested value was slightly larger than the preflight observation because Aave continued accruing before the transaction mined. The post-transaction backing invariant held exactly, and the pool's encrypted reserve changed from handle `0x5a6683352401071b2ef4aae59abbe5def96b985d22ff0000000000aa36a70500` to `0x193433118b1af74b8cd15fd69d0cee608da2b1b079ff0000000000aa36a70500`. No reserve plaintext was exposed.
 
-## Remaining live acceptance steps
+## Completed draw, claim, and withdrawal lifecycle
 
-- advance and checkpoint epoch 1 after close;
-- request and finalize the KMS-proven aggregate denominator;
-- request Chainlink VRF after the epoch boundary and bind it through the coordinator;
-- commit/open the draw with an encrypted prize not exceeding harvested yield;
-- finalize the user TWAB, prepare and settle the encrypted claim, and owner-decrypt only that user's payout;
-- withdraw the full `9 caLINK` principal and verify the pool principal becomes zero;
-- run the strict final release auditor.
+The final Aave-backed candidate completed the full recurring lifecycle on Sepolia:
 
-This section must be replaced with final transaction evidence before the release is described as fully live-complete.
+| Action | Transaction | Block |
+| --- | --- | --- |
+| Advance and checkpoint epoch 1 | `0x337be1735ac73870b40c8a3e1d75b9e7d7fbef9f08c9206e18bc43594c15f30f` | `11641686` |
+| Finalize the user's encrypted TWAB | `0x54e07eaf097709a8657f83a37de29364352666a593ba8339645b89eca0205fb5` | `11641689` |
+| Request aggregate KMS decryption | `0x305bb915ae1d04803bbcc63b882f3ce42fb7b26236287b79860ea405bef17764` | `11641694` |
+| Finalize KMS-proven aggregate | `0x6896472a5a4439cb5525301338a37326e07753320903b83619d8c27660f85c69` | `11641697` |
+| Bind Chainlink VRF request 9 | `0xd6b40d23971df17d1fa65f3609b4f3a023e89cb6edf207b21970e83348dd3cb7` | `11641704` |
+| Commit encrypted prize | `0x1a8cbcb8057987bee4e1e89723696d9a00b9f324f91b4cde110621387df90dd7` | `11641717` |
+| Open draw | `0x3e14a19724265953af46af252d3d000f469a11a121af8af039734e7267020e6a` | `11641721` |
+| Prepare encrypted claim | `0x725efe0da5b797b83b3cc89164e53b52518b62e8b02c68019e140e96842d2db4` | `11641725` |
+| Settle encrypted claim | `0x39761b355dfc4330c35ed642ba2751240d13cd8465009d1224df9747508f333a` | `11641730` |
+| Withdraw full encrypted principal | `0x28ceefd742876a1874803b1b589ada1ec971b430308525191c900962c4bdaa3c` | `11641759` |
+
+The KMS-proven aggregate TWAB and the user's encrypted TWAB both resolved to `6840000000000000000`. Chainlink request `9` produced public random word `69619534617102802490712625490756606906537769752231297745148128720068170378753`. The claimant alone decrypted a payout of `100000000000000` caLINK units. After withdrawing the full `9 caLINK` principal, the decrypted pool principal was `0`; the user's confidential-token balance was `10000099999999999988` units.
+
+The strict recurring-lifecycle auditor re-read the deployed state and transaction history and returned:
+
+```text
+RECURRING_LIFECYCLE_COMPLETE: true
+```
+
+This final live run used one participant, so it proves the production path but not anonymity in a small set. The test suite and earlier two-user Sepolia releases separately cover weighted winner/non-winner outcomes.
+
+## Public release evidence
+
+- Frontend: <https://frontend-two-chi-54.vercel.app>
+- Source repository: <https://github.com/Alike001/confidential-pool>
+- FHE implementation branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
+- Pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xdE9A7DC790e6dE0304A046210044F38904309120?fields=all>
+- caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x4734EC2CC7e18D4C39fccB97E16E77701819655F?fields=all>
+
+Sourcify reports creation and runtime bytecode matches for both application contracts. This is source verification, not a security audit.
 
 ## Security and trust boundaries
 

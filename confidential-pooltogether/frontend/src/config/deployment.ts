@@ -23,6 +23,7 @@ export const deployment = {
   writesEnabled: true,
   publicRpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
   explorerUrl: "https://sepolia.etherscan.io",
+  sourcifyUrl: "https://sourcify.dev/server/v2/contract",
   sourceUrl:
     "https://github.com/Alike001/fhevm/tree/feature/confidential-pool/library-solidity/examples",
 } as const;
@@ -33,4 +34,8 @@ export function explorerAddress(address: string) {
 
 export function explorerTransaction(hash: string) {
   return `${deployment.explorerUrl}/tx/${hash}`;
+}
+
+export function sourcifyContract(address: string) {
+  return `${deployment.sourcifyUrl}/${deployment.chainId}/${address}?fields=all`;
 }

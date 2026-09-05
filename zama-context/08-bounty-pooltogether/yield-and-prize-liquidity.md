@@ -1,5 +1,7 @@
 # Yield and prize-liquidity accounting
 
+> Historical accounting milestone. The final candidate replaces the designated sponsored-yield provider with the measured Aave backing-surplus mechanism documented in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
+
 ## Why this boundary matters
 
 The first claim prototype accepted an encrypted prize as a claim argument. That demonstrated FHE winner selection, but it did not establish that the prize belonged to the draw or that the pool could pay it.

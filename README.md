@@ -12,7 +12,7 @@ The core privacy rule is simple: Aave proves where the yield came from, while Za
 | --- | --- |
 | Shared deposits | Confidential `caLINK` transfers enter one recurring pool |
 | Generated yield | LINK is supplied to Aave V3; growth in the wrapper's aLINK backing is harvested |
-| Periodic draws | Permissionless rolling epochs followed by an operator-opened prize round |
+| Periodic draws | Permissionless rolling epochs, maintained by a scheduled keeper, followed by an operator-opened prize round |
 | Private positions | Deposit amounts, balances, user TWABs, winning zones, reserve values, and payouts are ciphertext |
 | Verifiable winner selection | `FHE.randEuint64()` and encrypted weighted comparisons execute through Zama's onchain FHE runtime |
 | Winner-only result | Zama ACL permissions allow only the participant to decrypt their payout handle |
@@ -93,6 +93,14 @@ npm run build
 
 The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adversarial and invariant-focused tests, and are being prepared as a pre-audit codebase. They have **not** been professionally audited; the bounty's possible OpenZeppelin audit is a future selection benefit, not a current claim.
 
+## Sepolia epoch keeper
+
+The pool cannot advance time-based epochs by itself. [The scheduled GitHub Actions keeper](./.github/workflows/advance-sepolia-epoch.yml) checks Sepolia every ten minutes and permissionlessly calls `advanceEpoch()` until the current epoch is open. This keeps deposits and withdrawals available without granting the keeper any pool-admin authority.
+
+To activate it, add a dedicated, low-value keeper account's private key as the repository Actions secret `SEPOLIA_KEEPER_PRIVATE_KEY` and fund that account with Sepolia ETH. Never place the key in source code, workflow variables, issues, or chat. `SEPOLIA_RPC_URL` is an optional repository variable; the workflow otherwise uses the public Sepolia RPC shown in the workflow.
+
+GitHub schedules are best-effort and may be delayed. Operators can run **Actions → Keep Sepolia epoch open → Run workflow**, and the [keeper runbook](./zama-context/08-bounty-pooltogether/fhe-random-keeper-runbook.md) documents the manual fallback and the later KMS/draw steps.
+
 ## Product links
 
 - Main repository: <https://github.com/Alike001/confidential-pool>
@@ -101,4 +109,6 @@ The contracts use OpenZeppelin's `SafeERC20` and `ReentrancyGuard`, include adve
 - Final pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88?fields=all>
 - Final caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x78da50E954d2fC69C10688032c8c07D2ABC52750?fields=all>
 - Keeper runbook: [`zama-context/08-bounty-pooltogether/fhe-random-keeper-runbook.md`](./zama-context/08-bounty-pooltogether/fhe-random-keeper-runbook.md)
+- Scheduled keeper: [`.github/workflows/advance-sepolia-epoch.yml`](./.github/workflows/advance-sepolia-epoch.yml)
+- X thread draft: [`zama-context/08-bounty-pooltogether/x-thread-draft.md`](./zama-context/08-bounty-pooltogether/x-thread-draft.md)
 - Submission package: [`zama-context/08-bounty-pooltogether/submission-package.md`](./zama-context/08-bounty-pooltogether/submission-package.md)

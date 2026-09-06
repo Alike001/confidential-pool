@@ -2,6 +2,21 @@
 
 This is the operational path for the guarded final release. Every command starts from the exact required directory.
 
+## Scheduled epoch advancement
+
+The repository includes [`.github/workflows/advance-sepolia-epoch.yml`](../../.github/workflows/advance-sepolia-epoch.yml). It runs every ten minutes and can also be dispatched manually. The workflow repeatedly calls the permissionless `advanceEpoch()` function until the current epoch is open. It does not finalize user TWABs, publish aggregate decryption, or open/settle draws; those stages remain deliberate operations documented below.
+
+Activate the workflow in GitHub:
+
+1. Create a dedicated low-value keeper account. Do not reuse a wallet that controls valuable assets or contract administration.
+2. Fund it with a small amount of Sepolia ETH.
+3. In the GitHub repository, open **Settings → Secrets and variables → Actions → New repository secret**.
+4. Name the secret `SEPOLIA_KEEPER_PRIVATE_KEY` and enter the keeper account's private key. Never paste it into chat, source files, logs, or a repository variable.
+5. Optionally create the repository variable `SEPOLIA_RPC_URL`; otherwise the workflow uses its documented public Sepolia RPC.
+6. Open **Actions → Keep Sepolia epoch open → Run workflow** once to catch up stale epochs and confirm the log ends with `Open epoch: ...`.
+
+GitHub scheduled workflows are best-effort and can be delayed. A manual dispatch uses the same bounded, state-aware loop. Each run advances at most 48 epochs and can be dispatched again if the pool was stale for longer.
+
 ## Environment
 
 ```bash

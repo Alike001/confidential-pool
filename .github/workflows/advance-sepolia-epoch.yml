@@ -1,0 +1,75 @@
+name: Keep Sepolia epoch open
+
+on:
+  schedule:
+    # Run away from the top of the hour, where scheduled Actions are most delayed.
+    - cron: "3,13,23,33,43,53 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: confidential-pool-sepolia-epoch-keeper
+  cancel-in-progress: false
+
+jobs:
+  advance-expired-epochs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      POOL_ADDRESS: "0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88"
+      RPC_URL: ${{ vars.SEPOLIA_RPC_URL || 'https://ethereum-sepolia-rpc.publicnode.com' }}
+      KEEPER_PRIVATE_KEY: ${{ secrets.SEPOLIA_KEEPER_PRIVATE_KEY }}
+    steps:
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Advance every expired epoch
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$KEEPER_PRIVATE_KEY" =~ ^0x[0-9a-fA-F]{64}$ ]]; then
+            echo "::warning::SEPOLIA_KEEPER_PRIVATE_KEY is not configured; keeper skipped safely."
+            exit 0
+          fi
+
+          keeper_address="$(cast wallet address --private-key "$KEEPER_PRIVATE_KEY")"
+          keeper_balance="$(cast balance "$keeper_address" --rpc-url "$RPC_URL")"
+          echo "Keeper: $keeper_address"
+          echo "Keeper balance: $keeper_balance wei"
+
+          if (( keeper_balance < 1000000000000000 )); then
+            echo "::error::Keeper has less than 0.001 Sepolia ETH. Refill it before retrying."
+            exit 1
+          fi
+
+          # One run can recover up to 48 missed 15-minute epochs. The next
+          # scheduled/manual run continues safely if the pool is further behind.
+          for attempt in $(seq 1 48); do
+            epoch_id="$(cast call "$POOL_ADDRESS" 'currentEpochId()(uint64)' --rpc-url "$RPC_URL" | awk '{print $1}')"
+            mapfile -t epoch_info < <(
+              cast call "$POOL_ADDRESS" \
+                'epochInfo(uint64)(uint64,uint64,bool,bool,bool,uint128)' \
+                "$epoch_id" \
+                --rpc-url "$RPC_URL" | awk '{print $1}'
+            )
+            epoch_end="${epoch_info[1]}"
+            latest_timestamp="$(cast block latest --field timestamp --rpc-url "$RPC_URL" | awk '{print $1}')"
+
+            if (( latest_timestamp < epoch_end )); then
+              echo "Open epoch: $epoch_id"
+              echo "Seconds remaining: $((epoch_end - latest_timestamp))"
+              exit 0
+            fi
+
+            echo "Advancing expired epoch $epoch_id (attempt $attempt/48)..."
+            cast send "$POOL_ADDRESS" 'advanceEpoch()' \
+              --private-key "$KEEPER_PRIVATE_KEY" \
+              --rpc-url "$RPC_URL" \
+              --confirmations 1 \
+              --timeout 180
+          done
+
+          echo "::warning::Reached the 48-epoch safety cap. Dispatch the workflow again to continue catch-up."

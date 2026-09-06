@@ -30,7 +30,7 @@ Confidential Pool combines Aave V3 yield with Zama FHE:
 | --- | --- |
 | Shared asset pool | One recurring pool holds encrypted caLINK positions |
 | Generated yield | Live aLINK backing growth is measured and harvested; principal is excluded |
-| Periodic prize draws | Rolling epochs with encrypted Zama FHE random samples |
+| Periodic prize draws | Rolling epochs maintained by a scheduled permissionless keeper, with encrypted Zama FHE random samples |
 | Principal withdrawable | Encrypted withdrawal path plus KMS-proven backing redemption |
 | Deposits and balances encrypted | FHE handles, amount-free pool events, wallet-authorized decryption |
 | Winnings encrypted | Encrypted reserve, candidate payout, settlement, and user-only ACL |
@@ -148,7 +148,8 @@ The system is pre-audit software and is not described as audited. The possible O
 - The caLINK wrapper is application-specific and is not registered as a canonical Zama wrapper.
 - Shielding and public redemption reveal amounts at those boundaries.
 - The first release uses one prize tier/index rather than all PoolTogether V5 tiers and liquidation auctions.
-- Keeper automation is not yet deployed; epoch advancement, KMS aggregate finalization, and draw opening are permissionless/operator runbook actions.
+- A scheduled GitHub Actions keeper permissionlessly advances expired epochs every ten minutes once its dedicated wallet secret is configured. GitHub schedules are best-effort, so manual dispatch and the operator runbook remain fallbacks.
+- KMS aggregate finalization and draw opening remain documented permissionless/operator runbook actions; they are not falsely presented as fully autonomous.
 - Aave, Zama relayer/KMS, and Sepolia availability are external dependencies.
 - The large Zama browser cryptography bundles are lazy-loaded only when a confidential action requires them, but remain substantial downloads.
 
@@ -159,5 +160,7 @@ The system is pre-audit software and is not described as audited. The possible O
 - Public frontend: <https://solitary-rain-30c2.hammedoye10.workers.dev>
 - Final pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88?fields=all>
 - Final caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x78da50E954d2fC69C10688032c8c07D2ABC52750?fields=all>
+- Scheduled epoch keeper: [`.github/workflows/advance-sepolia-epoch.yml`](../../.github/workflows/advance-sepolia-epoch.yml)
+- X thread draft: [`x-thread-draft.md`](./x-thread-draft.md)
 - Demo video: `TODO`
 - Submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>

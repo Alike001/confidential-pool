@@ -158,6 +158,7 @@ The system is pre-audit software and is not described as audited. The possible O
 - Product/research repository: <https://github.com/Alike001/confidential-pool>
 - FHE implementation branch: <https://github.com/Alike001/fhevm/tree/feature/confidential-pool>
 - Public frontend: <https://solitary-rain-30c2.hammedoye10.workers.dev>
+- Published X post: <https://x.com/IamAlikeX/status/2096514203326599273>
 - Final pool source match: <https://sourcify.dev/server/v2/contract/11155111/0xB967bD58dc9F4Ee10D8dcd6A1cBfA1bdDC1B9A88?fields=all>
 - Final caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x78da50E954d2fC69C10688032c8c07D2ABC52750?fields=all>
 - Scheduled epoch keeper: [`.github/workflows/advance-sepolia-epoch.yml`](../../.github/workflows/advance-sepolia-epoch.yml)

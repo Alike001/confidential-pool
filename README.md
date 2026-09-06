@@ -49,7 +49,7 @@ Recurring Confidential Pool
 | Aave V3 Pool | [`0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951`](https://sepolia.etherscan.io/address/0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951) |
 | Aave aLINK | [`0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24`](https://sepolia.etherscan.io/address/0x3FfAf50D4F4E96eB78f2407c090b72e86eCaed24) |
 
-This pair contains the explicit `(tier 0, prizeIndex 0)` guard from FHE fork commit `8addf2a`. Its complete Sepolia cycle passed the strict auditor: real Aave yield was harvested, `9 caLINK` was deposited privately, the exact `6.72 caLINK` aggregate TWAB was KMS-proven, winner selection used encrypted FHE randomness, the claimant alone decrypted the prize, and the full principal was withdrawn. See the [FHE-random release record](./zama-context/08-bounty-pooltogether/fhe-random-sepolia-release.md).
+This pair contains the explicit `(tier 0, prizeIndex 0)` guard from FHE fork commit `8addf2a`. Its complete Sepolia cycle passed the strict auditor: real Aave yield was harvested, `9 caLINK` was deposited privately, the exact `6.72 caLINK` aggregate TWAB was KMS-proven, winner selection used encrypted FHE randomness, the claimant alone decrypted the prize, and the full principal was withdrawn. A separate hosted-frontend rehearsal then verified MetaMask encryption, EIP-712 prize decryption, and a `0.9 caLINK` deposit-to-zero-withdrawal journey. See the [FHE-random release record](./zama-context/08-bounty-pooltogether/fhe-random-sepolia-release.md).
 
 ## Privacy boundary
 

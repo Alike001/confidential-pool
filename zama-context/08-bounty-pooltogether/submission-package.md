@@ -98,6 +98,8 @@ Verified on the final guarded release:
 - full `9 caLINK` principal withdrawn in [`0xa82c02b1…af7f`](https://sepolia.etherscan.io/tx/0xa82c02b191863acddf5c8c23dfacd90bd1f7dc710f26254be16158534552af7f);
 - strict auditor returned `FHE_RANDOM_AAVE_LIFECYCLE_COMPLETE: true`.
 
+A second manual rehearsal used the hosted Cloudflare frontend and a separate participant wallet. MetaMask completed the encrypted `0.9 caLINK` deposit, encrypted weight/threshold/random comparison, encrypted claim, winner-only EIP-712 decryption to `0.0001 caLINK`, and full principal withdrawal. The final position decryption returned `0.0 caLINK`; the browser transaction evidence is recorded in [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md).
+
 The complete transcript is in [`fhe-random-sepolia-release.md`](./fhe-random-sepolia-release.md). The previous Aave/Chainlink lifecycle remains historical regression evidence in [`aave-backed-sepolia-release.md`](./aave-backed-sepolia-release.md).
 
 Historical releases separately proved two-user weighted outcomes, recurring epochs, KMS aggregate verification, post-close VRF provenance, private winner/non-winner payouts, full principal recovery, and strict lifecycle audits. They are regression evidence, not the final generated-yield deployment.

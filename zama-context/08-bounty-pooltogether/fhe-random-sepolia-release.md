@@ -46,6 +46,26 @@ The deposit block timestamp is `1788634428`. The independently calculated epoch-
 = 6720000000000000000
 ```
 
+## Manual production-frontend rehearsal
+
+The hosted Cloudflare frontend was also exercised end to end with participant wallet `0xE0c36e8eef88D2Bd9CADe0eDDf474e66dE69A248` against the guarded pool. This rehearsal used epoch 19 and a `0.9 caLINK` principal:
+
+| Step | Transaction | Block | Result |
+| --- | --- | --- | --- |
+| Encrypted browser deposit | `0x6425950f8f90bd2e842788b6cc75acde79d22ccc55c1f7fdc4fb11d026fe84cd` | `11643511` | confidential principal entered the pool |
+| Finalize participant TWAB | `0x1441fa45004a5a8c4767e536c5c514e8d48b2bf85a498a90f041d9c46a893ac0` | `11643589` | encrypted epoch-19 checkpoint stored |
+| Harvest Aave yield | `0x7284db3a8e999fdd84117ef18599267667016c1fb1404f06596ac0f69a58ef63` | `11643602` | `847716655126151` backing units harvested into the encrypted reserve |
+| Request aggregate proof | `0xee80ad6be28f60a0a5071e86697aff7b4f5dc39bdbf3a8f3a676bcb82e3d7995` | `11643607` | aggregate handle authorized for KMS proof |
+| Finalize aggregate proof | `0x237b3bc7e9788618fe15324d04af8dc7fb050a5a27fa2027dce4d97453cb1d1e` | `11643616` | KMS-proven TWAB `372000000000000000` accepted |
+| Open FHE draw | `0x42acf281b94d3caf9f120615d892e39fcd65cc176216ce17dd26d691ab2de6e4` | `11643623` | encrypted FHE random draw opened |
+| Prepare encrypted weight | `0x9abcd867907ca5d7f266ba3932f8d698a70cbfc2232592b4759bf83ecdb2c36f` | `11643642` | frontend wallet flow completed |
+| Prepare encrypted threshold | `0x3c8d71eec31d2af10f31644f6f072fbdee3b928ce11414762dc0582ed5fd2f52` | `11643646` | frontend wallet flow completed |
+| Generate and compare FHE randomness | `0xfc488fb0071f7a04a85f64b0735830e5da9f5022f8eb38254cd9bfba0db85989` | `11643650` | encrypted winner result created |
+| Settle encrypted claim | `0xe2d65bd58ac00be14997c1478926d2c4a15eed135d641172d90d7d3efe9fa86f` | `11643655` | EIP-712 user decryption revealed only `0.0001 caLINK` to the participant |
+| Withdraw full browser principal | `0x0e37d9b2d9e63fd2f5816bbe3f2d6142bb37c10694b01c4cbc1018cf5f83851f` | `11643680` | EIP-712 position decryption returned `0.0 caLINK` afterward |
+
+This confirms that real MetaMask transaction prompts, Zama input encryption, user-authorized EIP-712 decryption, and the deployed frontend's complete user journey work together on Sepolia.
+
 ## Superseded staging contracts
 
 | Component | Address | Deployment evidence |
@@ -113,4 +133,4 @@ Both records report matching creation and runtime bytecode. Sourcify also forwar
 
 ## Hosted release
 
-The write-enabled production frontend is live at <https://solitary-rain-30c2.hammedoye10.workers.dev>. The Cloudflare static-worker deployment returns HTTP `200`; desktop and mobile visual smoke testing pass. A mock EIP-1193 lifecycle test confirmed zero wallet RPC calls on initial load or refresh, `eth_requestAccounts` only after the Connect click, explicit permission revocation through `wallet_revokePermissions`, and a deliberately disconnected state after every new page load. Real injected-wallet signing remains a manual browser QA step.
+The write-enabled production frontend is live at <https://solitary-rain-30c2.hammedoye10.workers.dev>. The Cloudflare static-worker deployment returns HTTP `200`; desktop and mobile visual smoke testing pass. A mock EIP-1193 lifecycle test confirmed zero wallet RPC calls on initial load or refresh, `eth_requestAccounts` only after the Connect click, explicit permission revocation through `wallet_revokePermissions`, and a deliberately disconnected state after every new page load. The epoch-19 manual production-frontend rehearsal above additionally verifies real MetaMask transactions and EIP-712 signing through deposit, claim, and full withdrawal.

@@ -163,5 +163,5 @@ The system is pre-audit software and is not described as audited. The possible O
 - Final caLINK source match: <https://sourcify.dev/server/v2/contract/11155111/0x78da50E954d2fC69C10688032c8c07D2ABC52750?fields=all>
 - Scheduled epoch keeper: [`.github/workflows/advance-sepolia-epoch.yml`](../../.github/workflows/advance-sepolia-epoch.yml)
 - X thread draft: [`x-thread-draft.md`](./x-thread-draft.md)
-- Demo video: `TODO`
+- Demo video: <https://youtu.be/XHkxR8Uq0WA>
 - Submission form: <https://forms.zama.org/developer-program-mainnet-season4-bounty-track>
